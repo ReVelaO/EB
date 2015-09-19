@@ -8,10 +8,16 @@ using EloBuddy.SDK;
 
 namespace DarkRyze
 {
-    
+
     class RyzeCalcs
     {
         private static AIHeroClient yo { get { return ObjectManager.Player; } }
+        public static double Q(Obj_AI_Base target)
+        {
+            return yo.CalculateDamageOnUnit(target, DamageType.Magical,
+                (float)(new double[] { 60, 85, 110, 135, 160 }[Program.Q.Level] + 0.55 * yo.FlatMagicDamageMod + new double[] { 2, 2.5, 3.0, 3.5, 4.0 }[Program.Q.Level] /100 * yo.MaxMana));                  
+        }
+
         public static float W(Obj_AI_Base target)
         {
             return yo.CalculateDamageOnUnit(target, DamageType.Magical,

@@ -10,7 +10,7 @@ namespace DarkRyze
 {
     internal class Program
     {
-        public static Menu ComboMenu, DrawingsMenu, KSMenu, menu;
+        public static Menu ComboMenu, DrawingsMenu, KSMenu, FarmMenu, menu;
         public static Spell.Skillshot Q;
         public static Spell.Targeted W;
         public static Spell.Targeted E;
@@ -36,23 +36,28 @@ namespace DarkRyze
 
             ComboMenu = menu.AddSubMenu("Combo", "combomenu");
 
-            ComboMenu.AddGroupLabel("Combo Menu");
+            ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.Add("QU", new CheckBox("Use Q"));
             ComboMenu.Add("WU", new CheckBox("Use W"));
             ComboMenu.Add("EU", new CheckBox("Use E"));
             ComboMenu.Add("RU", new CheckBox("Use R"));
 
+            FarmMenu = menu.AddSubMenu("Farm", "farmenu");
+
+            FarmMenu.AddGroupLabel("Last Hit Settings");
+            FarmMenu.Add("LHQ", new CheckBox("Use Q"));
+
             KSMenu = menu.AddSubMenu("Kill Steal (KS)", "ksmenu");
 
             KSMenu.AddGroupLabel("Kill Steal Settings");
             KSMenu.Add("EnableKS", new CheckBox("Enable KS System"));
-            //KSMenu.Add("KSQ", new CheckBox("Auto Q"));
+            KSMenu.Add("KSQ", new CheckBox("Auto Q"));
             KSMenu.Add("KSW", new CheckBox("Auto W"));
             KSMenu.Add("KSE", new CheckBox("Auto E"));
 
             DrawingsMenu = menu.AddSubMenu("Drawings", "drawingsmenu");
 
-            DrawingsMenu.AddGroupLabel("Drawings");
+            DrawingsMenu.AddGroupLabel("Drawings Settings");
             DrawingsMenu.Add("DQ", new CheckBox("Draw Q"));
             DrawingsMenu.Add("DWE", new CheckBox("Draw W + E"));
 
@@ -85,8 +90,11 @@ namespace DarkRyze
             {
                 RyzeFunctions.RobarWeas();
             }
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
+            {
+                RyzeFunctions.LastHit();
+            }
         }
     }
-
-
 }
