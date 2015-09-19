@@ -30,9 +30,9 @@ namespace DarkRyze
             return _Player.GetAutoAttackRange();
         }
 
-        public static void Combo()
+        public static void PegarleAlQlo()
         {
-            var target = TargetSelector2.GetTarget(IsInRange(), DamageType.Magical);
+            var target = TS.GetTarget(IsInRange(), DamageType.Magical);
 
             if (Program.ComboMenu["WU"].Cast<CheckBox>().CurrentValue && Program.W.IsReady())
             {
@@ -51,6 +51,21 @@ namespace DarkRyze
             else if (Program.ComboMenu["RU"].Cast<CheckBox>().CurrentValue && Program.R.IsReady())
             {
                 Program.R.Cast();
+            }
+        }
+
+        public static void RobarWeas()
+        {          
+            foreach (var target in HeroManager.Enemies.Where(hero => hero.IsValidTarget(600) && hero.Health <= Damage.W(hero)))
+            if (Program.KSMenu["KSW"].Cast<CheckBox>().CurrentValue && Program.W.IsReady())
+            {
+                Program.W.Cast(target);
+            }
+
+            foreach (var target in HeroManager.Enemies.Where(hero => hero.IsValidTarget(600) && hero.Health <= Damage.E(hero)))
+            if (Program.KSMenu["KSE"].Cast<CheckBox>().CurrentValue && Program.E.IsReady())
+            {
+                Program.E.Cast(target);
             }
         }
     }

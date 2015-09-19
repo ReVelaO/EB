@@ -7,7 +7,7 @@ using SharpDX;
 
 namespace DarkRyze
 {
-    public class TargetSelector2
+    public class TS
     {
             public static void init()
             {

@@ -1,22 +1,16 @@
 ﻿using System;
-using System.Drawing;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
-using EloBuddy.SDK.Rendering;
 
 namespace DarkRyze
 {
     internal class Program
     {
-        public static Menu ComboMenu, menu;
+        public static Menu ComboMenu, DrawingsMenu, KSMenu, menu;
         public static Spell.Skillshot Q;
         public static Spell.Targeted W;
         public static Spell.Targeted E;
@@ -32,7 +26,7 @@ namespace DarkRyze
         {
             Hacks.AntiAFK = true;
             Bootstrap.Init(null);
-            TargetSelector2.init();
+            TS.init();
             Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1700, 50);
             W = new Spell.Targeted(SpellSlot.W, 600);
             E = new Spell.Targeted(SpellSlot.E, 600);
@@ -47,13 +41,20 @@ namespace DarkRyze
             ComboMenu.Add("WU", new CheckBox("Use W"));
             ComboMenu.Add("EU", new CheckBox("Use E"));
             ComboMenu.Add("RU", new CheckBox("Use R"));
-            // Working on it :D
-            //DrawingsMenu = menu.AddSubMenu("Drawings", "draw");
 
-            //DrawingsMenu.AddGroupLabel("Drawings");
-            //DrawingsMenu.Add("DQ", new CheckBox("Draw Q"));
-            //DrawingsMenu.Add("DW", new CheckBox("Draw W"));
-            //DrawingsMenu.Add("DE", new CheckBox("Draw E"));
+            KSMenu = menu.AddSubMenu("Kill Steal (KS)", "ksmenu");
+
+            KSMenu.AddGroupLabel("Kill Steal Settings");
+            KSMenu.Add("EnableKS", new CheckBox("Enable KS System"));
+            //KSMenu.Add("KSQ", new CheckBox("Auto Q"));
+            KSMenu.Add("KSW", new CheckBox("Auto W"));
+            KSMenu.Add("KSE", new CheckBox("Auto E"));
+
+            DrawingsMenu = menu.AddSubMenu("Drawings", "drawingsmenu");
+
+            DrawingsMenu.AddGroupLabel("Drawings");
+            DrawingsMenu.Add("DQ", new CheckBox("Draw Q"));
+            DrawingsMenu.Add("DWE", new CheckBox("Draw W + E"));
 
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
@@ -61,6 +62,15 @@ namespace DarkRyze
 
         private static void Drawing_OnDraw(EventArgs args)
         {
+            if (Program.DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
+            {
+                Drawing.DrawCircle(_Player.Position, 900, System.Drawing.Color.BlueViolet);
+            }
+
+            if (Program.DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
+            {
+                Drawing.DrawCircle(_Player.Position, 600, System.Drawing.Color.BlueViolet);
+            }
 
         }
 
@@ -68,7 +78,12 @@ namespace DarkRyze
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
-                StateManager.Combo();
+                StateManager.PegarleAlQlo();
+            }
+
+            if (Program.KSMenu["EnableKS"].Cast<CheckBox>().CurrentValue)
+            {
+                StateManager.RobarWeas();
             }
         }
     }
