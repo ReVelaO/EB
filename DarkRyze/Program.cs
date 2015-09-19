@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,6 @@ using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using EloBuddy.SDK.Rendering;
-using DarkRyze.Activator;
-using Item = DarkRyze.Activator.Item;
 
 namespace DarkRyze
 {
@@ -33,7 +32,6 @@ namespace DarkRyze
         {
             Hacks.AntiAFK = true;
             Bootstrap.Init(null);
-            ItemManager.Init();
             TargetSelector2.init();
             Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1700, 50);
             W = new Spell.Targeted(SpellSlot.W, 600);
@@ -49,6 +47,13 @@ namespace DarkRyze
             ComboMenu.Add("WU", new CheckBox("Use W"));
             ComboMenu.Add("EU", new CheckBox("Use E"));
             ComboMenu.Add("RU", new CheckBox("Use R"));
+            // Working on it :D
+            //DrawingsMenu = menu.AddSubMenu("Drawings", "draw");
+
+            //DrawingsMenu.AddGroupLabel("Drawings");
+            //DrawingsMenu.Add("DQ", new CheckBox("Draw Q"));
+            //DrawingsMenu.Add("DW", new CheckBox("Draw W"));
+            //DrawingsMenu.Add("DE", new CheckBox("Draw E"));
 
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;

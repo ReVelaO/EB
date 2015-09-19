@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,22 +13,26 @@ namespace DarkRyze
     {
         public static AIHeroClient _Player { get { return ObjectManager.Player; } }
 
-        public static float GetCustomRange()
+        public static float IsInRange()
         {
             if (Program.W.IsReady())
             {
-                return Program.W.Range + 50;
+                return Program.W.Range;
+            }
+            if (Program.Q.IsReady())
+            {
+                return Program.Q.Range;
             }
             if (Program.E.IsReady())
             {
-                return Program.E.Range + 50;
+                return Program.E.Range;
             }
-            return _Player.GetAutoAttackRange() + 50;
+            return _Player.GetAutoAttackRange();
         }
 
         public static void Combo()
         {
-            var target = TargetSelector2.GetTarget(GetCustomRange(), DamageType.Physical);
+            var target = TargetSelector2.GetTarget(IsInRange(), DamageType.Magical);
 
             if (Program.ComboMenu["WU"].Cast<CheckBox>().CurrentValue && Program.W.IsReady())
             {
