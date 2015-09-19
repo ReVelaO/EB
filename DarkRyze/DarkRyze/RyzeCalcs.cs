@@ -9,7 +9,7 @@ using EloBuddy.SDK;
 namespace DarkRyze
 {
     
-    class Damage
+    class RyzeCalcs
     {
         private static AIHeroClient yo { get { return ObjectManager.Player; } }
         public static float W(Obj_AI_Base target)

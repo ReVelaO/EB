@@ -9,7 +9,7 @@ using EloBuddy.SDK.Menu.Values;
 
 namespace DarkRyze
 {
-    class StateManager
+    class RyzeFunctions
     {
         public static AIHeroClient _Player { get { return ObjectManager.Player; } }
 
@@ -56,13 +56,13 @@ namespace DarkRyze
 
         public static void RobarWeas()
         {          
-            foreach (var target in HeroManager.Enemies.Where(hero => hero.IsValidTarget(600) && hero.Health <= Damage.W(hero)))
+            foreach (var target in HeroManager.Enemies.Where(hero => hero.IsValidTarget(600) && hero.Health <= RyzeCalcs.W(hero)))
             if (Program.KSMenu["KSW"].Cast<CheckBox>().CurrentValue && Program.W.IsReady())
             {
                 Program.W.Cast(target);
             }
 
-            foreach (var target in HeroManager.Enemies.Where(hero => hero.IsValidTarget(600) && hero.Health <= Damage.E(hero)))
+            foreach (var target in HeroManager.Enemies.Where(hero => hero.IsValidTarget(600) && hero.Health <= RyzeCalcs.E(hero)))
             if (Program.KSMenu["KSE"].Cast<CheckBox>().CurrentValue && Program.E.IsReady())
             {
                 Program.E.Cast(target);

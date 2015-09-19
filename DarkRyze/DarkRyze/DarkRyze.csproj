@@ -71,10 +71,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Damage.cs" />
+    <Compile Include="RyzeCalcs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StateManager.cs" />
+    <Compile Include="RyzeFunctions.cs" />
     <Compile Include="TS.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -78,12 +78,12 @@ namespace DarkRyze
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
-                StateManager.PegarleAlQlo();
+                RyzeFunctions.PegarleAlQlo();
             }
 
             if (Program.KSMenu["EnableKS"].Cast<CheckBox>().CurrentValue)
             {
-                StateManager.RobarWeas();
+                RyzeFunctions.RobarWeas();
             }
         }
     }
