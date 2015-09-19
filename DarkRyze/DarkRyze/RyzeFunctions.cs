@@ -39,16 +39,17 @@ namespace DarkRyze
                     Program.W.Cast(target);
                 }
 
-                else if (QCHECK && QREADY && target.IsValidTarget(Program.Q.Range))
+                var QPred = Program.Q.GetPrediction(target);
+                if (QCHECK && QREADY && target.IsValidTarget(Program.Q.Range))
                 {
-                    Program.Q.Cast(target);
+                    Program.Q.Cast(QPred.CastPosition);
                 }
 
-                else if (ECHECK && EREADY)
+                if (ECHECK && EREADY)
                 {
                     Program.E.Cast(target);
                 }
-                else if (RCHECK && RREADY)
+                if (RCHECK && RREADY)
                 {
                     Program.R.Cast();
                 }
@@ -71,7 +72,7 @@ namespace DarkRyze
             foreach (var target in HeroManager.Enemies.Where(hero => hero.Health <= RyzeCalcs.E(hero)))
             if (Program.KSMenu["KSE"].Cast<CheckBox>().CurrentValue && Program.E.IsReady() && !target.IsDead)
             {
-                    Program.E.Cast(target);
+                Program.E.Cast(target);
             }
         }
 
@@ -83,7 +84,7 @@ namespace DarkRyze
                     .OrderBy(a => a.Health)
                     .FirstOrDefault();
 
-            if (Program.FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && RyzeCalcs.Q(source) > source.Health && source.Distance(_Player) < Program.Q.Range && !source.IsDead)
+            if (Program.FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && RyzeCalcs.Q(source) > source.Health && !source.IsDead) //source.Distance(_Player) < Program.Q.Range && !source.IsDead)
             {
                 Program.Q.Cast(source);
                 return;

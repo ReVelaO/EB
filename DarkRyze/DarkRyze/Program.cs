@@ -81,19 +81,19 @@ namespace DarkRyze
 
         private static void Game_OnTick(EventArgs args)
         {
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
-            {
-                RyzeFunctions.PegarleAlQlo();
-            }
-
-            if (Program.KSMenu["EnableKS"].Cast<CheckBox>().CurrentValue)
+            if (Program.KSMenu["EnableKS"].Cast<CheckBox>().CurrentValue);
             {
                 RyzeFunctions.RobarWeas();
             }
 
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
+            switch (Orbwalker.ActiveModesFlags)
             {
-                RyzeFunctions.LastHit();
+                case Orbwalker.ActiveModes.Combo:
+                    RyzeFunctions.PegarleAlQlo();
+                    break;
+                case Orbwalker.ActiveModes.LastHit:
+                    RyzeFunctions.LastHit();
+                    break;
             }
         }
     }
