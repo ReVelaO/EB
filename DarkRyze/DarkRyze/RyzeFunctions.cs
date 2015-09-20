@@ -42,7 +42,7 @@ namespace DarkRyze
             var QPred = Program.Q.GetPrediction(target);
             if (QCHECK && QREADY && target.IsValidTarget(Program.Q.Range))
             {
-                Program.Q.Cast(QPred.UnitPosition);
+                Program.Q.Cast(QPred.CastPosition);
             }
 
             if (EREADY && ECHECK)
