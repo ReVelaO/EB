@@ -49,7 +49,7 @@ namespace DarkRyze
             {
                 Program.E.Cast(target);
             }
-            if (RCHECK && RREADY)
+            if (RCHECK && RREADY && target.HasBuff("RyzeW"))
             {
                 Program.R.Cast();
             }
