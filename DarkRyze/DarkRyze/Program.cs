@@ -41,6 +41,8 @@ namespace DarkRyze
             ComboMenu.Add("WU", new CheckBox("Use W"));
             ComboMenu.Add("EU", new CheckBox("Use E"));
             ComboMenu.Add("RU", new CheckBox("Use R"));
+            ComboMenu.AddGroupLabel("Please use 3 stacks in early for perma rooted");
+            ComboMenu.AddGroupLabel("Please use 1 stacks with ulti ready for perfecto combo");
 
             FarmMenu = menu.AddSubMenu("Farm", "farmenu");
 
