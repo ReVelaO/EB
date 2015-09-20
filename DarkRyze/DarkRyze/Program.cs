@@ -123,7 +123,7 @@ namespace DarkRyze
             }
 
             var QPred = Q.GetPrediction(target);
-            if (QCHECK && QREADY && target.IsValidTarget(Q.Range))
+            else if (QCHECK && QREADY && target.IsValidTarget(750))
             {
                 Q.Cast(QPred.UnitPosition);
             }
