@@ -123,7 +123,7 @@ namespace DarkRyze
             }
 
             var QPred = Q.GetPrediction(target);
-            else if (QCHECK && QREADY && target.IsValidTarget(750))
+            if (QCHECK && QREADY && target.IsValidTarget(Q.Range))
             {
                 Q.Cast(QPred.UnitPosition);
             }
@@ -171,15 +171,6 @@ namespace DarkRyze
             {
                 Q.Cast(source);
                 return;
-            }
-        }
-
-        public static int GetPassiveBuff
-        {
-            get
-            {
-                var data = _Player.Buffs.FirstOrDefault(b => b.DisplayName == "RyzePassiveStack");
-                return data != null ? data.Count : 0;
             }
         }
     }
