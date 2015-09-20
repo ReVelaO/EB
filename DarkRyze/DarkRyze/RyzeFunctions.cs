@@ -49,7 +49,7 @@ namespace DarkRyze
             {
                 Program.E.Cast(target);
             }
-            if (RCHECK && RREADY && GetPassiveBuff == 4)
+            if (RCHECK && RREADY)
             {
                 Program.R.Cast();
             }
