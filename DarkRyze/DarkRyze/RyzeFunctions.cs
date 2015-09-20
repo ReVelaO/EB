@@ -34,25 +34,25 @@ namespace DarkRyze
             var RREADY = Program.R.IsReady();
             var target = TS.GetTarget(IsInRange(), DamageType.Magical);
 
-                if (WCHECK && WREADY)
-                {
-                    Program.W.Cast(target);
-                }
+            if (WREADY && WCHECK)
+            {
+                Program.W.Cast(target);
+            }
 
-                var QPred = Program.Q.GetPrediction(target);
-                if (QCHECK && QREADY && target.IsValidTarget(Program.Q.Range))
-                {
-                    Program.Q.Cast(QPred.CastPosition);
-                }
+            var QPred = Program.Q.GetPrediction(target);
+            if (QCHECK && QREADY && target.IsValidTarget(Program.Q.Range))
+            {
+                Program.Q.Cast(QPred.UnitPosition);
+            }
 
-                if (ECHECK && EREADY)
-                {
-                    Program.E.Cast(target);
-                }
-                if (RCHECK && RREADY)
-                {
-                    Program.R.Cast();
-                }
+            if (EREADY && ECHECK)
+            {
+                Program.E.Cast(target);
+            }
+            if (RCHECK && RREADY && GetPassiveBuff == 4)
+            {
+                Program.R.Cast();
+            }
         }
 
         public static void RobarWeas()
@@ -84,19 +84,20 @@ namespace DarkRyze
                     .OrderBy(a => a.Health)
                     .FirstOrDefault();
 
-            if (Program.FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && RyzeCalcs.Q(source) > source.Health && !source.IsDead) //source.Distance(_Player) < Program.Q.Range && !source.IsDead)
+            if (Program.FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && RyzeCalcs.Q(source) > source.Health && !source.IsDead && source.Distance(_Player) < Program.Q.Range)
             {
                 Program.Q.Cast(source);
                 return;
             }
-
-            //if (Program.FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && Program.Q.IsReady())
-            //{
-            //    var minion = ObjectManager.Get<Obj_AI_Minion>().FirstOrDefault(a => a.IsEnemy && a.Health <= RyzeCalcs.Q(a));
-            //    if (minion == null) return;
-            //    Program.Q.Cast(minion);
-            //}
         }
 
+        public static int GetPassiveBuff
+        {
+                get
+                {
+                    var data = _Player.Buffs.FirstOrDefault(b => b.DisplayName == "RyzePassiveStack");
+                    return data != null ? data.Count : 0;
+                }
+            }
+        }
     }
-}
