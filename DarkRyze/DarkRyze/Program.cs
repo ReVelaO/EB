@@ -5,6 +5,7 @@ using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
+using System.Linq;
 
 namespace DarkRyze
 {
@@ -27,7 +28,7 @@ namespace DarkRyze
             Hacks.AntiAFK = true;
             Bootstrap.Init(null);
             TS.init();
-            Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1700, 50);
+            Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, (int)0.25f, (Int32)1700, (int)50f);
             W = new Spell.Targeted(SpellSlot.W, 600);
             E = new Spell.Targeted(SpellSlot.E, 600);
             R = new Spell.Active(SpellSlot.R);
@@ -41,8 +42,6 @@ namespace DarkRyze
             ComboMenu.Add("WU", new CheckBox("Use W"));
             ComboMenu.Add("EU", new CheckBox("Use E"));
             ComboMenu.Add("RU", new CheckBox("Use R"));
-            ComboMenu.AddGroupLabel("Please use 3 stacks in early for perma rooted");
-            ComboMenu.AddGroupLabel("Please use 1 stacks with ulti ready for perfecto combo");
 
             FarmMenu = menu.AddSubMenu("Farm", "farmenu");
 
@@ -63,37 +62,124 @@ namespace DarkRyze
             DrawingsMenu.Add("DQ", new CheckBox("Draw Q"));
             DrawingsMenu.Add("DWE", new CheckBox("Draw W + E"));
 
-            Game.OnTick += Game_OnTick;
+            Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
         }
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (Program.DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
+            if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
             {
                 Drawing.DrawCircle(_Player.Position, 900, System.Drawing.Color.BlueViolet);
             }
 
-            if (Program.DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
+            if (DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
             {
                 Drawing.DrawCircle(_Player.Position, 600, System.Drawing.Color.BlueViolet);
             }
 
         }
 
-        private static void Game_OnTick(EventArgs args)
+        private static void Game_OnUpdate(EventArgs args)
         {
             if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.Combo)
             {
-                RyzeFunctions.PegarleAlQlo();
+                PegarleAlQlo();
             }
             else if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.LastHit)
             {
-                RyzeFunctions.LastHit();
+                LastHit();
             }
             if (KSMenu["EnableKS"].Cast<CheckBox>().CurrentValue)
             {
-                RyzeFunctions.RobarWeas();
+                RobarWeas();
+            }
+        }
+
+        public static float IsInRange()
+        {
+            if (Q.IsReady())
+            {
+                return Q.Range;
+            }
+            return _Player.GetAutoAttackRange();
+        }
+
+        public static void PegarleAlQlo()
+        {
+            var QCHECK = ComboMenu["QU"].Cast<CheckBox>().CurrentValue;
+            var WCHECK = ComboMenu["WU"].Cast<CheckBox>().CurrentValue;
+            var ECHECK = ComboMenu["EU"].Cast<CheckBox>().CurrentValue;
+            var RCHECK = ComboMenu["RU"].Cast<CheckBox>().CurrentValue;
+            var QREADY = Q.IsReady();
+            var WREADY = W.IsReady();
+            var EREADY = E.IsReady();
+            var RREADY = R.IsReady();
+            var target = TS.GetTarget(IsInRange(), DamageType.Magical);
+
+            if (WREADY && WCHECK)
+            {
+                EloBuddy.SDK.Core.DelayAction(() => { W.Cast(target); }, (int)0.25f);
+            }
+
+            var QPred = Q.GetPrediction(target);
+            if (QCHECK && QREADY && target.IsValidTarget(Q.Range))
+            {
+                Q.Cast(QPred.UnitPosition);
+            }
+
+            else if (EREADY && ECHECK)
+            {
+                EloBuddy.SDK.Core.DelayAction(() => { E.Cast(target); }, (int)0.25f);
+            }
+            else if (RCHECK && RREADY && target.HasBuff("RyzeW"))
+            {
+                EloBuddy.SDK.Core.DelayAction(() => { R.Cast(); }, (int)0.15f);
+            }
+        }
+
+        public static void RobarWeas()
+        {
+            foreach (var target in HeroManager.Enemies.Where(hero => hero.Health <= RyzeCalcs.Q(hero)))
+                if (KSMenu["KSQ"].Cast<CheckBox>().CurrentValue && Q.IsReady() && !target.IsDead)
+                {
+                    Q.Cast(target);
+                }
+
+            foreach (var target in HeroManager.Enemies.Where(hero => hero.Health <= RyzeCalcs.W(hero)))
+                if (KSMenu["KSW"].Cast<CheckBox>().CurrentValue && W.IsReady() && !target.IsDead)
+                {
+                    W.Cast(target);
+                }
+
+            foreach (var target in HeroManager.Enemies.Where(hero => hero.Health <= RyzeCalcs.E(hero)))
+                if (KSMenu["KSE"].Cast<CheckBox>().CurrentValue && E.IsReady() && !target.IsDead)
+                {
+                    E.Cast(target);
+                }
+        }
+
+        public static void LastHit()
+        {
+            var source =
+                ObjectManager.Get<Obj_AI_Minion>()
+                    .Where(a => a.IsEnemy && a.Distance(_Player) < IsInRange())
+                    .OrderBy(a => a.Health)
+                    .FirstOrDefault();
+
+            if (FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && RyzeCalcs.Q(source) > source.Health && !source.IsDead && source.Distance(_Player) < Q.Range)
+            {
+                Q.Cast(source);
+                return;
+            }
+        }
+
+        public static int GetPassiveBuff
+        {
+            get
+            {
+                var data = _Player.Buffs.FirstOrDefault(b => b.DisplayName == "RyzePassiveStack");
+                return data != null ? data.Count : 0;
             }
         }
     }
