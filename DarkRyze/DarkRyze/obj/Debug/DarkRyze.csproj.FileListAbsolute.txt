@@ -1,0 +1,9 @@
+C:\Desktop\Elobuddy\DarkRyze.exe.config
+C:\Desktop\Elobuddy\DarkRyze.exe
+C:\Desktop\Elobuddy\DarkRyze.pdb
+C:\Users\DarkFight\Desktop\RengarBuddy\DarkRyze\obj\Debug\DarkRyze.csprojResolveAssemblyReference.cache
+C:\Users\DarkFight\Desktop\RengarBuddy\DarkRyze\obj\Debug\DarkRyze.exe
+C:\Users\DarkFight\Desktop\RengarBuddy\DarkRyze\obj\Debug\DarkRyze.pdb
+C:\Users\DarkFight\Desktop\DarkRyze\DarkRyze\obj\Debug\DarkRyze.exe
+C:\Users\DarkFight\Desktop\DarkRyze\DarkRyze\obj\Debug\DarkRyze.pdb
+C:\Users\DarkFight\Desktop\DarkRyze\DarkRyze\obj\Debug\DarkRyze.csprojResolveAssemblyReference.cache
