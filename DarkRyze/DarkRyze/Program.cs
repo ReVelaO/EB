@@ -1,23 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
-using System.Linq;
+using EloBuddy.SDK.Rendering;
+using SharpDX;
+using System.Drawing;
 
 namespace DarkRyze
 {
-    internal class Program
+    class Program
     {
-        public static Menu ComboMenu, DrawingsMenu, KSMenu, FarmMenu, menu;
+        public static Menu ComboMenu, DrawingsMenu, KSMenu, MiscMenu, FarmMenu, menu;
         public static Spell.Skillshot Q;
         public static Spell.Targeted W;
         public static Spell.Targeted E;
         public static Spell.Active R;
         public static AIHeroClient _Player { get { return ObjectManager.Player; } }
-        public static int Mana { get { return (int) _Player.Mana; } }
+
         private static void Main(string[] args)
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
@@ -25,25 +29,29 @@ namespace DarkRyze
 
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
-            Hacks.AntiAFK = true;
             Bootstrap.Init(null);
-            TS.init();
-            Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, (int)0.25f, (Int32)1700, (int)50f);
+            Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1700, 50);
             W = new Spell.Targeted(SpellSlot.W, 600);
             E = new Spell.Targeted(SpellSlot.E, 600);
             R = new Spell.Active(SpellSlot.R);
 
+
             menu = MainMenu.AddMenu("DarkRyze", "DarkRyze");
 
             ComboMenu = menu.AddSubMenu("Combo", "combomenu");
+            
+            ComboMenu.AddGroupLabel("Combo Selector");
+            var cs = ComboMenu.Add("css", new Slider("Combo Selector", 0, 0, 3));
+            var co = new[] { "WQER", "QWER", "QEWR", "WQRE" };
+            cs.DisplayName = co[cs.CurrentValue];
 
-            ComboMenu.AddGroupLabel("Combo Settings");
-            ComboMenu.Add("QU", new CheckBox("Use Q"));
-            ComboMenu.Add("WU", new CheckBox("Use W"));
-            ComboMenu.Add("EU", new CheckBox("Use E"));
-            ComboMenu.Add("RU", new CheckBox("Use R"));
+            cs.OnValueChange +=
+                delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+                {
+                    sender.DisplayName = co[changeArgs.NewValue];
+                };
 
-            FarmMenu = menu.AddSubMenu("Farm", "farmenu");
+            /*FarmMenu = menu.AddSubMenu("Farm", "farmenu");
 
             FarmMenu.AddGroupLabel("Last Hit Settings");
             FarmMenu.Add("LHQ", new CheckBox("Use Q"));
@@ -51,10 +59,9 @@ namespace DarkRyze
             KSMenu = menu.AddSubMenu("Kill Steal (KS)", "ksmenu");
 
             KSMenu.AddGroupLabel("Kill Steal Settings");
-            KSMenu.Add("EnableKS", new CheckBox("Enable KS System"));
             KSMenu.Add("KSQ", new CheckBox("Auto Q"));
             KSMenu.Add("KSW", new CheckBox("Auto W"));
-            KSMenu.Add("KSE", new CheckBox("Auto E"));
+            KSMenu.Add("KSE", new CheckBox("Auto E"));*/
 
             DrawingsMenu = menu.AddSubMenu("Drawings", "drawingsmenu");
 
@@ -62,8 +69,16 @@ namespace DarkRyze
             DrawingsMenu.Add("DQ", new CheckBox("Draw Q"));
             DrawingsMenu.Add("DWE", new CheckBox("Draw W + E"));
 
+            MiscMenu = menu.AddSubMenu("Misc", "miscmenu");
+
+            MiscMenu.AddGroupLabel("Misc Settings");
+            MiscMenu.Add("Misc1", new CheckBox("Anti-Gapcloser [W Usage]"));
+            MiscMenu.Add("Misc2", new CheckBox("Auto-Interrupt [W Usage]"));
+
             Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
+            Gapcloser.OnGapcloser += Gapcloser_OnGapCloser;
+            Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -82,96 +97,215 @@ namespace DarkRyze
 
         private static void Game_OnUpdate(EventArgs args)
         {
-            if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.Combo)
+
+            switch (Orbwalker.ActiveModesFlags)
             {
-                PegarleAlQlo();
+                case Orbwalker.ActiveModes.Combo:
+                    Combos();
+                    break;
+                    //case Orbwalker.ActiveModes.LastHit: (Working on it :')
+                    //LastHit();
+                    //break;
             }
-            else if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.LastHit)
+
+            //KS(); (Working on it :')
+        }
+
+        private static void Gapcloser_OnGapCloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs args)
+        {
+            var WGCHECK = MiscMenu["Misc1"].Cast<CheckBox>().CurrentValue;
+            if (W.IsReady() && WGCHECK)
             {
-                LastHit();
-            }
-            if (KSMenu["EnableKS"].Cast<CheckBox>().CurrentValue)
-            {
-                RobarWeas();
+                W.Cast(sender);
             }
         }
 
-        public static float IsInRange()
+        private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender,
+            Interrupter.InterruptableSpellEventArgs args)
         {
+            var WICHECK = MiscMenu["Misc2"].Cast<CheckBox>().CurrentValue;
+            if (W.IsReady() && WICHECK)
+            {
+                W.Cast(sender);
+            }
+        }
+
+        public static void Combos()
+        {
+              var options = ComboMenu["css"].DisplayName;
+              switch (options)
+              {
+                 case "WQER":
+                    WQER();
+                    break;
+                 case "QWER":
+                    QWER();
+                    break;
+                 case "QEWR":
+                    QEWR();
+                    break;
+                 case "WQRE":
+                    WQRE();
+                    break;
+              }
+        }
+
+        public static void WQER()
+        {
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+
+            if (target.IsValidTarget(900))
+            {
+                UseW();
+                UseQ();
+                UseE();
+                UseR();
+            }
+        }
+
+        public static void QWER()
+        {
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+
+            if (target.IsValidTarget(900))
+            {
+                UseQ();
+                UseW();
+                UseE();
+                UseR();
+            }
+        }
+
+        public static void QEWR()
+        {
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+
+            if (target.IsValidTarget(900))
+            {
+                UseQ();
+                UseE();
+                UseW();
+                UseR();
+            }
+        }
+
+        public static void WQRE()
+        {
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+
+            if (target.IsValidTarget(900))
+            {
+                UseW();
+                UseQ();
+                UseR();
+                UseE();
+            }
+        }
+
+        public static void UseQ()
+        {
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+
             if (Q.IsReady())
             {
-                return Q.Range;
-            }
-            return _Player.GetAutoAttackRange();
-        }
-
-        public static void PegarleAlQlo()
-        {
-            var QCHECK = ComboMenu["QU"].Cast<CheckBox>().CurrentValue;
-            var WCHECK = ComboMenu["WU"].Cast<CheckBox>().CurrentValue;
-            var ECHECK = ComboMenu["EU"].Cast<CheckBox>().CurrentValue;
-            var RCHECK = ComboMenu["RU"].Cast<CheckBox>().CurrentValue;
-            var QREADY = Q.IsReady();
-            var WREADY = W.IsReady();
-            var EREADY = E.IsReady();
-            var RREADY = R.IsReady();
-            var target = TS.GetTarget(IsInRange(), DamageType.Magical);
-
-            if (WREADY && WCHECK)
-            {
-                EloBuddy.SDK.Core.DelayAction(() => { W.Cast(target); }, (int)0.25f);
-            }
-
-            var QPred = Q.GetPrediction(target);
-            if (QCHECK && QREADY && target.IsValidTarget(Q.Range))
-            {
-                Q.Cast(QPred.UnitPosition);
-            }
-
-            else if (EREADY && ECHECK)
-            {
-                EloBuddy.SDK.Core.DelayAction(() => { E.Cast(target); }, (int)0.25f);
-            }
-            else if (RCHECK && RREADY && target.HasBuff("RyzeW"))
-            {
-                EloBuddy.SDK.Core.DelayAction(() => { R.Cast(); }, (int)0.15f);
+                Q.Cast(target.ServerPosition);
             }
         }
 
-        public static void RobarWeas()
+        public static void UseW()
         {
-            foreach (var target in HeroManager.Enemies.Where(hero => hero.Health <= RyzeCalcs.Q(hero)))
-                if (KSMenu["KSQ"].Cast<CheckBox>().CurrentValue && Q.IsReady() && !target.IsDead)
-                {
-                    Q.Cast(target);
-                }
+            var target = TargetSelector.GetTarget(600, DamageType.Magical);
 
-            foreach (var target in HeroManager.Enemies.Where(hero => hero.Health <= RyzeCalcs.W(hero)))
-                if (KSMenu["KSW"].Cast<CheckBox>().CurrentValue && W.IsReady() && !target.IsDead)
-                {
-                    W.Cast(target);
-                }
+            if (W.IsReady())
+            {
+                W.Cast(target);
+            }
+        }
 
-            foreach (var target in HeroManager.Enemies.Where(hero => hero.Health <= RyzeCalcs.E(hero)))
-                if (KSMenu["KSE"].Cast<CheckBox>().CurrentValue && E.IsReady() && !target.IsDead)
-                {
-                    E.Cast(target);
-                }
+        public static void UseE()
+        {
+            var target = TargetSelector.GetTarget(600, DamageType.Magical);
+
+            if (E.IsReady())
+            {
+                E.Cast(target);
+            }
+        }
+
+        public static void UseR()
+        {
+            if (R.IsReady() && _Player.HasBuff("ryzepassivecharged") || _Player.GetBuffCount("ryzepassivestack") == 4)
+            {
+                R.Cast();
+            }
+        }
+
+        /*public static void KS()
+        {
+            var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+            if (target == null || !target.IsValidTarget() || target.IsInvulnerable)
+                return;
+
+            var QCHECK = KSMenu["KSQ"].Cast<CheckBox>().CurrentValue;
+            var WCHECK = KSMenu["KSW"].Cast<CheckBox>().CurrentValue;
+            var ECHECK = KSMenu["KSE"].Cast<CheckBox>().CurrentValue;
+
+            if (QCHECK
+                && QDamage(target) > target.Health
+                && target.IsValidTarget(Q.Range))
+                Q.Cast(target);
+
+            if (WCHECK
+                && WDamage(target) > target.Health
+                && target.IsValidTarget(W.Range))
+                W.Cast(target);
+
+            if (ECHECK
+                && EDamage(target) > target.Health
+                && target.IsValidTarget(E.Range))
+                E.Cast(target);
         }
 
         public static void LastHit()
         {
-            var source =
+            if (Orbwalker.IsAutoAttacking) return;
+            Orbwalker.ForcedTarget = null;
+            var xx =
                 ObjectManager.Get<Obj_AI_Minion>()
-                    .Where(a => a.IsEnemy && a.Distance(_Player) < IsInRange())
-                    .OrderBy(a => a.Health)
+                    .Where(x => x.IsEnemy && x.Distance(_Player) < _Player.GetAutoAttackRange())
+                    .OrderBy(x => x.Health)
                     .FirstOrDefault();
 
-            if (FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && RyzeCalcs.Q(source) > source.Health && !source.IsDead && source.Distance(_Player) < Q.Range)
+            if (FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && QDamage(xx) > xx.Health && xx.Distance(_Player) < Q.Range)
             {
-                Q.Cast(source);
-                return;
+                 Q.Cast(xx);
+                 return;
             }
         }
+
+        private static double QDamage(Obj_AI_Base target)
+        {
+           return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
+               (float)(new double[] { 60, 85, 110, 135, 160 }[Q.Level] + 0.55 * _Player.FlatMagicDamageMod + new double[] { 2, 2.5, 3.0, 3.5, 4.0 }[Q.Level] / 100 * _Player.MaxMana));
+        }
+
+        //public static float QDamage(Obj_AI_Base target)
+        //{
+        //    return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
+        //        (float)(new[] { 60, 85, 110, 135, 160 }[Q.Level] + (0.55 * _Player.FlatMagicDamageMod) + (new [] { 2, 2.5, 3.0, 3.5, 4.0 }[Q.Level] / 100 * _Player.MaxMana)));
+        //}
+
+        public static float WDamage(Obj_AI_Base target)
+        {
+            return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
+                (float)(new[] { 80, 100, 120, 140, 160 }[W.Level] + (0.4 * _Player.FlatMagicDamageMod) + (0.02 * _Player.MaxMana)));
+        }
+
+        public static float EDamage(Obj_AI_Base target)
+        {
+            return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
+                (float)(new[] { 36, 52, 68, 84, 100 }[E.Level] + (0.2 * _Player.FlatMagicDamageMod) + (0.025 * _Player.MaxMana)));
+        }
+        */
     }
 }
