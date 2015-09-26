@@ -20,7 +20,7 @@ namespace DarkRyze
         public static Spell.Targeted W;
         public static Spell.Targeted E;
         public static Spell.Active R;
-        public static AIHeroClient _Player { get { return ObjectManager.Player; } }
+        public static AIHeroClient myHero { get { return ObjectManager.Player; } }
 
         private static void Main(string[] args)
         {
@@ -51,7 +51,7 @@ namespace DarkRyze
                     sender.DisplayName = co[changeArgs.NewValue];
                 };
 
-            /*FarmMenu = menu.AddSubMenu("Farm", "farmenu");
+            FarmMenu = menu.AddSubMenu("Farm", "farmenu");
 
             FarmMenu.AddGroupLabel("Last Hit Settings");
             FarmMenu.Add("LHQ", new CheckBox("Use Q"));
@@ -61,7 +61,7 @@ namespace DarkRyze
             KSMenu.AddGroupLabel("Kill Steal Settings");
             KSMenu.Add("KSQ", new CheckBox("Auto Q"));
             KSMenu.Add("KSW", new CheckBox("Auto W"));
-            KSMenu.Add("KSE", new CheckBox("Auto E"));*/
+            KSMenu.Add("KSE", new CheckBox("Auto E"));
 
             DrawingsMenu = menu.AddSubMenu("Drawings", "drawingsmenu");
 
@@ -85,12 +85,12 @@ namespace DarkRyze
         {
             if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(_Player.Position, 900, System.Drawing.Color.BlueViolet);
+                Drawing.DrawCircle(myHero.Position, 900, System.Drawing.Color.BlueViolet);
             }
 
             if (DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(_Player.Position, 600, System.Drawing.Color.BlueViolet);
+                Drawing.DrawCircle(myHero.Position, 600, System.Drawing.Color.BlueViolet);
             }
 
         }
@@ -103,12 +103,12 @@ namespace DarkRyze
                 case Orbwalker.ActiveModes.Combo:
                     Combos();
                     break;
-                    //case Orbwalker.ActiveModes.LastHit: (Working on it :')
-                    //LastHit();
-                    //break;
+                    case Orbwalker.ActiveModes.LastHit:
+                    LastHit();
+                    break;
             }
 
-            //KS(); (Working on it :')
+            KS();
         }
 
         private static void Gapcloser_OnGapCloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs args)
@@ -150,73 +150,404 @@ namespace DarkRyze
               }
         }
 
+        /*public static void WQER()
+        {
+            var target = TS.GetTarget(900, DamageType.Magical);
+
+            if (target.IsValidTarget(600))
+            {
+                    if (W.IsReady())
+                    {
+                        UseW();
+                    }
+                    if (!W.IsReady() && Q.IsReady())
+                    {
+                        UseQ();
+                    }
+                    if (!Q.IsReady() && E.IsReady())
+                    {
+                        UseE();
+                    }
+                    if (!E.IsReady() && R.IsReady())
+                    {
+                        UseR();
+                    }
+                }
+        }*/
+
         public static void WQER()
         {
-            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+            var target = TS.GetTarget(900, DamageType.Magical);
 
-            if (target.IsValidTarget(900))
+            if (target.IsValidTarget(600))
             {
-                UseW();
-                UseQ();
-                UseE();
-                UseR();
+                if (W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
             }
         }
 
         public static void QWER()
         {
-            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+            var target = TS.GetTarget(900, DamageType.Magical);
 
             if (target.IsValidTarget(900))
             {
-                UseQ();
-                UseW();
-                UseE();
-                UseR();
+                if (Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
             }
         }
 
         public static void QEWR()
         {
-            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+            var target = TS.GetTarget(900, DamageType.Magical);
 
             if (target.IsValidTarget(900))
             {
-                UseQ();
-                UseE();
-                UseW();
-                UseR();
+                if (Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+
             }
         }
 
         public static void WQRE()
         {
-            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+            var target = TS.GetTarget(900, DamageType.Magical);
 
-            if (target.IsValidTarget(900))
+            if (target.IsValidTarget(600))
             {
-                UseW();
-                UseQ();
-                UseR();
-                UseE();
+                if (W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    UseW();
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    UseQ();
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    UseR();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    UseE();
+                }
             }
         }
 
         public static void UseQ()
         {
-            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+            var target = TS.GetTarget(900, DamageType.Magical);
+            var qpred = Q.GetPrediction(target);
 
-            if (Q.IsReady())
+            if (Q.IsReady() && target.IsValidTarget(900))
             {
-                Q.Cast(target.ServerPosition);
+                Q.Cast(qpred.UnitPosition);
             }
         }
 
         public static void UseW()
         {
-            var target = TargetSelector.GetTarget(600, DamageType.Magical);
+            var target = TS.GetTarget(600, DamageType.Magical);
 
-            if (W.IsReady())
+            if (W.IsReady() && target.IsValidTarget(600))
             {
                 W.Cast(target);
             }
@@ -224,9 +555,9 @@ namespace DarkRyze
 
         public static void UseE()
         {
-            var target = TargetSelector.GetTarget(600, DamageType.Magical);
+            var target = TS.GetTarget(600, DamageType.Magical);
 
-            if (E.IsReady())
+            if (E.IsReady() && target.IsValidTarget(600))
             {
                 E.Cast(target);
             }
@@ -234,15 +565,15 @@ namespace DarkRyze
 
         public static void UseR()
         {
-            if (R.IsReady() && _Player.HasBuff("ryzepassivecharged") || _Player.GetBuffCount("ryzepassivestack") == 4)
+            if (R.IsReady() && myHero.HasBuff("ryzepassivecharged") || myHero.GetBuffCount("ryzepassivestack") == 4)
             {
                 R.Cast();
             }
         }
 
-        /*public static void KS()
+        public static void KS()
         {
-            var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+            var target = TS.GetTarget(Q.Range, DamageType.Magical);
             if (target == null || !target.IsValidTarget() || target.IsInvulnerable)
                 return;
 
@@ -251,17 +582,17 @@ namespace DarkRyze
             var ECHECK = KSMenu["KSE"].Cast<CheckBox>().CurrentValue;
 
             if (QCHECK
-                && QDamage(target) > target.Health
+                && QDamage(target) > (target.Health - 10)
                 && target.IsValidTarget(Q.Range))
                 Q.Cast(target);
 
             if (WCHECK
-                && WDamage(target) > target.Health
+                && WDamage(target) > (target.Health - 10)  /* :') */
                 && target.IsValidTarget(W.Range))
                 W.Cast(target);
 
             if (ECHECK
-                && EDamage(target) > target.Health
+                && EDamage(target) > (target.Health - 10)
                 && target.IsValidTarget(E.Range))
                 E.Cast(target);
         }
@@ -272,11 +603,11 @@ namespace DarkRyze
             Orbwalker.ForcedTarget = null;
             var xx =
                 ObjectManager.Get<Obj_AI_Minion>()
-                    .Where(x => x.IsEnemy && x.Distance(_Player) < _Player.GetAutoAttackRange())
+                    .Where(x => x.IsEnemy && x.Distance(myHero) < myHero.GetAutoAttackRange())
                     .OrderBy(x => x.Health)
                     .FirstOrDefault();
 
-            if (FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && QDamage(xx) > xx.Health && xx.Distance(_Player) < Q.Range)
+            if (FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && QDamage(xx) > (xx.Health - 5) && xx.Distance(myHero) < Q.Range && !xx.IsDead)
             {
                  Q.Cast(xx);
                  return;
@@ -285,27 +616,26 @@ namespace DarkRyze
 
         private static double QDamage(Obj_AI_Base target)
         {
-           return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-               (float)(new double[] { 60, 85, 110, 135, 160 }[Q.Level] + 0.55 * _Player.FlatMagicDamageMod + new double[] { 2, 2.5, 3.0, 3.5, 4.0 }[Q.Level] / 100 * _Player.MaxMana));
+           return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
+               (float)(new double[] { 60, 85, 110, 135, 160 }[Q.Level] + 0.55 * myHero.FlatMagicDamageMod + 
+                       new double[] { 2, 2.5, 3.0, 3.5, 4.0 }[Q.Level] / 100 * myHero.MaxMana));
         }
-
-        //public static float QDamage(Obj_AI_Base target)
-        //{
-        //    return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-        //        (float)(new[] { 60, 85, 110, 135, 160 }[Q.Level] + (0.55 * _Player.FlatMagicDamageMod) + (new [] { 2, 2.5, 3.0, 3.5, 4.0 }[Q.Level] / 100 * _Player.MaxMana)));
-        //}
 
         public static float WDamage(Obj_AI_Base target)
         {
-            return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                (float)(new[] { 80, 100, 120, 140, 160 }[W.Level] + (0.4 * _Player.FlatMagicDamageMod) + (0.02 * _Player.MaxMana)));
+            return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
+                new[] { 80, 100, 120, 140, 160 }[W.Level] +
+                0.4f * myHero.FlatMagicDamageMod +
+                0.02f * myHero.MaxMana);
         }
 
         public static float EDamage(Obj_AI_Base target)
         {
-            return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                (float)(new[] { 36, 52, 68, 84, 100 }[E.Level] + (0.2 * _Player.FlatMagicDamageMod) + (0.025 * _Player.MaxMana)));
+            return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
+                new[] { 36, 52, 68, 84, 100 }[E.Level] + 
+                0.2f * myHero.FlatMagicDamageMod + 
+                0.025f * myHero.MaxMana);
         }
-        */
+        
     }
 }
