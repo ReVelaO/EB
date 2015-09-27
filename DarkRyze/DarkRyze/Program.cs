@@ -29,8 +29,10 @@ namespace DarkRyze
 
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
-            Bootstrap.Init(null);
-            Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1700, 50);
+            if (Player.Instance.Hero != Champion.Ryze)
+                return;
+
+            Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1700, 100);
             W = new Spell.Targeted(SpellSlot.W, 600);
             E = new Spell.Targeted(SpellSlot.E, 600);
             R = new Spell.Active(SpellSlot.R);
@@ -149,31 +151,6 @@ namespace DarkRyze
                     break;
               }
         }
-
-        /*public static void WQER()
-        {
-            var target = TS.GetTarget(900, DamageType.Magical);
-
-            if (target.IsValidTarget(600))
-            {
-                    if (W.IsReady())
-                    {
-                        UseW();
-                    }
-                    if (!W.IsReady() && Q.IsReady())
-                    {
-                        UseQ();
-                    }
-                    if (!Q.IsReady() && E.IsReady())
-                    {
-                        UseE();
-                    }
-                    if (!E.IsReady() && R.IsReady())
-                    {
-                        UseR();
-                    }
-                }
-        }*/
 
         public static void WQER()
         {
@@ -537,7 +514,7 @@ namespace DarkRyze
             var target = TS.GetTarget(900, DamageType.Magical);
             var qpred = Q.GetPrediction(target);
 
-            if (Q.IsReady() && target.IsValidTarget(900))
+            if (target.IsValidTarget(900))
             {
                 Q.Cast(qpred.UnitPosition);
             }
@@ -547,7 +524,7 @@ namespace DarkRyze
         {
             var target = TS.GetTarget(600, DamageType.Magical);
 
-            if (W.IsReady() && target.IsValidTarget(600))
+            if (target.IsValidTarget(600))
             {
                 W.Cast(target);
             }
@@ -557,7 +534,7 @@ namespace DarkRyze
         {
             var target = TS.GetTarget(600, DamageType.Magical);
 
-            if (E.IsReady() && target.IsValidTarget(600))
+            if (target.IsValidTarget(600))
             {
                 E.Cast(target);
             }
@@ -565,7 +542,7 @@ namespace DarkRyze
 
         public static void UseR()
         {
-            if (R.IsReady() && myHero.HasBuff("ryzepassivecharged") || myHero.GetBuffCount("ryzepassivestack") == 4)
+            if (myHero.HasBuff("ryzepassivecharged") || myHero.GetBuffCount("ryzepassivestack") == 4)
             {
                 R.Cast();
             }
@@ -581,20 +558,21 @@ namespace DarkRyze
             var WCHECK = KSMenu["KSW"].Cast<CheckBox>().CurrentValue;
             var ECHECK = KSMenu["KSE"].Cast<CheckBox>().CurrentValue;
 
-            if (QCHECK
-                && QDamage(target) > (target.Health - 10)
-                && target.IsValidTarget(Q.Range))
+            if (QCHECK && QDamage(target) > (target.Health - 10) && target.IsValidTarget(Q.Range))
+            {
                 Q.Cast(target);
+            }
 
-            if (WCHECK
-                && WDamage(target) > (target.Health - 10)  /* :') */
-                && target.IsValidTarget(W.Range))
+            if (WCHECK && WDamage(target) > (target.Health - 10) && target.IsValidTarget(W.Range))
+            {
                 W.Cast(target);
+            }
 
-            if (ECHECK
-                && EDamage(target) > (target.Health - 10)
-                && target.IsValidTarget(E.Range))
+
+            if (ECHECK && EDamage(target) > (target.Health - 10) && target.IsValidTarget(E.Range))
+            {
                 E.Cast(target);
+            }
         }
 
         public static void LastHit()
@@ -617,14 +595,14 @@ namespace DarkRyze
         private static double QDamage(Obj_AI_Base target)
         {
            return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-               (float)(new double[] { 60, 85, 110, 135, 160 }[Q.Level] + 0.55 * myHero.FlatMagicDamageMod + 
-                       new double[] { 2, 2.5, 3.0, 3.5, 4.0 }[Q.Level] / 100 * myHero.MaxMana));
+               (float)(new double[] { 60, 85, 110, 135, 160 }[Q.Level - 1] + 0.55 * myHero.FlatMagicDamageMod + 
+                       new double[] { 2, 2.5, 3.0, 3.5, 4.0 }[Q.Level - 1] / 100 * myHero.MaxMana));
         }
 
         public static float WDamage(Obj_AI_Base target)
         {
             return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-                new[] { 80, 100, 120, 140, 160 }[W.Level] +
+                new[] { 80, 100, 120, 140, 160 }[W.Level - 1] +
                 0.4f * myHero.FlatMagicDamageMod +
                 0.02f * myHero.MaxMana);
         }
@@ -632,7 +610,7 @@ namespace DarkRyze
         public static float EDamage(Obj_AI_Base target)
         {
             return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-                new[] { 36, 52, 68, 84, 100 }[E.Level] + 
+                new[] { 36, 52, 68, 84, 100 }[E.Level - 1] + 
                 0.2f * myHero.FlatMagicDamageMod + 
                 0.025f * myHero.MaxMana);
         }
