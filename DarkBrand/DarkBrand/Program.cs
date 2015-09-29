@@ -155,8 +155,8 @@ namespace DarkBrand
         {
             var wt = TS.GetTarget(W.Range, DamageType.Magical);
             var et = TS.GetTarget(E.Range, DamageType.Magical);
-            var WCHECK = ComboMenu["WU"].Cast<CheckBox>().CurrentValue;
-            var ECHECK = ComboMenu["EU"].Cast<CheckBox>().CurrentValue;
+            var WCHECK = HarassMenu["HW"].Cast<CheckBox>().CurrentValue;
+            var ECHECK = HarassMenu["HE"].Cast<CheckBox>().CurrentValue;
 
             if (W.IsReady())
             {
