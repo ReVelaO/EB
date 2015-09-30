@@ -550,28 +550,33 @@ namespace DarkRyze
 
         public static void KS()
         {
-            var target = TS.GetTarget(Q.Range, DamageType.Magical);
-            if (target == null || !target.IsValidTarget() || target.IsInvulnerable)
-                return;
-
             var QCHECK = KSMenu["KSQ"].Cast<CheckBox>().CurrentValue;
             var WCHECK = KSMenu["KSW"].Cast<CheckBox>().CurrentValue;
             var ECHECK = KSMenu["KSE"].Cast<CheckBox>().CurrentValue;
 
-            if (QCHECK && QDamage(target) > (target.Health - 10) && target.IsValidTarget(Q.Range))
+            foreach (var enemy in HeroManager.Enemies.Where(any => any.IsValidTarget(Q.Range) && !any.HasBuffOfType(BuffType.Invulnerability)))
             {
-                Q.Cast(target);
+                if (QCHECK && QDamage(enemy) > (enemy.Health - 10))
+                {
+                    Q.Cast(enemy);
+                }
             }
 
-            if (WCHECK && WDamage(target) > (target.Health - 10) && target.IsValidTarget(W.Range))
+            foreach (var enemy in HeroManager.Enemies.Where(any => any.IsValidTarget(W.Range) && !any.HasBuffOfType(BuffType.Invulnerability)))
             {
-                W.Cast(target);
+                if (WCHECK && WDamage(enemy) > (enemy.Health - 10))
+                {
+                    W.Cast(enemy);
+                }
             }
 
 
-            if (ECHECK && EDamage(target) > (target.Health - 10) && target.IsValidTarget(E.Range))
+            foreach (var enemy in HeroManager.Enemies.Where(any => any.IsValidTarget(E.Range) && !any.HasBuffOfType(BuffType.Invulnerability)))
             {
-                E.Cast(target);
+                if (ECHECK && EDamage(enemy) > (enemy.Health - 10))
+                {
+                    E.Cast(enemy);
+                }
             }
         }
 
