@@ -230,26 +230,19 @@ namespace DarkBrand
             var WCHECK = KSMenu["KSW"].Cast<CheckBox>().CurrentValue;
             var ECHECK = KSMenu["KSE"].Cast<CheckBox>().CurrentValue;
 
-            foreach (var enemy in HeroManager.Enemies.Where(x => x.IsValidTarget(Q.Range) && !x.HasBuffOfType(BuffType.Invulnerability)))
+            foreach (var enemy in HeroManager.Enemies.Where(any => !any.HasBuffOfType(BuffType.Invulnerability)))
             {
-                if (QCHECK && QDamage(enemy) > (enemy.Health - 10))
+                var WPred = W.GetPrediction(enemy);
+
+                if (QCHECK && enemy.IsValidTarget(Q.Range) && QDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
                 {
                     Q.Cast(enemy);
                 }
-            }
-
-            foreach (var enemy in HeroManager.Enemies.Where(x => x.IsValidTarget(W.Range) && !x.HasBuffOfType(BuffType.Invulnerability)))
-            {
-                if (WCHECK && WDamage(enemy) > (enemy.Health - 10))
+                if (WCHECK && enemy.IsValidTarget(W.Range) && WDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead && WPred.HitChance >= HitChance.High)
                 {
                     W.Cast(enemy);
                 }
-            }
-
-
-            foreach (var enemy in HeroManager.Enemies.Where(x => x.IsValidTarget(E.Range) && !x.HasBuffOfType(BuffType.Invulnerability)))
-            {
-                if (ECHECK && EDamage(enemy) > (enemy.Health - 10))
+                if (ECHECK && enemy.IsValidTarget(E.Range) && EDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
                 {
                     E.Cast(enemy);
                 }
