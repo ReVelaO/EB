@@ -554,26 +554,17 @@ namespace DarkRyze
             var WCHECK = KSMenu["KSW"].Cast<CheckBox>().CurrentValue;
             var ECHECK = KSMenu["KSE"].Cast<CheckBox>().CurrentValue;
 
-            foreach (var enemy in HeroManager.Enemies.Where(any => any.IsValidTarget(Q.Range) && !any.HasBuffOfType(BuffType.Invulnerability)))
+            foreach (var enemy in HeroManager.Enemies.Where(any => !any.HasBuffOfType(BuffType.Invulnerability)))
             {
-                if (QCHECK && QDamage(enemy) > (enemy.Health - 10))
-                {
-                    Q.Cast(enemy);
-                }
-            }
-
-            foreach (var enemy in HeroManager.Enemies.Where(any => any.IsValidTarget(W.Range) && !any.HasBuffOfType(BuffType.Invulnerability)))
-            {
-                if (WCHECK && WDamage(enemy) > (enemy.Health - 10))
+                if (WCHECK && enemy.IsValidTarget(W.Range) && WDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
                 {
                     W.Cast(enemy);
                 }
-            }
-
-
-            foreach (var enemy in HeroManager.Enemies.Where(any => any.IsValidTarget(E.Range) && !any.HasBuffOfType(BuffType.Invulnerability)))
-            {
-                if (ECHECK && EDamage(enemy) > (enemy.Health - 10))
+                if (QCHECK && enemy.IsValidTarget(Q.Range) && QDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
+                {
+                    Q.Cast(enemy);
+                }
+                if (ECHECK && enemy.IsValidTarget(E.Range) && EDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
                 {
                     E.Cast(enemy);
                 }
