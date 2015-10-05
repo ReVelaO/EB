@@ -10,16 +10,19 @@ using EloBuddy.SDK.Menu.Values;
 using EloBuddy.SDK.Rendering;
 using SharpDX;
 using System.Drawing;
+using Color = System.Drawing.Color;
+using SpellData = DarkRyze.DamageIndicator.SpellData;
 
 namespace DarkRyze
 {
     class Program
     {
-        public static Menu ComboMenu, DrawingsMenu, KSMenu, MiscMenu, FarmMenu, menu;
+        public static Menu ComboMenu, DrawingsMenu, KSMenu, MiscMenu, ThemeMenu, FarmMenu, menu;
         public static Spell.Skillshot Q;
         public static Spell.Targeted W;
         public static Spell.Targeted E;
         public static Spell.Active R;
+        public static DamageIndicator.DamageIndicator Indicator;
         public static AIHeroClient myHero { get { return ObjectManager.Player; } }
 
         private static void Main(string[] args)
@@ -31,6 +34,9 @@ namespace DarkRyze
         {
             if (Player.Instance.Hero != Champion.Ryze)
                 return;
+
+            Indicator = new DamageIndicator.DamageIndicator();
+            Indicator.Add("Combo", new SpellData(0, DamageType.True, Color.LightSlateGray));
 
             Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1700, 100);
             W = new Spell.Targeted(SpellSlot.W, 600);
@@ -70,12 +76,25 @@ namespace DarkRyze
             DrawingsMenu.AddGroupLabel("Drawings Settings");
             DrawingsMenu.Add("DQ", new CheckBox("Draw Q"));
             DrawingsMenu.Add("DWE", new CheckBox("Draw W + E"));
+            DrawingsMenu.Add("draw.Damage", new CheckBox("Draw Combo Damage"));
 
             MiscMenu = menu.AddSubMenu("Misc", "miscmenu");
 
             MiscMenu.AddGroupLabel("Misc Settings");
             MiscMenu.Add("Misc1", new CheckBox("Anti-Gapcloser [W Usage]"));
             MiscMenu.Add("Misc2", new CheckBox("Auto-Interrupt [W Usage]"));
+
+            ThemeMenu = menu.AddSubMenu("Theme Style", "themestyle");
+
+            ThemeMenu.AddGroupLabel("Themes Settings");
+            var xs = ThemeMenu.Add("xss", new Slider("Theme Styles", 0, 0, 4));
+            var xo = new[] { "Off", "Theme: Raven", "Theme: Academy", "Theme: Challenger", "Theme: Crystal"};
+            xs.DisplayName = xo[xs.CurrentValue];
+
+            xs.OnValueChange += delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+                {
+                    sender.DisplayName = xo[changeArgs.NewValue];
+                };
 
             Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
@@ -85,20 +104,70 @@ namespace DarkRyze
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
+            var themes = ThemeMenu["xss"].DisplayName;
+            switch (themes)
             {
-                Drawing.DrawCircle(myHero.Position, 900, System.Drawing.Color.BlueViolet);
+                case "Off":
+                    myHero.SetSkinId(0);
+                    if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
+                    {
+                       new Circle() { Color = Color.BlueViolet, Radius = Q.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    if (DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
+                    {
+                        new Circle() { Color = Color.BlueViolet, Radius = W.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    break;
+                case "Theme: Raven":
+                    myHero.SetSkinId(2);
+                    if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
+                    {
+                        new Circle() { Color = Color.Black, Radius = Q.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    if (DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
+                    {
+                        new Circle() { Color = Color.Black, Radius = W.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    break;
+                case "Theme: Academy":
+                    myHero.SetSkinId(5);
+                    if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
+                    {
+                        new Circle() { Color = Color.Yellow, Radius = Q.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    if (DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
+                    {
+                        new Circle() { Color = Color.Yellow, Radius = W.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    break;
+                case "Theme: Challenger":
+                    myHero.SetSkinId(4);
+                    if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
+                    {
+                        new Circle() { Color = Color.LightSteelBlue, Radius = Q.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    if (DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
+                    {
+                        new Circle() { Color = Color.LightSteelBlue, Radius = W.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    break;
+                case "Theme: Crystal":
+                    myHero.SetSkinId(7);
+                    if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
+                    {
+                        new Circle() { Color = Color.BlueViolet, Radius = Q.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    if (DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
+                    {
+                        new Circle() { Color = Color.BlueViolet, Radius = W.Range, BorderWidth = 2f }.Draw(myHero.Position);
+                    }
+                    break;
             }
-
-            if (DrawingsMenu["DWE"].Cast<CheckBox>().CurrentValue)
-            {
-                Drawing.DrawCircle(myHero.Position, 600, System.Drawing.Color.BlueViolet);
-            }
-
         }
 
         private static void Game_OnUpdate(EventArgs args)
         {
+            Indicator.Update("Combo", new SpellData((int)ComboDamage(), DamageType.Magical, Color.LightSlateGray));
 
             switch (Orbwalker.ActiveModesFlags)
             {
@@ -512,11 +581,11 @@ namespace DarkRyze
         public static void UseQ()
         {
             var target = TS.GetTarget(900, DamageType.Magical);
-            var qpred = Q.GetPrediction(target);
+            var QPred = Q.GetPrediction(target);
 
             if (target.IsValidTarget(900))
             {
-                Q.Cast(qpred.UnitPosition);
+                Q.Cast(QPred.UnitPosition);
             }
         }
 
@@ -556,15 +625,15 @@ namespace DarkRyze
 
             foreach (var enemy in HeroManager.Enemies.Where(any => !any.HasBuffOfType(BuffType.Invulnerability)))
             {
-                if (WCHECK && enemy.IsValidTarget(W.Range) && WDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
+                if (WCHECK && enemy.IsValidTarget(W.Range) && myHero.GetSpellDamage(enemy, SpellSlot.W) > (enemy.Health - 10) && !enemy.IsDead)
                 {
                     W.Cast(enemy);
                 }
-                if (QCHECK && enemy.IsValidTarget(Q.Range) && QDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
+                if (QCHECK && enemy.IsValidTarget(Q.Range) && myHero.GetSpellDamage(enemy, SpellSlot.Q) > (enemy.Health - 10) && !enemy.IsDead)
                 {
                     Q.Cast(enemy);
                 }
-                if (ECHECK && enemy.IsValidTarget(E.Range) && EDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
+                if (ECHECK && enemy.IsValidTarget(E.Range) && myHero.GetSpellDamage(enemy, SpellSlot.E) > (enemy.Health - 10) && !enemy.IsDead)
                 {
                     E.Cast(enemy);
                 }
@@ -575,41 +644,34 @@ namespace DarkRyze
         {
             if (Orbwalker.IsAutoAttacking) return;
             Orbwalker.ForcedTarget = null;
-            var xx =
-                ObjectManager.Get<Obj_AI_Minion>()
-                    .Where(x => x.IsEnemy && x.Distance(myHero) < myHero.GetAutoAttackRange())
+            var minion = ObjectManager.Get<Obj_AI_Minion>()
+                    .Where(x => x.IsEnemy && x.IsValidTarget(Q.Range))
                     .OrderBy(x => x.Health)
                     .FirstOrDefault();
+            var QCHECK = FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue;
 
-            if (FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue && QDamage(xx) > (xx.Health - 5) && xx.Distance(myHero) < Q.Range && !xx.IsDead)
+            if (QCHECK && myHero.GetSpellDamage(minion, SpellSlot.Q) >= minion.Health && !minion.IsDead)
             {
-                 Q.Cast(xx);
-                 return;
+                 Q.Cast(minion);
             }
         }
 
-        private static double QDamage(Obj_AI_Base target)
+        public static float ComboDamage()
         {
-           return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-               (float)(new double[] { 60, 85, 110, 135, 160 }[Q.Level - 1] + 0.55 * myHero.FlatMagicDamageMod + 
-                       new double[] { 2, 2.5, 3.0, 3.5, 4.0 }[Q.Level - 1] / 100 * myHero.MaxMana));
-        }
+            var target = TS.GetTarget(1200, DamageType.Magical);
+            var ComboDMG = 0f;
 
-        public static float WDamage(Obj_AI_Base target)
-        {
-            return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-                new[] { 80, 100, 120, 140, 160 }[W.Level - 1] +
-                0.4f * myHero.FlatMagicDamageMod +
-                0.02f * myHero.MaxMana);
-        }
+            if (Q.IsReady())
+                ComboDMG += myHero.GetSpellDamage(target, SpellSlot.Q);
 
-        public static float EDamage(Obj_AI_Base target)
-        {
-            return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-                new[] { 36, 52, 68, 84, 100 }[E.Level - 1] + 
-                0.2f * myHero.FlatMagicDamageMod + 
-                0.025f * myHero.MaxMana);
-        }
-        
+            if (W.IsReady())
+                ComboDMG += myHero.GetSpellDamage(target, SpellSlot.W);
+
+            if (E.IsReady())
+                ComboDMG += myHero.GetSpellDamage(target, SpellSlot.E);
+
+            return ComboDMG;
+
+        }      
     }
 }
