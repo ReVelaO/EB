@@ -5,7 +5,7 @@ using EloBuddy.SDK;
 using EloBuddy.SDK.Rendering;
 using SharpDX;
 
-namespace DarkRyze
+namespace ChallengerRyze
 {
     public class TS
     {

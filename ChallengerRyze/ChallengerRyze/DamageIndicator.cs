@@ -9,7 +9,7 @@ using EloBuddy.SDK.Utils;
 using SharpDX;
 using Color = System.Drawing.Color;
 
-namespace DarkRyze
+namespace ChallengerRyze
 {
     namespace DamageIndicator
     {

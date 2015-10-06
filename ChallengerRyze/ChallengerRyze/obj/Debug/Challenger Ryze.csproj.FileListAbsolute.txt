@@ -1,0 +1,5 @@
+C:\Desktop\Elobuddy\Challenger Ryze.exe.config
+C:\Desktop\Elobuddy\Challenger Ryze.exe
+C:\Desktop\Elobuddy\Challenger Ryze.pdb
+C:\Users\DarkFight\Desktop\ChallengerRyze\ChallengerRyze\obj\Debug\Challenger Ryze.exe
+C:\Users\DarkFight\Desktop\ChallengerRyze\ChallengerRyze\obj\Debug\Challenger Ryze.pdb

@@ -7,8 +7,8 @@
     <ProjectGuid>{9D36DE17-2428-4A99-8397-5DFA9F7B7E5A}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DarkRyze</RootNamespace>
-    <AssemblyName>DarkRyze</AssemblyName>
+    <RootNamespace>ChallengerRyze</RootNamespace>
+    <AssemblyName>Challenger Ryze</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

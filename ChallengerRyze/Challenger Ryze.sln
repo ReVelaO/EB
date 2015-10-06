@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 14 for Windows Desktop
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DarkRyze", "DarkRyze\DarkRyze.csproj", "{9D36DE17-2428-4A99-8397-5DFA9F7B7E5A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Challenger Ryze", "ChallengerRyze\Challenger Ryze.csproj", "{9D36DE17-2428-4A99-8397-5DFA9F7B7E5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
