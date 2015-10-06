@@ -10,6 +10,7 @@ using EloBuddy.SDK.Menu.Values;
 using EloBuddy.SDK.Rendering;
 using SharpDX;
 using System.Drawing;
+using Color = System.Drawing.Color;
 
 namespace DarkBrand
 {
@@ -37,11 +38,10 @@ namespace DarkBrand
             E = new Spell.Targeted(SpellSlot.E, 625);
             R = new Spell.Targeted(SpellSlot.R, 750);
 
-
             menu = MainMenu.AddMenu("DarkBrand", "DarkBrand");
 
             ComboMenu = menu.AddSubMenu("Combo", "combomenu");
-            
+
             ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.Add("QU", new CheckBox("Use Q"));
             ComboMenu.Add("WU", new CheckBox("Use W"));
@@ -72,12 +72,6 @@ namespace DarkBrand
             DrawingsMenu.Add("DE", new CheckBox("Draw E"));
             DrawingsMenu.Add("DR", new CheckBox("Draw R"));
 
-            /*MiscMenu = menu.AddSubMenu("Misc", "miscmenu");
-
-            MiscMenu.AddGroupLabel("Misc Settings");
-            MiscMenu.Add("Misc1", new CheckBox("Anti-Gapcloser [W Usage]"));
-            MiscMenu.Add("Misc2", new CheckBox("Auto-Interrupt [W Usage]"));*/
-
             Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
         }
@@ -86,93 +80,104 @@ namespace DarkBrand
         {
             if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(myHero.Position, Q.Range, System.Drawing.Color.Orange);
+                new Circle() { Color = Color.Orange, Radius = Q.Range, BorderWidth = 2f }.Draw(myHero.Position);
             }
-
             if (DrawingsMenu["DW"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(myHero.Position, W.Range, System.Drawing.Color.Orange);
+                new Circle() { Color = Color.Orange, Radius = W.Range, BorderWidth = 2f }.Draw(myHero.Position);
             }
-
             if (DrawingsMenu["DE"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(myHero.Position, E.Range, System.Drawing.Color.Orange);
+                new Circle() { Color = Color.Orange, Radius = E.Range, BorderWidth = 2f }.Draw(myHero.Position);
             }
-
             if (DrawingsMenu["DR"].Cast<CheckBox>().CurrentValue)
             {
-                Drawing.DrawCircle(myHero.Position, R.Range, System.Drawing.Color.DarkRed);
+                new Circle() { Color = Color.Red, Radius = R.Range, BorderWidth = 2f }.Draw(myHero.Position);
             }
-
         }
 
         private static void Game_OnUpdate(EventArgs args)
         {
-
             switch (Orbwalker.ActiveModesFlags)
             {
                 case Orbwalker.ActiveModes.Combo:
-                    Combos();
+                    Combo();
                     break;
-                    case Orbwalker.ActiveModes.Harass:
+                case Orbwalker.ActiveModes.LastHit:
                     Harass();
                     break;
             }
-
             KS();
         }
 
-        public static void Combos()
+        private static void Combo()
         {
-            var QCHECK = ComboMenu["QU"].Cast<CheckBox>().CurrentValue;
-            var WCHECK = ComboMenu["WU"].Cast<CheckBox>().CurrentValue;
-            var ECHECK = ComboMenu["EU"].Cast<CheckBox>().CurrentValue;
-            var RCHECK = ComboMenu["RU"].Cast<CheckBox>().CurrentValue;
-
-            if (E.IsReady() && ECHECK)
+            var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+            bool QCHECK = ComboMenu["QU"].Cast<CheckBox>().CurrentValue;
+            bool WCHECK = ComboMenu["WU"].Cast<CheckBox>().CurrentValue;
+            bool ECHECK = ComboMenu["EU"].Cast<CheckBox>().CurrentValue;
+            bool RCHECK = ComboMenu["RU"].Cast<CheckBox>().CurrentValue;
+            
+            if (E.IsReady() && target.IsValidTarget(E.Range) && ECHECK)
             {
-                UseE();
+                E_Cast(target);
             }
-
-            if (Q.IsReady() && QCHECK)
+            if (Q.IsReady() && target.IsValidTarget(Q.Range) && QCHECK)
             {
-                UseQ();
+                Q_Cast(target);
             }
+            if (W.IsReady() && target.IsValidTarget(W.Range) && WCHECK)
+            {
+                W_Cast(target);
+            }
+            if (R.IsReady() && target.IsValidTarget(R.Range) && RCHECK)
+            {
+                R_Cast(target);
+            }
+        }
+
+        private static void Harass()
+        {
+            var WTarget = TargetSelector.GetTarget(W.Range, DamageType.Magical);
+            var ETarget = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+            bool WCHECK = HarassMenu["HW"].Cast<CheckBox>().CurrentValue;
+            bool ECHECK = HarassMenu["HE"].Cast<CheckBox>().CurrentValue;
 
             if (W.IsReady() && WCHECK)
             {
-                UseW();
+                W_Cast(WTarget);
             }
-
-            if (R.IsReady() && RCHECK)
+            if (E.IsReady() && ECHECK)
             {
-                UseR();
+                E_Cast(ETarget);
             }
-
         }
 
-        public static void Harass()
+        private static void KS()
         {
-            var wt = TS.GetTarget(W.Range, DamageType.Magical);
-            var et = TS.GetTarget(E.Range, DamageType.Magical);
-            var WCHECK = HarassMenu["HW"].Cast<CheckBox>().CurrentValue;
-            var ECHECK = HarassMenu["HE"].Cast<CheckBox>().CurrentValue;
+            bool QCHECK = KSMenu["KSQ"].Cast<CheckBox>().CurrentValue;
+            bool WCHECK = KSMenu["KSW"].Cast<CheckBox>().CurrentValue;
+            bool ECHECK = KSMenu["KSE"].Cast<CheckBox>().CurrentValue;
 
-            if (W.IsReady())
+            foreach (var enemy in EntityManager.Heroes.Enemies.Where(any => !any.HasBuffOfType(BuffType.Invulnerability)))
             {
-                UseW();
+                if (QCHECK && enemy.IsValidTarget(Q.Range) && myHero.GetSpellDamage(enemy, SpellSlot.Q) > (enemy.Health - 5) && !enemy.IsDead)
+                {
+                    Q.Cast(enemy);
+                }
+                if (WCHECK && enemy.IsValidTarget(W.Range) && myHero.GetSpellDamage(enemy, SpellSlot.W) > (enemy.Health - 5) && !enemy.IsDead)
+                {
+                    W_Cast(enemy);
+                }
+                if (ECHECK && enemy.IsValidTarget(E.Range) && myHero.GetSpellDamage(enemy, SpellSlot.E) > (enemy.Health - 5) && !enemy.IsDead)
+                {
+                    E.Cast(enemy);
+                }
             }
-
-            if (ECHECK && E.IsReady())
-            {
-                UseE();
-            }
-
         }
 
-        public static void UseQ()
+        private static void Q_Cast(AIHeroClient target)
         {
-            var target = TS.GetTarget(Q.Range, DamageType.Magical);
             var QPred = Q.GetPrediction(target);
 
             if (target.IsValidTarget(Q.Range) && QPred.HitChance >= HitChance.High)
@@ -181,37 +186,35 @@ namespace DarkBrand
             }
         }
 
-        public static void UseW()
+        private static void W_Cast(AIHeroClient target)
         {
-            var target = TS.GetTarget(W.Range, DamageType.Magical);
             var WPred = W.GetPrediction(target);
 
-            if (target.IsValidTarget(W.Range) && WPred.HitChance >= HitChance.High)
+            if (target.IsValidTarget(W.Range) && WPred.HitChance >= HitChance.Medium)
             {
                 W.Cast(target);
             }
+
         }
 
-        public static void UseE()
+        private static void E_Cast(AIHeroClient target)
         {
-            var target = TS.GetTarget(E.Range, DamageType.Magical);
-
             if (target.IsValidTarget(E.Range))
             {
                 E.Cast(target);
             }
         }
 
-        public static void UseR()
+        private static void R_Cast(AIHeroClient target)
         {
-            var target = TS.GetTarget(R.Range, DamageType.Magical);
             var CustomRange = myHero.CountEnemiesInRange(R.Range) >= ComboMenu["MR"].Cast<Slider>().CurrentValue;
+            bool KSRCHECK = ComboMenu["RK"].Cast<CheckBox>().CurrentValue;
 
             if (CustomRange)
             {
-                if (ComboMenu["RK"].Cast<CheckBox>().CurrentValue)
+                if (KSRCHECK)
                 {
-                    if ((target.Health - 5) < RDamage(target))
+                    if ((target.Health - 5) < myHero.GetSpellDamage(target, SpellSlot.R))
                     {
                         R.Cast(target);
                     }
@@ -222,59 +225,6 @@ namespace DarkBrand
                     R.Cast(target);
                 }
             }
-        }
-
-        public static void KS()
-        {
-            var QCHECK = KSMenu["KSQ"].Cast<CheckBox>().CurrentValue;
-            var WCHECK = KSMenu["KSW"].Cast<CheckBox>().CurrentValue;
-            var ECHECK = KSMenu["KSE"].Cast<CheckBox>().CurrentValue;
-
-            foreach (var enemy in HeroManager.Enemies.Where(any => !any.HasBuffOfType(BuffType.Invulnerability)))
-            {
-                var WPred = W.GetPrediction(enemy);
-
-                if (QCHECK && enemy.IsValidTarget(Q.Range) && QDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
-                {
-                    Q.Cast(enemy);
-                }
-                if (WCHECK && enemy.IsValidTarget(W.Range) && WDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead && WPred.HitChance >= HitChance.High)
-                {
-                    W.Cast(enemy);
-                }
-                if (ECHECK && enemy.IsValidTarget(E.Range) && EDamage(enemy) > (enemy.Health - 10) && !enemy.IsDead)
-                {
-                    E.Cast(enemy);
-                }
-            }
-        }
-
-        public static float QDamage(Obj_AI_Base target)
-        {
-            return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-                new[] { 80, 120, 160, 200, 240 }[Q.Level - 1] +
-                0.65f * myHero.FlatMagicDamageMod);
-        }
-
-        public static float WDamage(Obj_AI_Base target)
-        {
-            return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-                new[] { 75, 120, 165, 210, 255 }[W.Level - 1] +
-                0.6f * myHero.FlatMagicDamageMod);
-        }
-
-        public static float EDamage(Obj_AI_Base target)
-        {
-            return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-                new[] { 70, 105, 140, 175, 210 }[E.Level - 1] + 
-                0.55f * myHero.FlatMagicDamageMod);
-        }
-
-        public static float RDamage(Obj_AI_Base target)
-        {
-            return myHero.CalculateDamageOnUnit(target, DamageType.Magical,
-                new[] { 150, 250, 350 }[R.Level - 1] +
-                0.5f * myHero.FlatMagicDamageMod);
         }
     }
 }
