@@ -117,39 +117,44 @@ namespace DarkBrand
             bool WCHECK = ComboMenu["WU"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = ComboMenu["EU"].Cast<CheckBox>().CurrentValue;
             bool RCHECK = ComboMenu["RU"].Cast<CheckBox>().CurrentValue;
-            
-            if (E.IsReady() && target.IsValidTarget(E.Range) && ECHECK)
+            var QPred = Prediction.Position.PredictLinearMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue);
+            var WPred = Prediction.Position.PredictCircularMissile(target, W.Range, W.Radius, W.CastDelay, W.Speed, target.ServerPosition);
+
+            if (!target.IsValid || target == null)
             {
-                E_Cast(target);
+                return;
             }
-            if (Q.IsReady() && target.IsValidTarget(Q.Range) && QCHECK)
+            if (E.IsReady() && ECHECK)
             {
-                Q_Cast(target);
+                E.Cast(target);
             }
-            if (W.IsReady() && target.IsValidTarget(W.Range) && WCHECK)
+            if (Q.IsReady() && QCHECK && QPred.HitChance >= HitChance.High)
             {
-                W_Cast(target);
+                Q.Cast(target);
             }
-            if (R.IsReady() && target.IsValidTarget(R.Range) && RCHECK)
+            if (W.IsReady() && WCHECK && WPred.HitChance >= HitChance.High)
             {
-                R_Cast(target);
+                W.Cast(target);
+            }
+            if (R.IsReady() && RCHECK)
+            {
+                CustomR_Cast(target);
             }
         }
 
         private static void Harass()
         {
-            var WTarget = TargetSelector.GetTarget(W.Range, DamageType.Magical);
-            var ETarget = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+            var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
             bool WCHECK = HarassMenu["HW"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = HarassMenu["HE"].Cast<CheckBox>().CurrentValue;
 
             if (W.IsReady() && WCHECK)
             {
-                W_Cast(WTarget);
+                W.Cast(target);
             }
             if (E.IsReady() && ECHECK)
             {
-                E_Cast(ETarget);
+                E.Cast(target);
             }
         }
 
@@ -161,13 +166,16 @@ namespace DarkBrand
 
             foreach (var enemy in EntityManager.Heroes.Enemies.Where(any => !any.HasBuffOfType(BuffType.Invulnerability)))
             {
-                if (QCHECK && enemy.IsValidTarget(Q.Range) && myHero.GetSpellDamage(enemy, SpellSlot.Q) > (enemy.Health - 5) && !enemy.IsDead)
+                var QPred = Prediction.Position.PredictLinearMissile(enemy, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue);
+                var WPred = Prediction.Position.PredictCircularMissile(enemy, W.Range, W.Radius, W.CastDelay, W.Speed, enemy.ServerPosition);
+
+                if (QCHECK && enemy.IsValidTarget(Q.Range) && myHero.GetSpellDamage(enemy, SpellSlot.Q) > (enemy.Health - 5) && QPred.HitChance >= HitChance.High && !enemy.IsDead)
                 {
                     Q.Cast(enemy);
                 }
-                if (WCHECK && enemy.IsValidTarget(W.Range) && myHero.GetSpellDamage(enemy, SpellSlot.W) > (enemy.Health - 5) && !enemy.IsDead)
+                if (WCHECK && enemy.IsValidTarget(W.Range) && myHero.GetSpellDamage(enemy, SpellSlot.W) > (enemy.Health - 5) && WPred.HitChance >= HitChance.High && !enemy.IsDead)
                 {
-                    W_Cast(enemy);
+                    W.Cast(enemy);
                 }
                 if (ECHECK && enemy.IsValidTarget(E.Range) && myHero.GetSpellDamage(enemy, SpellSlot.E) > (enemy.Health - 5) && !enemy.IsDead)
                 {
@@ -176,36 +184,7 @@ namespace DarkBrand
             }
         }
 
-        private static void Q_Cast(AIHeroClient target)
-        {
-            var QPred = Q.GetPrediction(target);
-
-            if (target.IsValidTarget(Q.Range) && QPred.HitChance >= HitChance.High)
-            {
-                Q.Cast(target);
-            }
-        }
-
-        private static void W_Cast(AIHeroClient target)
-        {
-            var WPred = W.GetPrediction(target);
-
-            if (target.IsValidTarget(W.Range) && WPred.HitChance >= HitChance.Medium)
-            {
-                W.Cast(target);
-            }
-
-        }
-
-        private static void E_Cast(AIHeroClient target)
-        {
-            if (target.IsValidTarget(E.Range))
-            {
-                E.Cast(target);
-            }
-        }
-
-        private static void R_Cast(AIHeroClient target)
+        private static void CustomR_Cast(AIHeroClient target)
         {
             var CustomRange = myHero.CountEnemiesInRange(R.Range) >= ComboMenu["MR"].Cast<Slider>().CurrentValue;
             bool KSRCHECK = ComboMenu["RK"].Cast<CheckBox>().CurrentValue;
