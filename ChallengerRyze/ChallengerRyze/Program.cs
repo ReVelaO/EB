@@ -48,8 +48,8 @@ namespace ChallengerRyze
             ComboMenu = menu.AddSubMenu("Combo", "combomenu");
             
             ComboMenu.AddGroupLabel("Combo Selector");
-            var cs = ComboMenu.Add("css", new Slider("Combo Selector", 0, 0, 1));
-            var co = new[] { "Addon Combo", "Slutty Combo"};
+            var cs = ComboMenu.Add("css", new Slider("Combo Selector", 0, 0, 4));
+            var co = new[] { "Addon: WQER", "Addon: QWER", "Addon: QEWR", "Addon: WQRE", "Slutty Combo" };
             cs.DisplayName = co[cs.CurrentValue];
 
             cs.OnValueChange +=
@@ -57,11 +57,6 @@ namespace ChallengerRyze
                 {
                     sender.DisplayName = co[changeArgs.NewValue];
                 };
-            ComboMenu.AddGroupLabel("Addon Combo");
-            ComboMenu.Add("AUQ", new CheckBox("Use Q"));
-            ComboMenu.Add("AUW", new CheckBox("Use W"));
-            ComboMenu.Add("AUE", new CheckBox("Use E"));
-            ComboMenu.Add("AUR", new CheckBox("Use R"));
 
             ComboMenu.AddGroupLabel("Slutty Combo");
             ComboMenu.Add("SUQ", new CheckBox("Use Q"));
@@ -106,7 +101,6 @@ namespace ChallengerRyze
                 {
                     sender.DisplayName = xo[changeArgs.NewValue];
                 };
-            TS.init();
             Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Gapcloser.OnGapcloser += Gapcloser_OnGapCloser;
@@ -179,7 +173,6 @@ namespace ChallengerRyze
         private static void Game_OnUpdate(EventArgs args)
         {
             Indicator.Update("Combo", new SpellData((int)ComboDamage(), DamageType.Magical, Color.LightSlateGray));
-
             switch (Orbwalker.ActiveModesFlags)
             {
                 case Orbwalker.ActiveModes.Combo:
@@ -217,10 +210,19 @@ namespace ChallengerRyze
               var options = ComboMenu["css"].DisplayName;
               switch (options)
               {
-                 case "Addon Combo":
-                    AddonCombo();
+                case "Addon: WQER":
+                    WQER();
                     break;
-                 case "Slutty Combo":
+                case "Addon: QWER":
+                    QWER();
+                    break;
+                case "Addon: QEWR":
+                    QEWR();
+                    break;
+                case "Addon: WQRE":
+                    WQRE();
+                    break;
+                case "Slutty Combo":
                     SluttyCombo();
                     break;
               }
@@ -253,10 +255,7 @@ namespace ChallengerRyze
         {
             if (Orbwalker.IsAutoAttacking) return;
             Orbwalker.ForcedTarget = null;
-            var minion = ObjectManager.Get<Obj_AI_Minion>()
-                    .Where(x => x.IsEnemy && x.IsValidTarget(Q.Range))
-                    .OrderBy(x => x.Health)
-                    .FirstOrDefault();
+            var minion = ObjectManager.Get<Obj_AI_Minion>().Where(x => x.IsEnemy && x.IsValidTarget(Q.Range)).OrderBy(x => x.Health).FirstOrDefault();
             bool QCHECK = FarmMenu["LHQ"].Cast<CheckBox>().CurrentValue;
 
             if (QCHECK && myHero.GetSpellDamage(minion, SpellSlot.Q) >= minion.Health && !minion.IsDead)
@@ -267,7 +266,7 @@ namespace ChallengerRyze
 
         private static float ComboDamage()
         {
-            var target = TS.GetTarget(1200, DamageType.Magical);
+            var target = TargetSelector.GetTarget(1200, DamageType.Magical);
             var ComboDMG = 0f;
 
             if (Q.IsReady())
@@ -283,34 +282,13 @@ namespace ChallengerRyze
 
         }
 
-        private static void Q_Cast()
+        private static void Q_Cast(AIHeroClient target)
         {
-            var target = TS.GetTarget(900, DamageType.Magical);
-            var QPred = Q.GetPrediction(target);
+            var QPred = Prediction.Position.PredictLinearMissile(target, Q.Range, Q.Width, Q.CastDelay, Q.Speed, int.MinValue, myHero.ServerPosition);
 
             if (target.IsValidTarget(900))
             {
                 Q.Cast(QPred.UnitPosition);
-            }
-        }
-
-        private static void W_Cast()
-        {
-            var target = TS.GetTarget(600, DamageType.Magical);
-
-            if (target.IsValidTarget(600))
-            {
-                W.Cast(target);
-            }
-        }
-
-        private static void E_Cast()
-        {
-            var target = TS.GetTarget(600, DamageType.Magical);
-
-            if (target.IsValidTarget(600))
-            {
-                E.Cast(target);
             }
         }
 
@@ -322,23 +300,23 @@ namespace ChallengerRyze
             }
         }
 
-        private static void AddonCombo()
+        private static void WQER()
         {
-            var target = TS.GetTarget(900, DamageType.Magical);
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
 
-            if (target.IsValidTarget(900))
+            if (target.IsValidTarget(600))
             {
                 if (W.IsReady())
                 {
-                    W_Cast();
+                    W.Cast(target);
                 }
                 if (!W.IsReady() && Q.IsReady())
                 {
-                    Q_Cast();
+                    Q_Cast(target);
                 }
                 if (!Q.IsReady() && E.IsReady())
                 {
-                    E_Cast();
+                    E.Cast(target);
                 }
                 if (!E.IsReady() && R.IsReady())
                 {
@@ -346,15 +324,15 @@ namespace ChallengerRyze
                 }
                 if (!R.IsReady() && W.IsReady())
                 {
-                    W_Cast();
+                    W.Cast(target);
                 }
                 if (!W.IsReady() && Q.IsReady())
                 {
-                    Q_Cast();
+                    Q_Cast(target);
                 }
                 if (!Q.IsReady() && E.IsReady())
                 {
-                    E_Cast();
+                    E.Cast(target);
                 }
                 if (!E.IsReady() && R.IsReady())
                 {
@@ -362,15 +340,15 @@ namespace ChallengerRyze
                 }
                 if (!R.IsReady() && W.IsReady())
                 {
-                    W_Cast();
+                    W.Cast(target);
                 }
                 if (!W.IsReady() && Q.IsReady())
                 {
-                    Q_Cast();
+                    Q_Cast(target);
                 }
                 if (!Q.IsReady() && E.IsReady())
                 {
-                    E_Cast();
+                    E.Cast(target);
                 }
                 if (!E.IsReady() && R.IsReady())
                 {
@@ -378,15 +356,15 @@ namespace ChallengerRyze
                 }
                 if (!R.IsReady() && W.IsReady())
                 {
-                    W_Cast();
+                    W.Cast(target);
                 }
                 if (!W.IsReady() && Q.IsReady())
                 {
-                    Q_Cast();
+                    Q_Cast(target);
                 }
                 if (!Q.IsReady() && E.IsReady())
                 {
-                    E_Cast();
+                    E.Cast(target);
                 }
                 if (!E.IsReady() && R.IsReady())
                 {
@@ -394,15 +372,15 @@ namespace ChallengerRyze
                 }
                 if (!R.IsReady() && W.IsReady())
                 {
-                    W_Cast();
+                    W.Cast(target);
                 }
                 if (!W.IsReady() && Q.IsReady())
                 {
-                    Q_Cast();
+                    Q_Cast(target);
                 }
                 if (!Q.IsReady() && E.IsReady())
                 {
-                    E_Cast();
+                    E.Cast(target);
                 }
                 if (!E.IsReady() && R.IsReady())
                 {
@@ -411,11 +389,279 @@ namespace ChallengerRyze
             }
         }
 
+        private static void QWER()
+        {
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+
+            if (target.IsValidTarget(900))
+            {
+                if (Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+            }
+        }
+
+        private static void QEWR()
+        {
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+
+            if (target.IsValidTarget(900))
+            {
+                if (Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+
+            }
+        }
+
+        private static void WQRE()
+        {
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
+
+            if (target.IsValidTarget(600))
+            {
+                if (W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+                if (!E.IsReady() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+                if (!W.IsReady() && Q.IsReady())
+                {
+                    Q_Cast(target);
+                }
+                if (!Q.IsReady() && R.IsReady())
+                {
+                    R_Cast();
+                }
+                if (!R.IsReady() && E.IsReady())
+                {
+                    E.Cast(target);
+                }
+            }
+        }
+
         private static void SluttyCombo()
         {
-            var target = TS.GetTarget(900, DamageType.Magical);
+            var target = TargetSelector.GetTarget(900, DamageType.Magical);
             var Stacks = myHero.GetBuffCount("ryzepassivestack");
-            var QPred = Q.GetPrediction(target);
+            var QPred = Prediction.Position.PredictLinearMissile(target, Q.Range, Q.Width, Q.CastDelay, Q.Speed, int.MinValue, myHero.ServerPosition);
             bool StacksBuff = myHero.HasBuff("ryzepassivestack");
             bool Pasive = myHero.HasBuff("ryzepassivecharged");
             bool QCHECK = ComboMenu["SUQ"].Cast<CheckBox>().CurrentValue;
