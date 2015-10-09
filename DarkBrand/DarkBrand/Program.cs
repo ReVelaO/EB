@@ -117,8 +117,8 @@ namespace DarkBrand
             bool WCHECK = ComboMenu["WU"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = ComboMenu["EU"].Cast<CheckBox>().CurrentValue;
             bool RCHECK = ComboMenu["RU"].Cast<CheckBox>().CurrentValue;
-            var QPred = Prediction.Position.PredictLinearMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue);
-            var WPred = Prediction.Position.PredictCircularMissile(target, W.Range, W.Radius, W.CastDelay, W.Speed, target.ServerPosition);
+            var QPred = Prediction.Position.PredictLinearMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue, myHero.ServerPosition);
+            var WPred = Prediction.Position.PredictCircularMissile(target, W.Range, W.Radius, W.CastDelay, W.Speed, myHero.ServerPosition);
 
             if (!target.IsValid || target == null)
             {
@@ -166,8 +166,8 @@ namespace DarkBrand
 
             foreach (var enemy in EntityManager.Heroes.Enemies.Where(any => !any.HasBuffOfType(BuffType.Invulnerability)))
             {
-                var QPred = Prediction.Position.PredictLinearMissile(enemy, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue);
-                var WPred = Prediction.Position.PredictCircularMissile(enemy, W.Range, W.Radius, W.CastDelay, W.Speed, enemy.ServerPosition);
+                var QPred = Prediction.Position.PredictLinearMissile(enemy, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue, myHero.ServerPosition);
+                var WPred = Prediction.Position.PredictCircularMissile(enemy, W.Range, W.Radius, W.CastDelay, W.Speed, myHero.ServerPosition);
 
                 if (QCHECK && enemy.IsValidTarget(Q.Range) && myHero.GetSpellDamage(enemy, SpellSlot.Q) > (enemy.Health - 5) && QPred.HitChance >= HitChance.High && !enemy.IsDead)
                 {
