@@ -49,13 +49,14 @@ namespace DarkBrand
             ComboMenu.Add("RU", new CheckBox("Use R"));
             ComboMenu.Add("RK", new CheckBox("Use R if Killable"));
             ComboMenu.AddSeparator();
-            ComboMenu.Add("MR", new Slider("Min.Enemy in [R] Range", 1, 1, 5));
+            ComboMenu.Add("MR", new Slider("Min. Enemies in [R] Range", 1, 1, 5));
 
             HarassMenu = menu.AddSubMenu("Harass", "farmenu");
 
             HarassMenu.AddGroupLabel("Harass Settings");
             HarassMenu.Add("HW", new CheckBox("Auto W"));
             HarassMenu.Add("HE", new CheckBox("Auto E"));
+            HarassMenu.Add("HMC", new Slider("Min. Mana % for Harass", 75, 1, 100));
 
             KSMenu = menu.AddSubMenu("Kill Steal (KS)", "ksmenu");
 
@@ -72,11 +73,11 @@ namespace DarkBrand
             DrawingsMenu.Add("DE", new CheckBox("Draw E"));
             DrawingsMenu.Add("DR", new CheckBox("Draw R"));
 
-            Game.OnUpdate += Game_OnUpdate;
-            Drawing.OnDraw += Drawing_OnDraw;
+            Game.OnTick += OrbwalkerModes;
+            Drawing.OnDraw += Drawings;
         }
 
-        private static void Drawing_OnDraw(EventArgs args)
+        private static void Drawings(EventArgs args)
         {
             if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
             {
@@ -96,14 +97,14 @@ namespace DarkBrand
             }
         }
 
-        private static void Game_OnUpdate(EventArgs args)
+        private static void OrbwalkerModes(EventArgs args)
         {
             switch (Orbwalker.ActiveModesFlags)
             {
                 case Orbwalker.ActiveModes.Combo:
                     Combo();
                     break;
-                case Orbwalker.ActiveModes.LastHit:
+                case Orbwalker.ActiveModes.Harass:
                     Harass();
                     break;
             }
@@ -134,7 +135,7 @@ namespace DarkBrand
             }
             if (W.IsReady() && WCHECK && WPred.HitChance >= HitChance.High)
             {
-                W.Cast(target);
+                W.Cast(target.ServerPosition);
             }
             if (R.IsReady() && RCHECK)
             {
@@ -145,14 +146,15 @@ namespace DarkBrand
         private static void Harass()
         {
             var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+            var Control = HarassMenu["HMC"].Cast<Slider>().CurrentValue;
             bool WCHECK = HarassMenu["HW"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = HarassMenu["HE"].Cast<CheckBox>().CurrentValue;
 
-            if (W.IsReady() && WCHECK)
+            if (W.IsReady() && WCHECK && myHero.ManaPercent >= Control)
             {
-                W.Cast(target);
+                W.Cast(target.ServerPosition);
             }
-            if (E.IsReady() && ECHECK)
+            if (E.IsReady() && ECHECK && myHero.ManaPercent >= Control)
             {
                 E.Cast(target);
             }
@@ -175,7 +177,7 @@ namespace DarkBrand
                 }
                 if (WCHECK && enemy.IsValidTarget(W.Range) && myHero.GetSpellDamage(enemy, SpellSlot.W) > (enemy.Health - 5) && WPred.HitChance >= HitChance.High && !enemy.IsDead)
                 {
-                    W.Cast(enemy);
+                    W.Cast(enemy.ServerPosition);
                 }
                 if (ECHECK && enemy.IsValidTarget(E.Range) && myHero.GetSpellDamage(enemy, SpellSlot.E) > (enemy.Health - 5) && !enemy.IsDead)
                 {
