@@ -103,7 +103,7 @@ namespace ChallengerRyze
             {
                 if (!Program.DrawingsMenu["draw.Damage"].Cast<CheckBox>().CurrentValue) return;
 
-                foreach (var aiHeroClient in HeroManager.Enemies)
+                foreach (var aiHeroClient in EntityManager.Heroes.Enemies)
                 {
                     if (!aiHeroClient.IsHPBarRendered) continue;
 

@@ -49,16 +49,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EloBuddy">
-      <HintPath>..\..\SDLGKSDLG\System\EloBuddy.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\EloBuddy\System\EloBuddy.dll</HintPath>
     </Reference>
     <Reference Include="EloBuddy.SDK">
-      <HintPath>..\..\SDLGKSDLG\System\EloBuddy.SDK.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\EloBuddy\System\EloBuddy.SDK.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>..\..\SDLGKSDLG\System\SharpDX.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\EloBuddy\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>..\..\SDLGKSDLG\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\EloBuddy\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
