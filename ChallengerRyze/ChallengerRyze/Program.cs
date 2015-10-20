@@ -17,7 +17,7 @@ namespace ChallengerRyze
 {
     class Program
     {
-        public static Menu ComboMenu, DrawingsMenu, ItemsMenu, HarassMenu, KSMenu, MiscMenu, ThemeMenu, FarmMenu, LaneMenu, JungleMenu, menu;
+        public static Menu ComboMenu, DrawingsMenu, /*ItemsMenu, */HarassMenu, KSMenu, MiscMenu, ThemeMenu, FarmMenu, LaneMenu, JungleMenu, menu;
         public static Spell.Skillshot Q;
         public static Spell.Targeted W;
         public static Spell.Targeted E;
@@ -58,17 +58,6 @@ namespace ChallengerRyze
                     sender.DisplayName = co[changeArgs.NewValue];
                 };
 
-            ComboMenu.AddGroupLabel("Addon Combo");
-            ComboMenu.Add("CAC", new CheckBox("Enable Animation Cancel"));
-            var cx = ComboMenu.Add("csss", new Slider("Animation Cancel Method", 0, 0, 1));
-            var ca = new[] { "Mode: Kite", "Mode: To target" };
-            cx.DisplayName = ca[cx.CurrentValue];
-
-            cx.OnValueChange +=
-                delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-                {
-                    sender.DisplayName = ca[changeArgs.NewValue];
-                };
             ComboMenu.AddGroupLabel("Slutty Combo");
             ComboMenu.Add("SUQ", new CheckBox("Use Q"));
             ComboMenu.Add("SUW", new CheckBox("Use W"));
@@ -76,9 +65,9 @@ namespace ChallengerRyze
             ComboMenu.Add("SUR", new CheckBox("Use R"));
             ComboMenu.Add("SUAR", new CheckBox("Use R [Rooted Enemy]"));
 
-            FarmMenu = menu.AddSubMenu("Farm", "farmenu");
+            FarmMenu = menu.AddSubMenu("LastHit", "farmenu");
 
-            FarmMenu.AddGroupLabel("Last Hit Settings");
+            FarmMenu.AddGroupLabel("LastHit Settings");
             FarmMenu.Add("LHQ", new CheckBox("Use Q"));
             FarmMenu.Add("LHM", new Slider("Mana", 55, 1, 100));
 
@@ -100,7 +89,7 @@ namespace ChallengerRyze
             JungleMenu.Add("JCR", new CheckBox("Use R"));
             JungleMenu.Add("JCMANA", new Slider("Mana", 55, 1, 100));
 
-            HarassMenu = menu.AddSubMenu("Harass Settings", "hsmenu");
+            HarassMenu = menu.AddSubMenu("Harass", "hsmenu");
 
             HarassMenu.AddGroupLabel("Harass Settings");
             HarassMenu.Add("HSQ", new CheckBox("Use Q"));
@@ -133,6 +122,17 @@ namespace ChallengerRyze
             MiscMenu.AddGroupLabel("Misc Settings");
             MiscMenu.Add("Misc1", new CheckBox("Anti-Gapcloser [W Usage]"));
             MiscMenu.Add("Misc2", new CheckBox("Auto-Interrupt [W Usage]"));
+            MiscMenu.AddGroupLabel("Addon Cast Helper");
+            MiscMenu.Add("CAC", new CheckBox("Enable Addon Cast Helper"));
+            var cx = MiscMenu.Add("csss", new Slider("Addon Cast Method", 0, 0, 1));
+            var ca = new[] { "Mode: Kite", "Mode: To target" };
+            cx.DisplayName = ca[cx.CurrentValue];
+
+            cx.OnValueChange +=
+                delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+                {
+                    sender.DisplayName = ca[changeArgs.NewValue];
+                };
 
             ThemeMenu = menu.AddSubMenu("Theme Style", "themestyle");
 
@@ -147,7 +147,7 @@ namespace ChallengerRyze
                 sender.DisplayName = xo[changeArgs.NewValue];
             };
 
-            Game.OnTick += Game_OnUpdate;
+            Game.OnUpdate += Game_OnUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Gapcloser.OnGapcloser += Gapcloser_OnGapCloser;
             Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
@@ -277,9 +277,9 @@ namespace ChallengerRyze
 
         static void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args) //Hi, what are u doing here? :')
         {
-            bool CACCHECK = ComboMenu["CAC"].Cast<CheckBox>().CurrentValue;
+            bool CACCHECK = MiscMenu["CAC"].Cast<CheckBox>().CurrentValue;
             var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
-            var Modes = ComboMenu["csss"].DisplayName;
+            var Modes = MiscMenu["csss"].DisplayName;
 
             if (!CACCHECK) return;
 
@@ -288,13 +288,13 @@ namespace ChallengerRyze
                 switch (Modes)
                 {
                     case "Mode: Kite":
-                        if (CACCHECK && args.Slot == SpellSlot.Q || args.Slot == SpellSlot.W || args.Slot == SpellSlot.E)
+                        if (args.Slot == SpellSlot.Q || args.Slot == SpellSlot.W || args.Slot == SpellSlot.E)
                         {
                            Player.IssueOrder(GameObjectOrder.MoveTo, myHero.ServerPosition - 50);
                         }
                       break;
                     case "Mode: To target":
-                       if (CACCHECK && args.Slot == SpellSlot.Q || args.Slot == SpellSlot.W || args.Slot == SpellSlot.E)
+                       if (args.Slot == SpellSlot.Q || args.Slot == SpellSlot.W || args.Slot == SpellSlot.E)
                         {
                            Player.IssueOrder(GameObjectOrder.MoveTo, target.ServerPosition);
                         }
@@ -407,11 +407,11 @@ namespace ChallengerRyze
             if (!Q.IsReady() || !Q.IsLearned || Q.IsOnCooldown) return;
 
             var QPred = Q.GetPrediction(target);
-            if (target.IsValidTarget(900) && !target.HasBuff("RyzeW") && QPred.HitChance >= HitChance.High)
+            if (target.IsValidTarget(900) && !target.HasBuff("RyzeW") && !myHero.HasBuff("ryzepassivecharged") && QPred.HitChance >= HitChance.High)
             {
                 Q.Cast(QPred.CastPosition);
             }
-            else if (target.IsValidTarget(900) && target.HasBuff("RyzeW"))
+            else if (target.IsValidTarget(900) && target.HasBuff("RyzeW") | myHero.HasBuff("ryzepassivecharged"))
             {
                 Q.Cast(QPred.UnitPosition);
             }
@@ -438,7 +438,7 @@ namespace ChallengerRyze
             bool WCHECK = HarassMenu["HSW"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = HarassMenu["HSE"].Cast<CheckBox>().CurrentValue;
             var MANA_VALUE = HarassMenu["HSM"].Cast<Slider>().CurrentValue;
-            if (target.IsValidTarget(Q.Range))
+            if (!myHero.HasBuff("ryzepassivecharged"))
             {
                 if (E.IsReady() && target.IsValidTarget(E.Range) && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
@@ -472,104 +472,117 @@ namespace ChallengerRyze
 
         static void Laneclear()
         {
-            var minion =EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, myHero.Position, Q.Range)
-                    .OrderByDescending(x => x.Health)
-                    .FirstOrDefault();
+            /*var minion = ObjectManager.Get<Obj_AI_Minion>()
+                .Where(x => x.IsEnemy && x.Distance(myHero) < Q.Range && !x.IsDead)
+                .OrderBy(x => x.Health)
+                .FirstOrDefault();*/
+            var minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy)
+            .Where(x => x.Distance(myHero) < Q.Range && !x.IsDead)
+            .OrderBy(x => x.Health)
+            .FirstOrDefault();
+
+            if (minion == null) return;
+
             bool QCHECK = LaneMenu["LCQ"].Cast<CheckBox>().CurrentValue;
             bool WCHECK = LaneMenu["LCW"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = LaneMenu["LCE"].Cast<CheckBox>().CurrentValue;
             bool RCHECK = LaneMenu["LCR"].Cast<CheckBox>().CurrentValue;
+            bool Pasive = myHero.HasBuff("ryzepassivecharged");
+            var QPred = Q.GetPrediction(minion);
             var MANA_VALUE = LaneMenu["LCMANA"].Cast<Slider>().CurrentValue;
 
-            if (minion.IsValidTarget(Q.Range) && myHero.ManaPercent >= MANA_VALUE)
+            if (!Pasive)
             {
-                if (Q.IsReady() && minion.IsValidTarget(Q.Range) && QCHECK)
+                if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q_Cast(minion);
+                    Q.Cast(QPred.UnitPosition);
                 }
-                if (!Q.IsReady() && E.IsReady() && minion.IsValidTarget(E.Range) && ECHECK)
+                if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     E.Cast(minion);
                 }
-                if (!E.IsReady() && W.IsReady() && minion.IsValidTarget(W.Range) && WCHECK)
+                if (!E.IsReady() && W.IsReady() && WCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     W.Cast(minion);
                 }
-                if (R.IsReady() && minion.IsValidTarget(W.Range) && RCHECK)
+                if (R.IsReady() && RCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     R_Cast();
                 }
             }
-            if (myHero.HasBuff("ryzepassivecharged") && myHero.ManaPercent >= MANA_VALUE)
+            if (Pasive)
             {
-                if (Q.IsReady() && minion.IsValidTarget(Q.Range) && QCHECK)
+                if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q_Cast(minion);
+                    Q.Cast(QPred.UnitPosition);
                 }
-                if (!Q.IsReady() && E.IsReady() && minion.IsValidTarget(E.Range) && ECHECK)
+                if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     E.Cast(minion);
                 }
-                if (!E.IsReady() && W.IsReady() && minion.IsValidTarget(W.Range) && WCHECK)
+                if (!E.IsReady() && W.IsReady() && WCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     W.Cast(minion);
                 }
-                if (R.IsReady() && minion.IsValidTarget(W.Range) && RCHECK)
+                if (R.IsReady() && RCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     R.Cast();
                 }
-            }
+             }
         }
 
         static void Jungleclear()
         {
-            var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(myHero.Position, Q.Range)
-                    .OrderByDescending(x => x.Health)
-                    .FirstOrDefault();
-            if (minion == null || !minion.IsValid) return;
+            var minion = EntityManager.MinionsAndMonsters.GetJungleMonsters(myHero.ServerPosition)
+                .Where(x => x.Distance(myHero) < Q.Range && !x.IsDead)
+                .OrderBy(x => x.Health)
+                .FirstOrDefault();
 
-            bool QCHECK = LaneMenu["JCQ"].Cast<CheckBox>().CurrentValue;
-            bool WCHECK = LaneMenu["JCW"].Cast<CheckBox>().CurrentValue;
-            bool ECHECK = LaneMenu["JCE"].Cast<CheckBox>().CurrentValue;
-            bool RCHECK = LaneMenu["JCR"].Cast<CheckBox>().CurrentValue;
-            var MANA_VALUE = LaneMenu["JCMANA"].Cast<Slider>().CurrentValue;
-            if (minion.IsValidTarget(Q.Range))
+            bool QCHECK = JungleMenu["JCQ"].Cast<CheckBox>().CurrentValue;
+            bool WCHECK = JungleMenu["JCW"].Cast<CheckBox>().CurrentValue;
+            bool ECHECK = JungleMenu["JCE"].Cast<CheckBox>().CurrentValue;
+            bool RCHECK = JungleMenu["JCR"].Cast<CheckBox>().CurrentValue;
+            bool Pasive = myHero.HasBuff("ryzepassivecharged");
+            var QPred = Q.GetPrediction(minion);
+            var MANA_VALUE = JungleMenu["JCMANA"].Cast<Slider>().CurrentValue;
+
+            if (!Pasive)
             {
-                if (Q.IsReady() && minion.IsValidTarget(Q.Range) && QCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q_Cast(minion);
+                    Q.Cast(QPred.UnitPosition);
                 }
-                if (!Q.IsReady() && E.IsReady() && minion.IsValidTarget(E.Range) && ECHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     E.Cast(minion);
                 }
-                if (!E.IsReady() && W.IsReady() && minion.IsValidTarget(W.Range) && WCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (!E.IsReady() && W.IsReady() && WCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     W.Cast(minion);
                 }
-                if (R.IsReady() && minion.IsValidTarget(W.Range) && RCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (R.IsReady() && RCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     R_Cast();
                 }
             }
-            if (myHero.HasBuff("ryzepassivecharged"))
+            if (Pasive)
             {
-                if (Q.IsReady() && minion.IsValidTarget(Q.Range) && QCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q_Cast(minion);
+                    Q.Cast(QPred.UnitPosition);
                 }
-                if (!Q.IsReady() && E.IsReady() && minion.IsValidTarget(E.Range) && ECHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     E.Cast(minion);
                 }
-                if (!E.IsReady() && W.IsReady() && minion.IsValidTarget(W.Range) && WCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (!E.IsReady() && W.IsReady() && WCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     W.Cast(minion);
                 }
-                if (R.IsReady() && minion.IsValidTarget(W.Range) && RCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (R.IsReady() && RCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     R.Cast();
-                }
+                }  
             }
         }
 
