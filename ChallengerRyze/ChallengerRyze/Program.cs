@@ -398,9 +398,9 @@ namespace ChallengerRyze
             if (!Q.IsReady() || !Q.IsLearned || Q.IsOnCooldown) return;
 
             var QPred = Q.GetPrediction(target);
-            if (target.IsValidTarget(900) && !target.HasBuff("RyzeW") && !myHero.HasBuff("ryzepassivecharged") && QPred.HitChance >= HitChance.High)
+            if (target.IsValidTarget(900) && !target.HasBuff("RyzeW") && !myHero.HasBuff("ryzepassivecharged") && QPred.HitChance >= HitChance.Medium)
             {
-                Q.Cast(QPred.CastPosition);
+                Q.Cast(target);
             }
             else if (target.IsValidTarget(900) && target.HasBuff("RyzeW") | myHero.HasBuff("ryzepassivecharged"))
             {
@@ -463,55 +463,51 @@ namespace ChallengerRyze
 
         static void Laneclear()
         {
-            var minion = ObjectManager.Get<Obj_AI_Minion>()
-                .Where(x => x.IsEnemy && x.IsValidTarget(Q.Range) && !x.IsDead)
-                .OrderBy(x => x.Health)
-                .FirstOrDefault();
-
-            if (minion == null) return;
-
+            var minion = ObjectManager.Get<Obj_AI_Minion>().Where(x => x.IsEnemy && x.IsValidTarget(Q.Range)).OrderBy(x => x.Health).FirstOrDefault();
+            if (minion == null || !minion.IsValid) return;
+            if (Orbwalker.IsAutoAttacking) return;
+            Orbwalker.ForcedTarget = null;
             bool QCHECK = LaneMenu["LCQ"].Cast<CheckBox>().CurrentValue;
             bool WCHECK = LaneMenu["LCW"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = LaneMenu["LCE"].Cast<CheckBox>().CurrentValue;
             bool RCHECK = LaneMenu["LCR"].Cast<CheckBox>().CurrentValue;
             bool Pasive = myHero.HasBuff("ryzepassivecharged");
-            var QPred = Q.GetPrediction(minion);
             var MANA_VALUE = LaneMenu["LCMANA"].Cast<Slider>().CurrentValue;
 
-            if (!Pasive)
+            if (!Pasive && myHero.ManaPercent >= MANA_VALUE)
             {
-                if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (Q.IsReady() && QCHECK)
                 {
-                    Q.Cast(QPred.UnitPosition);
+                    Q.Cast(minion.Position);
                 }
-                if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (!Q.IsReady() && E.IsReady() && ECHECK)
                 {
                     E.Cast(minion);
                 }
-                if (!E.IsReady() && W.IsReady() && WCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (!E.IsReady() && W.IsReady() && WCHECK)
                 {
                     W.Cast(minion);
                 }
-                if (R.IsReady() && RCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (R.IsReady() && RCHECK)
                 {
                     R_Cast();
                 }
             }
             if (Pasive)
             {
-                if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (Q.IsReady() && QCHECK)
                 {
-                    Q.Cast(QPred.UnitPosition);
+                    Q.Cast(minion.Position);
                 }
-                if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (!Q.IsReady() && E.IsReady() && ECHECK)
                 {
                     E.Cast(minion);
                 }
-                if (!E.IsReady() && W.IsReady() && WCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (!E.IsReady() && W.IsReady() && WCHECK)
                 {
                     W.Cast(minion);
                 }
-                if (R.IsReady() && RCHECK && myHero.ManaPercent >= MANA_VALUE)
+                if (R.IsReady() && RCHECK)
                 {
                     R.Cast();
                 }
@@ -520,24 +516,22 @@ namespace ChallengerRyze
 
         static void Jungleclear()
         {
-            var minion = ObjectManager.Get<Obj_AI_Minion>()
-                .Where(x => x.IsMonster && x.IsValidTarget(Q.Range) && !x.IsDead)
-                .OrderBy(x => x.Health)
-                .FirstOrDefault();
-
+            var minion = ObjectManager.Get<Obj_AI_Minion>().Where(x => x.IsMonster && x.IsValidTarget(Q.Range)).OrderBy(x => x.Health).FirstOrDefault();
+            if (minion == null || !minion.IsValid) return;
+            if (Orbwalker.IsAutoAttacking) return;
+            Orbwalker.ForcedTarget = null;
             bool QCHECK = JungleMenu["JCQ"].Cast<CheckBox>().CurrentValue;
             bool WCHECK = JungleMenu["JCW"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = JungleMenu["JCE"].Cast<CheckBox>().CurrentValue;
             bool RCHECK = JungleMenu["JCR"].Cast<CheckBox>().CurrentValue;
             bool Pasive = myHero.HasBuff("ryzepassivecharged");
-            var QPred = Q.GetPrediction(minion);
             var MANA_VALUE = JungleMenu["JCMANA"].Cast<Slider>().CurrentValue;
 
             if (!Pasive)
             {
                 if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q.Cast(QPred.UnitPosition);
+                    Q.Cast(minion.Position);
                 }
                 if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
@@ -556,7 +550,7 @@ namespace ChallengerRyze
             {
                 if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q.Cast(QPred.UnitPosition);
+                    Q.Cast(minion.Position);
                 }
                 if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
