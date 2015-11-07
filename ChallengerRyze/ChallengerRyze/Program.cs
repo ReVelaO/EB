@@ -463,7 +463,7 @@ namespace ChallengerRyze
 
         static void Laneclear()
         {
-            var minion = ObjectManager.Get<Obj_AI_Minion>().Where(x => x.IsEnemy && x.IsValidTarget(Q.Range)).OrderBy(x => x.Health).FirstOrDefault();
+            var minion = ObjectManager.Get<Obj_AI_Minion>().Where(x => x.IsEnemy && x.IsMinion && x.IsValidTarget(Q.Range)).OrderBy(x => x.Health).FirstOrDefault();
             if (minion == null || !minion.IsValid) return;
             if (Orbwalker.IsAutoAttacking) return;
             Orbwalker.ForcedTarget = null;
@@ -474,40 +474,40 @@ namespace ChallengerRyze
             bool Pasive = myHero.HasBuff("ryzepassivecharged");
             var MANA_VALUE = LaneMenu["LCMANA"].Cast<Slider>().CurrentValue;
 
-            if (!Pasive && myHero.ManaPercent >= MANA_VALUE)
+            if (!Pasive)
             {
-                if (Q.IsReady() && QCHECK)
+                if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q.Cast(minion.Position);
+                    Q.Cast(minion);
                 }
-                if (!Q.IsReady() && E.IsReady() && ECHECK)
+                if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     E.Cast(minion);
                 }
-                if (!E.IsReady() && W.IsReady() && WCHECK)
+                if (!E.IsReady() && W.IsReady() && WCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     W.Cast(minion);
                 }
-                if (R.IsReady() && RCHECK)
+                if (R.IsReady() && RCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     R_Cast();
                 }
             }
             if (Pasive)
             {
-                if (Q.IsReady() && QCHECK)
+                if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q.Cast(minion.Position);
+                    Q.Cast(minion);
                 }
-                if (!Q.IsReady() && E.IsReady() && ECHECK)
+                if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     E.Cast(minion);
                 }
-                if (!E.IsReady() && W.IsReady() && WCHECK)
+                if (!E.IsReady() && W.IsReady() && WCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     W.Cast(minion);
                 }
-                if (R.IsReady() && RCHECK)
+                if (R.IsReady() && RCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
                     R.Cast();
                 }
@@ -531,7 +531,7 @@ namespace ChallengerRyze
             {
                 if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q.Cast(minion.Position);
+                    Q.Cast(minion);
                 }
                 if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
@@ -550,7 +550,7 @@ namespace ChallengerRyze
             {
                 if (Q.IsReady() && QCHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
-                    Q.Cast(minion.Position);
+                    Q.Cast(minion);
                 }
                 if (!Q.IsReady() && E.IsReady() && ECHECK && myHero.ManaPercent >= MANA_VALUE)
                 {
