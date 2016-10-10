@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Resources;
 using System.Threading.Tasks;
 using System.Reflection;
 using EloBuddy;
@@ -16,48 +17,47 @@ using SharpDX;
 using System.Drawing;
 using Color = System.Drawing.Color;
 
-namespace ChallengerTwitch
+namespace ArcaneTwitch
 {
-    class Program
+    public class Program
     {
         static Menu ComboMenu, ItemsMenu, ExtraMenu, menu;
-        static Spell.Active _Cloak;
-        static Spell.Skillshot _Elixir;
-        static Spell.Active _Frustation;
-        static Spell.Active _Love;
-        static Item _Destruction;
-        static Spell.Active Recall;
-        static AIHeroClient myHero { get { return ObjectManager.Player; } }
+        public static Spell.Active _Cloak;
+        public static Spell.Skillshot _Elixir;
+        public static Spell.Active _Frustation;
+        public static Spell.Active _Love;
+        public static Item _BOTRK;
+        public static Item _Sable;
+        public static Spell.Active Recall;
+        public static AIHeroClient myHero { get { return ObjectManager.Player; } }
 
         static void Main(string[] args)
         {
             Loading.OnLoadingComplete += LoadUP;
         }
-
-
-        static void LoadUP(EventArgs args)
+        public static void LoadUP(EventArgs args)
         {
             if (Player.Instance.Hero != Champion.Twitch)
             {
+                Chat.Print("<font color='#FFFFFF'>[You Champion: " + Player.Instance.ChampionName + "<font color='#FFFFFF'> is not supported</font><font color='#FFFFFF'>]</font>");
                 return;
             }
-            string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            Chat.Print("[" + "<font color = '#f42222'>Arcane</font><font color = '#22f45a'> Twitch</font>:<font color = '#FFFFFF'> Loaded</font>" + "] -> <font color = '#FFFFFF'>" + version + "</font>");
+            Chat.Print("<font color='#FFFFFF'>[Addon Twitch: </font><font color='#34BFD6'>Loaded</font>]");
             _Cloak = new Spell.Active(SpellSlot.Q);
             _Elixir = new Spell.Skillshot(SpellSlot.W, 900, SkillShotType.Circular, 250, 1550, 275);
             _Frustation = new Spell.Active(SpellSlot.E);
             _Love = new Spell.Active(SpellSlot.R);
-            _Destruction = new Item(ItemId.Blade_of_the_Ruined_King);
+            _BOTRK = new Item(ItemId.Blade_of_the_Ruined_King);
+            _Sable = new Item(ItemId.Bilgewater_Cutlass);
             Recall = new Spell.Active(SpellSlot.Recall);
 
             menu = MainMenu.AddMenu("Arcane Twitch", "drt");
 
             ComboMenu = menu.AddSubMenu("Combo", "combomenu");
 
-            ComboMenu.AddGroupLabel("Combo Settings");
-            ComboMenu.Add("WU", new CheckBox("Use W"));
-            ComboMenu.AddSeparator();
-            ComboMenu.Add("Ee", new CheckBox("Use E", true));
+            ComboMenu.AddGroupLabel("Function Combo");
+            ComboMenu.Add("WU", new CheckBox("Execute W"));
+            ComboMenu.Add("Ee", new CheckBox("Execute E", true));
             ComboMenu.AddLabel("Select you E Mode");
             ComboMenu.Add("Lista", new ComboBox("E Mode:", 0, "Normal", "Smart-Algorithm"));
             ComboMenu.AddLabel("UN-BYPASS: Will Check Packs for Execute. BYPASS: Will Calc DMG of Poison");
@@ -65,17 +65,24 @@ namespace ChallengerTwitch
             ComboMenu.AddLabel("If UN-BYPASS mode, please choose stacks.");
             ComboMenu.Add("EVAR", new Slider("Stacks to execute", 4, 1, 6));
 
-            ItemsMenu = menu.AddSubMenu("Items","itemenu");
-            ItemsMenu.AddLabel("¿Use BOTRK (Blade of The Ruined King)?");
-            ItemsMenu.Add("box1", new ComboBox("BOTRK",0,"YES", "NO"));
-            ItemsMenu.Add("vidabox", new ComboBox("BOTRK Mode:",0,"Combo","Smart HP"));
-            ItemsMenu.Add("vidasmart", new Slider("Use if hp is below than HP%", 92, 1, 100));
+            ItemsMenu = menu.AddSubMenu("Activator","itemenu");
 
-            ExtraMenu = menu.AddSubMenu("Extra", "extamenu");
-            ExtraMenu.AddGroupLabel("Extra features");
-            ExtraMenu.Add("box4", new ComboBox("¿Auto invisibility Cloak if base speed boost is on?", 0,"YES","NO"));
+            ItemsMenu.AddGroupLabel("Function Activator");
+            ItemsMenu.AddLabel("¿Use Bilgewater Cutlass?");
+            ItemsMenu.Add("useBWC", new ComboBox("BWC", 0, "YES", "NO"));
+            ItemsMenu.AddLabel("¿Use BOTRK (Blade of The Ruined King)?");
+            ItemsMenu.Add("useBOTRK", new ComboBox("BOTRK",0,"YES", "NO"));
+            ItemsMenu.Add("modeBOTRK", new ComboBox("BOTRK Mode:",0,"Combo","Smart HP"));
+            ItemsMenu.Add("hpBOTRK", new Slider("Use if hp is below than HP%", 92, 1, 100));
+
+            ExtraMenu = menu.AddSubMenu("Misc", "extamenu");
+
+            ExtraMenu.AddGroupLabel("Function Misc");
+            ExtraMenu.AddLabel("¿Auto invisibility Cloak when base speed boost is on?");
+            ExtraMenu.Add("box4", new ComboBox("Invisibility Cloak", 0,"YES","NO"));
             ExtraMenu.Add("box3", new KeyBind("Stealth Recall", false, KeyBind.BindTypes.HoldActive, 'T'));
             Game.OnTick += OnTick;
+            Spellbook.OnCastSpell += Events.Spellbook_OnCastSpell;
         }
 
         static void OnTick(EventArgs args)
@@ -83,13 +90,13 @@ namespace ChallengerTwitch
             switch (Orbwalker.ActiveModesFlags)
             {
                 case Orbwalker.ActiveModes.Combo:
-                    Play();
+                    Modes.Combo();
                 break;
             }
             Menu();
-            BaseCloak();
-            Items();
-            StealthRecall();
+            Functions.Activator();
+            Functions.BaseCloak();
+            Functions.StealthRecall();
         }
 
         static void Menu()
@@ -108,213 +115,45 @@ namespace ChallengerTwitch
                 ComboMenu["If UN-BYPASS mode, please choose stacks."].IsVisible = false;
                 ComboMenu["UN-BYPASS: Will Check Packs for Execute. BYPASS: Will Calc DMG of Poison"].IsVisible = false;
             }
-            if (ItemsMenu["vidabox"].Cast<ComboBox>().CurrentValue == 0)
+            if (ItemsMenu["modeBOTRK"].Cast<ComboBox>().CurrentValue == 0)
             {
-                ItemsMenu["vidasmart"].Cast<Slider>().IsVisible = false;
+                ItemsMenu["hpBOTRK"].Cast<Slider>().IsVisible = false;
             }
-            if (ItemsMenu["vidabox"].Cast<ComboBox>().CurrentValue == 1)
+            if (ItemsMenu["modeBOTRK"].Cast<ComboBox>().CurrentValue == 1)
             {
-                ItemsMenu["vidasmart"].Cast<Slider>().IsVisible = true;
-            }
-        }
-
-        static void Play()
-        {
-            var process = TargetSelector.GetTarget(_Elixir.Range, DamageType.Physical);
-            if (process == null)
-            {
-                return;
-            }
-            Elixir(process);
-            Frustation(process);
-        }
-
-        /*static void Cloak()
-        {
-            string pepas = "HideInShadows";
-        }*/
-
-        static void Elixir(AIHeroClient process)
-        {
-            var ElixirPred = _Elixir.GetPrediction(process);
-
-            if (ComboMenu["WU"].Cast<CheckBox>().CurrentValue)
-            {
-
-
-                if (process.IsValidTarget(_Elixir.Range) && ElixirPred.HitChance >= HitChance.High)
-                {
-                    if (process.IsInRange(myHero, _Elixir.Range)
-                            && _Elixir.IsReady()
-                            && _Elixir.CanCast(process)
-                            && !_Elixir.IsOnCooldown)
-                    {
-                        _Elixir.Cast(process);
-                    }
-                }
-                if (process.IsRooted)
-                {
-                    _Elixir.Cast(process.Position);
-                }
+                ItemsMenu["hpBOTRK"].Cast<Slider>().IsVisible = true;
             }
         }
-
-        static void Frustation(AIHeroClient process)
+        //
+        // Variables Below.-
+        //
+        public static int mItems(string text)
         {
-            if (process.HasBuff("twitchdeadlyvenom") == true)
-            {
-
-                if (ComboMenu["Ee"].Cast<CheckBox>().CurrentValue)
-                {
-                    if (ComboMenu["Lista"].Cast<ComboBox>().CurrentValue == 0)
-                    {
-                        if (ComboMenu["ebb"].Cast<ComboBox>().CurrentValue == 0)
-                        {
-                            if (GetFrustationAlgorithm(process) >= ComboMenu["EVAR"].Cast<Slider>().CurrentValue)
-                            {
-                                if (process.IsValidTarget(_Elixir.Range + 150) && _Frustation.IsReady())
-                                {
-                                    _Frustation.Cast();
-                                }
-                            }
-                        }
-                        if (ComboMenu["ebb"].Cast<ComboBox>().CurrentValue == 1)
-                        {
-                            if (GetFrustationDMG(process) >= (process.TotalShieldHealth() - 5))
-                            {
-                                if (process.IsValidTarget(_Elixir.Range + 150) && _Frustation.IsReady())
-                                {
-                                    _Frustation.Cast();
-                                }
-                            }
-                        }
-                    }
-                    if (ComboMenu["Lista"].Cast<ComboBox>().CurrentValue == 1)
-                    {
-                        if (process.HasBuff("twitchdeadlyvenom"))
-                        {
-                            if (process.HealthPercent >= 50
-                                && myHero.HealthPercent <= 38
-                                && process.IsInAutoAttackRange(myHero))
-                            {
-                                if (process.IsValidTarget(_Elixir.Range + 150) && _Frustation.IsReady())
-                                {
-                                    _Frustation.Cast();
-                                }
-                            }
-                            else
-                            {
-                                if (process.HealthPercent < myHero.HealthPercent)
-                                {
-                                    if (GetFrustationDMG(process) >= (process.TotalShieldHealth() - 5))
-                                    {
-                                        if (process.IsValidTarget(_Elixir.Range + 150) && _Frustation.IsReady())
-                                        {
-                                            _Frustation.Cast();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            return ItemsMenu[text].Cast<ComboBox>().CurrentValue;
         }
-
-        static void Love()
+        public static int mItemsSlider(string text)
         {
-
+            return ItemsMenu[text].Cast<Slider>().CurrentValue;
         }
-
-        static void Items()
+        public static bool mCloak
         {
-            var process = TargetSelector.GetTarget(myHero.GetAutoAttackRange(), DamageType.Physical);
-            if (process == null || !_Destruction.IsOwned())
-            {
-                return;
-            }
-            if (ItemsMenu["box1"].Cast<ComboBox>().CurrentValue == 1)
-            {
-                return;
-            }
-            if (ItemsMenu["box1"].Cast<ComboBox>().CurrentValue == 0)
-            {
-                if (ItemsMenu["vidabox"].Cast<ComboBox>().CurrentValue == 0)
-                {
-                    if (process.IsValidTarget(myHero.GetAutoAttackRange())
-                        && _Destruction.IsReady()
-                        && Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
-                    {
-                        _Destruction.Cast(process);
-                    }
-                }
-                if (ItemsMenu["vidabox"].Cast<ComboBox>().CurrentValue == 1)
-                {
-                    if (myHero.HealthPercent <= ItemsMenu["vidasmart"].Cast<Slider>().CurrentValue
-                        && process.IsValidTarget(myHero.GetAutoAttackRange())
-                        && _Destruction.IsReady()
-                        && Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
-                    {
-                        _Destruction.Cast(process);
-                    }
-                }
-            }
+            get { return ExtraMenu["box3"].Cast<KeyBind>().CurrentValue; }
         }
-
-        static void BaseCloak()
+        public static int mBaseCloak
         {
-            if (ExtraMenu["box4"].Cast<ComboBox>().CurrentValue == 1)
-            {
-                return;
-            }
-            if (myHero.HasBuff("SRHomeguardSpeed")
-                && myHero.IsMoving
-                && ExtraMenu["box4"].Cast<ComboBox>().CurrentValue == 0 
-                && _Cloak.IsReady() 
-                && !Shop.IsOpen)
-            {
-                _Cloak.Cast();
-            }
+            get { return ExtraMenu["box4"].Cast<ComboBox>().CurrentValue; }
         }
-
-        static void StealthRecall()
+        public static bool mComboMenuCheckBox(string text)
         {
-            if (ExtraMenu["box3"].Cast<KeyBind>().CurrentValue 
-                && _Cloak.IsReady())
-            {
-                _Cloak.Cast();
-                Recall.Cast();
-            }
+            return ComboMenu[text].Cast<CheckBox>().CurrentValue;
         }
-        //Sida's code here ( ͡° ͜ʖ ͡°)
-        static int GetFrustationAlgorithm(AIHeroClient process)
+        public static int mComboMenuComboBox(string text)
         {
-            var twitchECount = 0;
-            for (var i = 1; i < 7; i++)
-            {
-                if (ObjectManager.Get<Obj_GeneralParticleEmitter>()
-                    .Any(e => e.Position.Distance(process.ServerPosition) <= 175 &&
-                              e.Name == "twitch_poison_counter_0" + i + ".troy"))
-                {
-                    twitchECount = i;
-                }
-            }
-            return twitchECount;
+            return ComboMenu[text].Cast<ComboBox>().CurrentValue;
         }
-        static float GetFrustationDMG(AIHeroClient process)
+        public static int mComboMenuSlider(string text)
         {
-                if (GetFrustationAlgorithm(process) == 0) return 0;
-
-                float stacksChamps = GetFrustationAlgorithm(process);
-
-                float EDamageChamp = new[] { 20, 35, 50, 65, 80 }[ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).Level - 1];
-
-                if (stacksChamps > 1)
-                {
-                    EDamageChamp += (new[] { 15, 20, 25, 30, 35 }[ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).Level - 1] + (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).SData.PhysicalDamageRatio * ObjectManager.Player.FlatPhysicalDamageMod) + (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.E).SData.SpellDamageRatio * ObjectManager.Player.FlatMagicDamageMod)) * (stacksChamps - 1);
-                }
-
-                return ObjectManager.Player.CalculateDamageOnUnit(process, DamageType.Physical, EDamageChamp);
+            return ComboMenu[text].Cast<Slider>().CurrentValue;
         }
     }
 }
