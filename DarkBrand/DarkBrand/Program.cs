@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -7,35 +6,34 @@ using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
-using EloBuddy.SDK.Rendering;
-using SharpDX;
-using System.Drawing;
 using Color = System.Drawing.Color;
+using EloBuddy.SDK.Notifications;
 
 namespace DarkBrand
 {
-    class Program
+    static class Program
     {
-        public static Menu ComboMenu, DrawingsMenu, KSMenu, HarassMenu, menu;
-        public static Spell.Skillshot Q;
-        public static Spell.Skillshot W;
-        public static Spell.Targeted E;
-        public static Spell.Targeted R;
-        public static AIHeroClient myHero { get { return ObjectManager.Player; } }
+        private static Menu ComboMenu, DrawingsMenu, KSMenu, HarassMenu, menu;
+        private static Spell.Skillshot Q;
+        private static Spell.Skillshot W;
+        private static Spell.Targeted E;
+        private static Spell.Targeted R;
+        private static AIHeroClient Brand { get { return ObjectManager.Player; } }
 
         private static void Main(string[] args)
         {
-            Loading.OnLoadingComplete += Loading_OnLoadingComplete;
+            Loading.OnLoadingComplete += BrandLoad;
         }
 
-        private static void Loading_OnLoadingComplete(EventArgs args)
+        private static void BrandLoad(EventArgs args)
         {
             if (Player.Instance.Hero != Champion.Brand)
                 return;
-
-            Q = new Spell.Skillshot(SpellSlot.Q, 1050, SkillShotType.Linear, 250, 1200, 85);
+            Chat.Print("<font color='#FFFFFF'>[Addon Brand: </font><font color='#34BFD6'>Loaded</font>]");
+            Notifications.Show(new SimpleNotification("Dark Brand","Welcome back buddy!"));
+            Q = new Spell.Skillshot(SpellSlot.Q, 1100, SkillShotType.Linear, 250, 1600, 60);
             W = new Spell.Skillshot(SpellSlot.W, 900, SkillShotType.Circular, 5, int.MaxValue, 250);
-            E = new Spell.Targeted(SpellSlot.E, 625);
+            E = new Spell.Targeted(SpellSlot.E, 640);
             R = new Spell.Targeted(SpellSlot.R, 750);
 
             menu = MainMenu.AddMenu("DarkBrand", "DarkBrand");
@@ -47,9 +45,9 @@ namespace DarkBrand
             ComboMenu.Add("WU", new CheckBox("Use W"));
             ComboMenu.Add("EU", new CheckBox("Use E"));
             ComboMenu.Add("RU", new CheckBox("Use R"));
-            ComboMenu.Add("RK", new CheckBox("Use R if Killable"));
             ComboMenu.AddSeparator();
             ComboMenu.Add("MR", new Slider("Min. Enemies in [R] Range", 1, 1, 5));
+            ComboMenu.Add("ha", new Slider("Hitchance percent of habilities", 69, 1, 100));
 
             HarassMenu = menu.AddSubMenu("Harass", "farmenu");
 
@@ -79,22 +77,10 @@ namespace DarkBrand
 
         private static void Drawings(EventArgs args)
         {
-            if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue)
-            {
-                new Circle() { Color = Color.Orange, Radius = Q.Range, BorderWidth = 2f }.Draw(myHero.Position);
-            }
-            if (DrawingsMenu["DW"].Cast<CheckBox>().CurrentValue)
-            {
-                new Circle() { Color = Color.Orange, Radius = W.Range, BorderWidth = 2f }.Draw(myHero.Position);
-            }
-            if (DrawingsMenu["DE"].Cast<CheckBox>().CurrentValue)
-            {
-                new Circle() { Color = Color.Orange, Radius = E.Range, BorderWidth = 2f }.Draw(myHero.Position);
-            }
-            if (DrawingsMenu["DR"].Cast<CheckBox>().CurrentValue)
-            {
-                new Circle() { Color = Color.Red, Radius = R.Range, BorderWidth = 2f }.Draw(myHero.Position);
-            }
+            if (DrawingsMenu["DQ"].Cast<CheckBox>().CurrentValue) { Q.DrawRange(Color.Orange); }
+            if (DrawingsMenu["DW"].Cast<CheckBox>().CurrentValue) { W.DrawRange(Color.Orange); }
+            if (DrawingsMenu["DE"].Cast<CheckBox>().CurrentValue) { E.DrawRange(Color.Orange); }
+            if (DrawingsMenu["DR"].Cast<CheckBox>().CurrentValue) { R.DrawRange(Color.Red); }
         }
 
         private static void OrbwalkerModes(EventArgs args)
@@ -108,9 +94,8 @@ namespace DarkBrand
                     Harass();
                     break;
             }
-            KS();
+            KillSteal();
         }
-
         private static void Combo()
         {
             var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
@@ -118,94 +103,140 @@ namespace DarkBrand
             bool WCHECK = ComboMenu["WU"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = ComboMenu["EU"].Cast<CheckBox>().CurrentValue;
             bool RCHECK = ComboMenu["RU"].Cast<CheckBox>().CurrentValue;
-            var QPred = Prediction.Position.PredictLinearMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue, myHero.ServerPosition);
-            var WPred = Prediction.Position.PredictCircularMissile(target, W.Range, W.Radius, W.CastDelay, W.Speed, myHero.ServerPosition);
+            float hitchancep = ComboMenu["ha"].Cast<Slider>().CurrentValue;
+            var QPred = Prediction.Position.PredictLinearMissile(target, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue, Brand.Position);
+            var WPred = Prediction.Position.PredictCircularMissile(target, W.Range, W.Radius, W.CastDelay, W.Speed, Brand.Position);
 
             if (!target.IsValid || target == null)
             {
                 return;
             }
-            if (E.IsReady() && ECHECK)
+            if (ECHECK)
             {
-                E.Cast(target);
+                if (!E.IsReady()) { return; }
+                if (E.IsReady())
+                {
+                    if (target.IsValidTarget(E.Range)) { E.Cast(target); }
+                }
             }
-            if (Q.IsReady() && QCHECK && QPred.HitChance >= HitChance.High)
+            if (QCHECK)
             {
-                Q.Cast(target);
+                if (!Q.IsReady()) { return; }
+                if (Q.IsReady())
+                {
+                    if (target.IsValidTarget(Q.Range))
+                    {
+                        if (IsBlazed(target)
+                            && QPred.HitChancePercent >= hitchancep) { Q.Cast(QPred.CastPosition); }
+                        else
+                        {
+                            if (QPred.HitChance >= HitChance.High) { Q.Cast(QPred.CastPosition); }
+                        }
+                    }
+                }
             }
-            if (W.IsReady() && WCHECK && WPred.HitChance >= HitChance.High)
+            if (WCHECK)
             {
-                W.Cast(target.ServerPosition);
+                if (!W.IsReady()) { return; }
+                if (W.IsReady())
+                {
+                    if (IsBlazed(target) 
+                        && WPred.HitChancePercent >= hitchancep) { W.Cast(WPred.CastPosition); }
+                    else
+                    {
+                        if (!IsBlazed(target) 
+                            && WPred.HitChancePercent >= hitchancep) { W.Cast(WPred.CastPosition); }
+                    }
+                }
             }
-            if (R.IsReady() && RCHECK)
+            if (RCHECK)
             {
-                CustomR_Cast(target);
+                if (!R.IsReady()) { return; }
+                if (R.IsReady()) { CustomR_Cast(target); }
             }
         }
-
         private static void Harass()
         {
             var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
-            var Control = HarassMenu["HMC"].Cast<Slider>().CurrentValue;
+            float Control = HarassMenu["HMC"].Cast<Slider>().CurrentValue;
             bool WCHECK = HarassMenu["HW"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = HarassMenu["HE"].Cast<CheckBox>().CurrentValue;
-
-            if (W.IsReady() && WCHECK && myHero.ManaPercent >= Control)
+            if (target == null)
             {
-                W.Cast(target.ServerPosition);
+                return;
             }
-            if (E.IsReady() && ECHECK && myHero.ManaPercent >= Control)
+            if (WCHECK)
             {
-                E.Cast(target);
+                if (!W.IsReady()) { return; }
+                if (W.IsReady())
+                {
+                    if (target.IsValidTarget(W.Range)
+                        && Brand.ManaPercent >= Control) { W.Cast(target.Position); }
+                }
+            }
+            if (ECHECK)
+            {
+                if (!E.IsReady()) { return; }
+                if (E.IsReady())
+                {
+                    if (target.IsValidTarget(E.Range)
+                        && Brand.ManaPercent >= Control) { E.Cast(target); }
+                }
             }
         }
-
-        private static void KS()
+        private static void KillSteal()
         {
             bool QCHECK = KSMenu["KSQ"].Cast<CheckBox>().CurrentValue;
             bool WCHECK = KSMenu["KSW"].Cast<CheckBox>().CurrentValue;
             bool ECHECK = KSMenu["KSE"].Cast<CheckBox>().CurrentValue;
 
-            foreach (var enemy in EntityManager.Heroes.Enemies.Where(any => !any.HasBuffOfType(BuffType.Invulnerability)))
+            foreach (var enemy in EntityManager.Heroes.Enemies.Where(x => !x.HasBuffOfType(BuffType.Invulnerability) && x.IsValidTarget(Q.Range) && x.IsEnemy && !x.IsDead))
             {
-                var QPred = Prediction.Position.PredictLinearMissile(enemy, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue, myHero.ServerPosition);
-                var WPred = Prediction.Position.PredictCircularMissile(enemy, W.Range, W.Radius, W.CastDelay, W.Speed, myHero.ServerPosition);
+                var QPred = Prediction.Position.PredictLinearMissile(enemy, Q.Range, Q.Radius, Q.CastDelay, Q.Speed, int.MaxValue, Brand.Position);
+                var WPred = Prediction.Position.PredictCircularMissile(enemy, W.Range, W.Radius, W.CastDelay, W.Speed, Brand.Position);
 
-                if (QCHECK && enemy.IsValidTarget(Q.Range) && myHero.GetSpellDamage(enemy, SpellSlot.Q) > (enemy.Health - 5) && QPred.HitChance >= HitChance.High && !enemy.IsDead)
+                if (QCHECK)
                 {
-                    Q.Cast(enemy);
+                    if (!Q.IsReady()) { return; }
+                    if (enemy.IsValidTarget(Q.Range)
+                    && Brand.GetSpellDamage(enemy, SpellSlot.Q) > (enemy.TotalShieldHealth() - 5)
+                    && QPred.HitChance >= HitChance.High
+                    && !enemy.IsDead) { Q.Cast(QPred.CastPosition); }
                 }
-                if (WCHECK && enemy.IsValidTarget(W.Range) && myHero.GetSpellDamage(enemy, SpellSlot.W) > (enemy.Health - 5) && WPred.HitChance >= HitChance.High && !enemy.IsDead)
+                if (WCHECK)
                 {
-                    W.Cast(enemy.ServerPosition);
+                    if (!W.IsReady()) { return; }
+                    if (enemy.IsValidTarget(W.Range)
+                    && Brand.GetSpellDamage(enemy, SpellSlot.W) > (enemy.TotalShieldHealth() - 5)
+                    && WPred.HitChance >= HitChance.High
+                    && !enemy.IsDead) { W.Cast(WPred.CastPosition); }
                 }
-                if (ECHECK && enemy.IsValidTarget(E.Range) && myHero.GetSpellDamage(enemy, SpellSlot.E) > (enemy.Health - 5) && !enemy.IsDead)
+                if (ECHECK)
                 {
-                    E.Cast(enemy);
+                    if (!E.IsReady()) { return; }
+                    if (enemy.IsValidTarget(E.Range)
+                    && Brand.GetSpellDamage(enemy, SpellSlot.E) > (enemy.TotalShieldHealth() - 5)
+                    && !enemy.IsDead) { E.Cast(enemy); }
                 }
             }
         }
-
         private static void CustomR_Cast(AIHeroClient target)
         {
-            var CustomRange = myHero.CountEnemiesInRange(R.Range) >= ComboMenu["MR"].Cast<Slider>().CurrentValue;
-            bool KSRCHECK = ComboMenu["RK"].Cast<CheckBox>().CurrentValue;
+            float SliderInRange = ComboMenu["MR"].Cast<Slider>().CurrentValue;
 
-            if (CustomRange)
+            if (!R.IsReady()) { return; }
+            if (R.IsReady())
             {
-                if (KSRCHECK)
+                if (target.IsValidTarget(R.Range))
                 {
-                    if ((target.Health - 5) < myHero.GetSpellDamage(target, SpellSlot.R))
+                    if ((target.TotalShieldHealth() - 5) < Brand.GetSpellDamage(target, SpellSlot.R)) { R.Cast(target); }
+                    else
                     {
-                        R.Cast(target);
+                        if (target.CountEnemiesInRange(R.Range) >= SliderInRange) { R.Cast(target); }
                     }
-                }
-
-                else
-                {
-                    R.Cast(target);
                 }
             }
         }
+        private static bool IsBlazed(AIHeroClient target) => target.HasBuff("BrandAblaze");
     }
 }
