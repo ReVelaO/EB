@@ -43,7 +43,7 @@ namespace Sur_s_Annie_
         {
             menu = MainMenu.AddMenu("Sur's Annie™","main");
             menu.AddGroupLabel("Sur's Annie™ Addon");
-            menu.AddLabel("Enjoy to my Annie Addon.-");
+            menu.AddLabel("Enjoy to Sur's Annie™ Addon.-");
             menu.AddLabel("Made by Surprise & Bik");
             Combo = menu.AddSubMenu("Combo","combomenu");
             Combo.AddGroupLabel("Sur's Annie™ - Combo");
