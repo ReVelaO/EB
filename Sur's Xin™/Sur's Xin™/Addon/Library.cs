@@ -20,7 +20,7 @@ namespace Sur_s_Xin_.Addon
                 case SpellSlot.R:
                     if (Spells.R.IsReady())
                     {
-                        Damage += new float[] { 75, 175, 275 }[Player.GetSpell(slot).Level - 1] + (1f * me.FlatPhysicalDamageMod);
+                        Damage += new float[] { 75, 175, 275 }[Player.GetSpell(slot).Level - 1] + (1f * me.FlatPhysicalDamageMod) + (enemy.Health * 0.15f);
                     }
                     break;
             }

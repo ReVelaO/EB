@@ -34,10 +34,13 @@ namespace Sur_s_Xin_.Addon
             if (starget == null) { return; }
             if (starget != null)
             {
-                if (starget.IsInAutoAttackRange(Player.Instance))
+                if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
                 {
-                    if (Spells.Q.IsReady() 
-                        && Settings.usarQ.CurrentValue) { Spells.Q.Cast(); }
+                    if (starget.IsInAutoAttackRange(Player.Instance))
+                    {
+                        if (Spells.Q.IsReady()
+                            && Settings.usarQ.CurrentValue) { Spells.Q.Cast(); }
+                    }
                 }
             }
         }

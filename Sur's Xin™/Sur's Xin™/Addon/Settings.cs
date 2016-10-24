@@ -19,8 +19,14 @@ namespace Sur_s_Xin_.Addon
             usarQ = ComboMenu.Add("QU", new CheckBox("Reset AA with Q"));
             usarW = ComboMenu.Add("WU", new CheckBox("Use W"));
             usarE = ComboMenu.Add("EU", new CheckBox("Use E"));
+            usarEE = ComboMenu.Add("EEU", new CheckBox("BLOCK E in AA Range"));
             usarR = ComboMenu.Add("RU", new CheckBox("Use R"));
             ComboMenu.AddSeparator(10);
+            ComboMenu.AddGroupLabel("Sur's Xin™ - Offensive Items");
+            usarBOTRK = ComboMenu.Add("BU", new CheckBox("Use BOTRK"));
+            usarSABLE = ComboMenu.Add("SU", new CheckBox("Use Bilgewater Cutlass"));
+            usarHYDRA = ComboMenu.Add("RHU", new CheckBox("Use Ravenous Hydra"));
+            usarTIAMAT = ComboMenu.Add("TU", new CheckBox("Use Tiamat"));
 
             DrawingsMenu = menu.AddSubMenu("Drawings", "drawingsmenu");
             DrawingsMenu.AddGroupLabel("Sur's Xin™ - Drawings");
@@ -35,11 +41,16 @@ namespace Sur_s_Xin_.Addon
         public static CheckBox usarQ;
         public static CheckBox usarW;
         public static CheckBox usarE;
+        public static CheckBox usarEE;
         public static CheckBox usarR;
         public static CheckBox dibujarQ;
         public static CheckBox dibujarW;
         public static CheckBox dibujarE;
         public static CheckBox dibujarR;
         public static CheckBox interR;
+        public static CheckBox usarBOTRK;
+        public static CheckBox usarSABLE;
+        public static CheckBox usarHYDRA;
+        public static CheckBox usarTIAMAT;
     }
 }
