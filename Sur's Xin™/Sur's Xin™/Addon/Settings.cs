@@ -17,7 +17,7 @@ namespace Sur_s_Xin_.Addon
             ComboMenu = menu.AddSubMenu("Combo", "combomenu");
             ComboMenu.AddGroupLabel("Sur's Xin™ - Combo");
             usarQ = ComboMenu.Add("QU", new CheckBox("Reset AA with Q"));
-            fixQ = ComboMenu.Add("QU", new CheckBox("Fix AA Reset"));
+            fixQ = ComboMenu.Add("QQU", new CheckBox("Fix AA Reset"));
             usarW = ComboMenu.Add("WU", new CheckBox("Use W"));
             usarE = ComboMenu.Add("EU", new CheckBox("Use E"));
             usarEE = ComboMenu.Add("EEU", new CheckBox("BLOCK E in AA Range"));
