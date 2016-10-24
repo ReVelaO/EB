@@ -36,10 +36,23 @@ namespace Sur_s_Xin_.Addon
             {
                 if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
                 {
-                    if (starget.IsInAutoAttackRange(Player.Instance))
+                    if (Settings.usarQ.CurrentValue)
                     {
-                        if (Spells.Q.IsReady()
-                            && Settings.usarQ.CurrentValue) { Spells.Q.Cast(); }
+                        //Fix Q get real AA range of Xin => Perfect Q usage.
+                        if (Settings.fixQ.CurrentValue)
+                        {
+                            if (starget.IsInRange(Player.Instance, Player.Instance.GetAutoAttackRange()))
+                            {
+                                if (Spells.Q.IsReady()) { Spells.Q.Cast(); }
+                            }
+                        }
+                        else if (Settings.fixQ.CurrentValue == false)
+                        {
+                            if (starget.IsInAutoAttackRange(Player.Instance))
+                            {
+                                if (Spells.Q.IsReady()) { Spells.Q.Cast(); }
+                            }
+                        }
                     }
                 }
             }
@@ -51,7 +64,7 @@ namespace Sur_s_Xin_.Addon
             if (args.DangerLevel != DangerLevel.High
                 || !Spells.R.IsReady()
                 || !random.IsInRange(Player.Instance, Spells.R.Range)
-                || !InDuel(random)) { return; }
+                || InDuel(random)) { return; }
             if (random.IsInRange(Player.Instance, Spells.R.Range)) { Spells.R.Cast(); }
         }
     }
