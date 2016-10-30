@@ -4,6 +4,7 @@ using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Enumerations;
 using Color = System.Drawing.Color;
+using System.Linq;
 
 namespace Sur_s_Xin_.Addon
 {
@@ -22,42 +23,73 @@ namespace Sur_s_Xin_.Addon
             {
                 Orb.Combo.Get();
             }
+            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.JungleClear))
+            {
+                Orb.Jungleclear.Get();
+            }
         }
+        private static float SmiteableCircle = 250;
         static void OnDraw(EventArgs args)
         {
             if (Settings.dibujarE.CurrentValue && Spells.E.IsReady()) Spells.E.DrawRange(Color.Purple);
             if (Settings.dibujarR.CurrentValue && Spells.R.IsReady()) Spells.R.DrawRange(Color.LightBlue);
-        }
-        static void OnAfterAttack(AttackableUnit target, EventArgs args)
-        {
-            var starget = target as AIHeroClient;
-            if (starget == null) { return; }
-            if (starget != null)
+            if (Settings.drawSmite.CurrentValue)
             {
-                if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
+                if (Spells.IsSmiteReady)
                 {
-                    if (Settings.usarQ.CurrentValue)
+                    foreach (var monster in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(m => m.IsMonster
+                            && !m.IsDead
+                            && Library.MonstersNames.Contains(m.BaseSkinName)
+                            && m.IsInRange(Player.Instance, 1000)))
                     {
-                        //Fix Q get real AA range of Xin => Perfect Q usage.
-                        if (Settings.fixQ.CurrentValue)
+                        if (Library.GetHealthPrediction(monster, Spells.Smite.CastDelay) > Player.Instance.GetSummonerSpellDamage(monster, DamageLibrary.SummonerSpells.Smite))
                         {
-                            if (starget.IsInRange(Player.Instance, Player.Instance.GetAutoAttackRange()))
-                            {
-                                if (Spells.Q.IsReady()) { Spells.Q.Cast(); }
-                            }
+                            Drawing.DrawCircle(monster.Position, SmiteableCircle, Color.White);
                         }
-                        else if (Settings.fixQ.CurrentValue == false)
+                        if (Library.GetHealthPrediction(monster, Spells.Smite.CastDelay) < Player.Instance.GetSummonerSpellDamage(monster, DamageLibrary.SummonerSpells.Smite))
                         {
-                            if (starget.IsInAutoAttackRange(Player.Instance))
-                            {
-                                if (Spells.Q.IsReady()) { Spells.Q.Cast(); }
-                            }
+                            Drawing.DrawCircle(monster.Position, SmiteableCircle, Color.Lime);
                         }
                     }
                 }
             }
         }
-        static bool InDuel(AIHeroClient random) => random.HasBuff("Xenzhaointimidate");
+        static void OnAfterAttack(AttackableUnit target, EventArgs args)
+        {
+            if (Settings.usarQ.CurrentValue)
+            {
+                if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
+                {
+                    var starget = target as AIHeroClient;
+                    if (Settings.fixQ.CurrentValue)
+                    {
+                        if (starget.IsInRange(Player.Instance, Player.Instance.GetAutoAttackRange()))
+                        {
+                            if (Spells.Q.IsReady()) { Spells.Q.Cast(); }
+                        }
+                    }
+                    else if (Settings.fixQ.CurrentValue == false)
+                    {
+                        if (starget.IsInAutoAttackRange(Player.Instance))
+                        {
+                            if (Spells.Q.IsReady()) { Spells.Q.Cast(); }
+                        }
+                    }
+                }
+            }
+            if (Settings.jusarQ.CurrentValue)
+            {
+                if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.JungleClear))
+                {
+                    var monster = target as Obj_AI_Minion;
+                    if (monster.IsInRange(Player.Instance, Player.Instance.GetAutoAttackRange()))
+                    {
+                        if (Spells.Q.IsReady()) { Spells.Q.Cast(); }
+                    }
+                }
+            }
+        }
+        private static bool InDuel(Obj_AI_Base random) { return random.HasBuff("Xenzhaointimidate"); }
         static void OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs args)
         {
             var random = sender as AIHeroClient;
@@ -65,7 +97,9 @@ namespace Sur_s_Xin_.Addon
                 || !Spells.R.IsReady()
                 || !random.IsInRange(Player.Instance, Spells.R.Range)
                 || InDuel(random)) { return; }
-            if (random.IsInRange(Player.Instance, Spells.R.Range)) { Spells.R.Cast(); }
+            if (random.IsInRange(Player.Instance, Spells.R.Range) 
+                && random.IsEnemy 
+                && args.DangerLevel >= DangerLevel.Medium) { Spells.R.Cast(); }
         }
     }
 }

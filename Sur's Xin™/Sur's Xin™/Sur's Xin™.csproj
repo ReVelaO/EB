@@ -59,6 +59,7 @@
     <Compile Include="Addon\Events.cs" />
     <Compile Include="Addon\Library.cs" />
     <Compile Include="Addon\Orb\Combo.cs" />
+    <Compile Include="Addon\Orb\Jungleclear.cs" />
     <Compile Include="Addon\Settings.cs" />
     <Compile Include="Addon\Spells.cs" />
     <Compile Include="Program.cs" />

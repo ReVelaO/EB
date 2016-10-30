@@ -6,6 +6,13 @@ namespace Sur_s_Xin_.Addon
     public class Library
     {
         static AIHeroClient me => ObjectManager.Player;
+        public readonly static string[] MonstersNames =
+        {
+            "SRU_Dragon_Water", "SRU_Dragon_Fire", "SRU_Dragon_Earth", "SRU_Dragon_Air", "SRU_Dragon_Elder", "Sru_Crab", "SRU_Baron", "SRU_RiftHerald",
+            "SRU_Red", "SRU_Blue",  "SRU_Krug", "SRU_Gromp", "SRU_Murkwolf", "SRU_Razorbeak",
+            "TT_Spiderboss", "TTNGolem", "TTNWolf", "TTNWraith",
+        };
+        public static float GetHealthPrediction(Obj_AI_Base enemy, int Delay) { return Prediction.Health.GetPrediction(enemy, Delay); }
         public static float DamageBySlot(Obj_AI_Base enemy, SpellSlot slot)
         {
             float Damage = 0f;
