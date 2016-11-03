@@ -35,10 +35,10 @@ namespace Evelynn.Addon
             }
             if (EveMenu.autoR.CurrentValue)
             {
-                var minions =
-                    EntityManager.MinionsAndMonsters.EnemyMinions.Where(w => w.IsValidTarget(EveSpells.R.Range));
-                var prediction = EveSpells.R.GetBestCircularCastPosition(minions, 85, EveSpells.R.CastDelay);
-                if (minions != null)
+                var max =
+                    EntityManager.Heroes.Enemies.Where(w => w.IsValidTarget(EveSpells.R.Range));
+                var prediction = EveSpells.R.GetBestCircularCastPosition(max, 85, EveSpells.R.CastDelay);
+                if (max != null)
                 {
                     if (prediction.HitNumber >= 4
                         && EveSpells.R.IsReady() 
