@@ -20,8 +20,7 @@ namespace Evelynn.Addon.Orb
                 if (EveMenu.Cw.CurrentValue)
                     EveSpells.CastW(target);
                 if (EveMenu.Cr.CurrentValue)
-                    if (target.IsInRange(Evelynn, EveSpells.R.Range)
-                        && EveSpells.R.CanCast(target))
+                    if (target.IsInRange(Evelynn, EveSpells.R.Range))
                         if ((Evelynn.HealthPercent <= 79) && (Evelynn.HealthPercent < target.HealthPercent))
                             EveSpells.R.Cast(target.Position);
             }

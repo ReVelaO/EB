@@ -62,6 +62,7 @@
     <Compile Include="Addon\EveSpells.cs" />
     <Compile Include="Addon\Orb\Combo.cs" />
     <Compile Include="Addon\Orb\Jungleclear.cs" />
+    <Compile Include="Addon\Orb\Laneclear.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

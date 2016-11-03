@@ -17,9 +17,17 @@ namespace Evelynn.Addon
         public static CheckBox Dr;
         public static CheckBox DSt;
         public static CheckBox DSr;
-        public static CheckBox autoR;
+        public static CheckBox AutoR;
         private static Menu _menu;
-        
+
+        public static CheckBox Lq { get; private set; }
+        public static CheckBox Le { get; private set; }
+        public static CheckBox Lmm { get; private set; }
+        public static Slider LmmS { get; private set; }
+        public static CheckBox Llane { get; private set; }
+        public static CheckBox Kq { get; private set; }
+        public static CheckBox Ke { get; private set; }
+        public static CheckBox Ki { get; private set; }
 
         public static void Load()
         {
@@ -31,20 +39,32 @@ namespace Evelynn.Addon
             Cw = _menu.Add("ccw", new CheckBox("Use W"));
             Ce = _menu.Add("cce", new CheckBox("Use E"));
             Cr = _menu.Add("ccr", new CheckBox("Use R"));
-            _menu.AddSeparator(10);
+            _menu.AddSeparator(18);
             _menu.AddGroupLabel("Jungle");
             Jq = _menu.Add("wwq", new CheckBox("Use Q"));
             Je = _menu.Add("wwe", new CheckBox("Use E"));
             JSm = _menu.Add("usmite", new CheckBox("Use Smite"));
-            _menu.AddSeparator(10);
+            _menu.AddSeparator(18);
+            _menu.AddGroupLabel("Laneclear");
+            Llane = _menu.Add("logicl", new CheckBox("Smart clear"));
+            Lq = _menu.Add("llq", new CheckBox("Use Q"));
+            Le = _menu.Add("lle", new CheckBox("Use E"));
+            Lmm = _menu.Add("llmm", new CheckBox("Use Manamanager"));
+            LmmS = _menu.Add("llmmS", new Slider("Stop at {0}% mana", 65, 1));
+            _menu.AddSeparator(18);
+            _menu.AddGroupLabel("Kill Steal");
+            Kq = _menu.Add("kkkq", new CheckBox("Auto Q"));
+            Ke = _menu.Add("kkke", new CheckBox("Auto E"));
+            Ki = _menu.Add("kkkki", new CheckBox("Use Ignite"));
+            _menu.AddSeparator(18);
             _menu.AddGroupLabel("Drawings");
             Dq = _menu.Add("drawq", new CheckBox("Draw Q"));
             De = _menu.Add("drawe", new CheckBox("Draw E"));
             Dr = _menu.Add("drawr", new CheckBox("Draw R"));
             DSt = _menu.Add("dsmite", new CheckBox("Draw Smiteable"));
-            _menu.AddSeparator(10);
+            _menu.AddSeparator(18);
             _menu.AddGroupLabel("Misc");
-            autoR = _menu.Add("autoiautr", new CheckBox("Auto R Max-Shield"));
+            AutoR = _menu.Add("autoiautr", new CheckBox("Auto R Max-Shield"));
 
         }
     }

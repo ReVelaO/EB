@@ -13,6 +13,7 @@ namespace Evelynn.Addon
         public static Spell.Targeted E;
         public static Spell.Skillshot R;
         public static Spell.Targeted Smite;
+        public static Spell.Targeted Ignite;
 
         public static readonly string[] Monsters =
         {
@@ -29,23 +30,22 @@ namespace Evelynn.Addon
             E = new Spell.Targeted(SpellSlot.E, 285);
             R = new Spell.Skillshot(SpellSlot.R, 650, SkillShotType.Circular, 250, int.MaxValue, 350);
             Smite = new Spell.Targeted(SummonerSpells.Smite.Slot, 570);
+            Ignite = new Spell.Targeted(SummonerSpells.Ignite.Slot, 600);
         }
 
         public static void CastQ(Obj_AI_Base random)
         {
             if (random.IsInRange(Player.Instance, Q.Range)
-                && Q.CanCast(random)
                 && Q.IsReady()) Q.Cast();
         }
 
         public static void CastW(Obj_AI_Base random)
         {
             if (!random.IsInRange(Player.Instance, Q.Range)
-                && W.IsReady() && W.CanCast(random)) W.Cast();
+                && W.IsReady()) W.Cast();
             else if (random.IsInRange(Player.Instance, 650)
-                     && E.CanCast(random)
-                     && W.IsReady()
-                     && W.CanCast(random)) W.Cast();
+                     && E.IsReady()
+                     && W.IsReady()) W.Cast();
             else if (!random.IsInRange(Player.Instance, Player.Instance.GetAutoAttackRange()) 
                 && random.HealthPercent < 20 && Player.Instance.HealthPercent > 80) W.Cast();
         }
@@ -53,14 +53,12 @@ namespace Evelynn.Addon
         public static void CastE(Obj_AI_Base random)
         {
             if (random.IsInRange(Player.Instance, E.Range)
-                && E.CanCast(random)
                 && E.IsReady()) E.Cast(random);
         }
 
         public static void CastSmite(Obj_AI_Base random)
         {
             if (random.IsInRange(Player.Instance, Smite.Range)
-                && Smite.CanCast(random)
                 && Smite.IsReady()
                 && Monsters.Contains(random.BaseSkinName)
                 && (GetHealthPrediction(random, Smite.CastDelay) < EveDamages.Smite(random))) Smite.Cast(random);

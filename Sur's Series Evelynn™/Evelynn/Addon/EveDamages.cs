@@ -8,10 +8,9 @@ namespace Evelynn.Addon
     {
         private static AIHeroClient Evelynn => ObjectManager.Player;
 
-        public static float Smite(Obj_AI_Base enemy)
-        {
-            return Player.Instance.GetSummonerSpellDamage(enemy, DamageLibrary.SummonerSpells.Smite);
-        }
+        public static float Smite(Obj_AI_Base enemy) => Player.Instance.GetSummonerSpellDamage(enemy, DamageLibrary.SummonerSpells.Smite);
+
+        public static float Ignite(AIHeroClient enemy) => Player.Instance.GetSummonerSpellDamage(enemy, DamageLibrary.SummonerSpells.Ignite);
 
         public static float Q(Obj_AI_Base enemy)
         {
