@@ -1,76 +1,76 @@
-﻿using EloBuddy;
-using EloBuddy.SDK.Menu;
+﻿using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 
 namespace Sur_s_Xin_.Addon
 {
-    public class Settings
+    internal class Settings
     {
-        static Menu menu, ComboMenu, DrawingsMenu, InterrupterMenu, JungleclearMenu;
-        static AIHeroClient Xin => ObjectManager.Player;
+        private static Menu _menu, _comboMenu, _drawingsMenu, _interrupterMenu, _jungleclearMenu;
+        public static CheckBox UsarQ;
+        public static CheckBox FixQ;
+        public static CheckBox UsarW;
+        public static CheckBox UsarE;
+        public static CheckBox UsarEe;
+        public static CheckBox UsarR;
+        public static CheckBox JusarQ;
+        public static CheckBox JusarW;
+        public static CheckBox JusarE;
+        public static CheckBox UsarSmite;
+        public static CheckBox DrawSmite;
+        public static CheckBox DibujarQ;
+        public static CheckBox DibujarW;
+        public static CheckBox DibujarE;
+        public static CheckBox DibujarR;
+        public static CheckBox InterR;
+        public static CheckBox UsarBotrk;
+        public static CheckBox UsarSable;
+        public static CheckBox UsarHydra;
+        public static CheckBox UsarTiamat;
+        public static CheckBox Autsmite;
+
         public static void Load()
         {
-            menu = MainMenu.AddMenu("Sur's Xin™", "xinzhao");
-            menu.AddGroupLabel("[FREE] Xin Zhao Addon");
-            menu.AddLabel("Made by Surprise");
+            _menu = MainMenu.AddMenu("Sur's Xin™", "xinzhao");
+            _menu.AddGroupLabel("[FREE] Xin Zhao Addon");
+            _menu.AddLabel("Made by Surprise");
 
-            ComboMenu = menu.AddSubMenu("Combo", "combomenu");
-            ComboMenu.AddGroupLabel("Sur's Xin™ - Combo");
-            usarQ = ComboMenu.Add("QU", new CheckBox("Reset AA with Q"));
-            fixQ = ComboMenu.Add("QQU", new CheckBox("Fix AA Reset"));
-            usarW = ComboMenu.Add("WU", new CheckBox("Use W"));
-            usarE = ComboMenu.Add("EU", new CheckBox("Use E"));
-            usarEE = ComboMenu.Add("EEU", new CheckBox("BLOCK E in AA Range"));
-            usarR = ComboMenu.Add("RU", new CheckBox("Use R"));
-            ComboMenu.AddSeparator(10);
-            ComboMenu.AddGroupLabel("Sur's Xin™ - Offensive Items");
-            usarBOTRK = ComboMenu.Add("BU", new CheckBox("Use BOTRK"));
-            usarSABLE = ComboMenu.Add("SU", new CheckBox("Use Bilgewater Cutlass"));
-            usarHYDRA = ComboMenu.Add("RHU", new CheckBox("Use Ravenous Hydra"));
-            usarTIAMAT = ComboMenu.Add("TU", new CheckBox("Use Tiamat"));
+            _comboMenu = _menu.AddSubMenu("Combo", "combomenu");
+            _comboMenu.AddGroupLabel("Sur's Xin™ - Combo");
+            UsarQ = _comboMenu.Add("QU", new CheckBox("Reset AA with Q"));
+            FixQ = _comboMenu.Add("QQU", new CheckBox("Fix AA Reset"));
+            UsarW = _comboMenu.Add("WU", new CheckBox("Use W"));
+            UsarE = _comboMenu.Add("EU", new CheckBox("Use E"));
+            UsarEe = _comboMenu.Add("EEU", new CheckBox("BLOCK E in AA Range"));
+            UsarR = _comboMenu.Add("RU", new CheckBox("Use R"));
+            _comboMenu.AddSeparator(10);
+            _comboMenu.AddGroupLabel("Sur's Xin™ - Offensive Items");
+            UsarBotrk = _comboMenu.Add("BU", new CheckBox("Use BOTRK"));
+            UsarSable = _comboMenu.Add("SU", new CheckBox("Use Bilgewater Cutlass"));
+            UsarHydra = _comboMenu.Add("RHU", new CheckBox("Use Ravenous Hydra"));
+            UsarTiamat = _comboMenu.Add("TU", new CheckBox("Use Tiamat"));
 
-            JungleclearMenu = menu.AddSubMenu("Jungleclear","jungleclearmenu");
-            JungleclearMenu.AddGroupLabel("Sur's Xin™ - Jungleclear");
-            jusarQ = JungleclearMenu.Add("jq", new CheckBox("Use Q"));
-            jusarW = JungleclearMenu.Add("jw", new CheckBox("Use W"));
-            jusarE = JungleclearMenu.Add("je", new CheckBox("Use E"));
-            JungleclearMenu.AddSeparator(10);
-            JungleclearMenu.AddGroupLabel("Sur's Xin™ - Smite");
-            usarSmite = JungleclearMenu.Add("jsmite", new CheckBox("Use Smite"));
-            drawSmite = JungleclearMenu.Add("drawSmite", new CheckBox("Draw Smiteable"));
-            JungleclearMenu.AddLabel("Draw Smiteable:", 14);
-            JungleclearMenu.AddLabel("White circle: Is not killable by Smite", 10);
-            JungleclearMenu.AddLabel("Green circle: Is killable by Smite", 10);
+            _jungleclearMenu = _menu.AddSubMenu("Jungleclear", "jungleclearmenu");
+            _jungleclearMenu.AddGroupLabel("Sur's Xin™ - Jungleclear");
+            JusarQ = _jungleclearMenu.Add("jq", new CheckBox("Use Q"));
+            JusarW = _jungleclearMenu.Add("jw", new CheckBox("Use W"));
+            JusarE = _jungleclearMenu.Add("je", new CheckBox("Use E"));
+            _jungleclearMenu.AddSeparator(10);
+            _jungleclearMenu.AddGroupLabel("Sur's Xin™ - Smite");
+            UsarSmite = _jungleclearMenu.Add("jsmite", new CheckBox("Use Smite"));
+            Autsmite = _jungleclearMenu.Add("autossmite", new CheckBox("Auto Smite"));
+            DrawSmite = _jungleclearMenu.Add("drawSmite", new CheckBox("Draw Smiteable"));
+            _jungleclearMenu.AddLabel("Draw Smiteable:", 14);
+            _jungleclearMenu.AddLabel("White circle: Is not killable by Smite", 10);
+            _jungleclearMenu.AddLabel("Green circle: Is killable by Smite", 10);
 
-            DrawingsMenu = menu.AddSubMenu("Drawings", "drawingsmenu");
-            DrawingsMenu.AddGroupLabel("Sur's Xin™ - Drawings");
-            dibujarE = DrawingsMenu.Add("DE", new CheckBox("Draw E"));
-            dibujarR = DrawingsMenu.Add("DR", new CheckBox("Draw R"));
+            _drawingsMenu = _menu.AddSubMenu("Drawings", "drawingsmenu");
+            _drawingsMenu.AddGroupLabel("Sur's Xin™ - Drawings");
+            DibujarE = _drawingsMenu.Add("DE", new CheckBox("Draw E"));
+            DibujarR = _drawingsMenu.Add("DR", new CheckBox("Draw R"));
 
-            InterrupterMenu = menu.AddSubMenu("Interrupter", "interruptermenu");
-            InterrupterMenu.AddGroupLabel("Sur's Xin™ - Interrupter");
-            interR = InterrupterMenu.Add("intR", new CheckBox("Interrupt with R"));
-
+            _interrupterMenu = _menu.AddSubMenu("Interrupter", "interruptermenu");
+            _interrupterMenu.AddGroupLabel("Sur's Xin™ - Interrupter");
+            InterR = _interrupterMenu.Add("intR", new CheckBox("Interrupt with R"));
         }
-        public static CheckBox usarQ;
-        public static CheckBox fixQ;
-        public static CheckBox usarW;
-        public static CheckBox usarE;
-        public static CheckBox usarEE;
-        public static CheckBox usarR;
-        public static CheckBox jusarQ;
-        public static CheckBox jusarW;
-        public static CheckBox jusarE;
-        public static CheckBox usarSmite;
-        public static CheckBox drawSmite;
-        public static CheckBox dibujarQ;
-        public static CheckBox dibujarW;
-        public static CheckBox dibujarE;
-        public static CheckBox dibujarR;
-        public static CheckBox interR;
-        public static CheckBox usarBOTRK;
-        public static CheckBox usarSABLE;
-        public static CheckBox usarHYDRA;
-        public static CheckBox usarTIAMAT;
     }
 }

@@ -1,17 +1,19 @@
 ﻿using System;
-using EloBuddy.SDK.Events;
 using EloBuddy;
+using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Notifications;
+using Sur_s_Xin_.Addon;
 
 namespace Sur_s_Xin_
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Loading.OnLoadingComplete += OnLoadingComplete;
         }
-        static void OnLoadingComplete(EventArgs args)
+
+        private static void OnLoadingComplete(EventArgs args)
         {
             if (Player.Instance.Hero != Champion.XinZhao)
             {
@@ -20,9 +22,9 @@ namespace Sur_s_Xin_
             }
             Chat.Print("[<font color='#FFFFFF'>Sur's Xin™</font> loaded. <font color='#FFFFFF'>Enjoy</font>!");
             Notifications.Show(new SimpleNotification("Sur's Xin™", "Welcome back buddy!"), 20000);
-            Addon.Spells.Get();
-            Addon.Settings.Load();
-            Addon.Events.Load();
+            Spells.Get();
+            Settings.Load();
+            Events.Load();
         }
     }
 }
