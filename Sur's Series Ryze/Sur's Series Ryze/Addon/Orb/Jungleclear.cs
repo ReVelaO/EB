@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 
@@ -7,6 +8,7 @@ namespace Pitufo.Addon.Orb
     internal class Jungleclear
     {
         private static AIHeroClient Ryze => ObjectManager.Player;
+        private static readonly Random random = new Random();
         public static void Get()
         {
             foreach (var monster in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(m => m.IsMonster
@@ -18,28 +20,28 @@ namespace Pitufo.Addon.Orb
                 {
                     if (PiSkills.Q.IsReady())
                     {
-                        PiSkills.Q.Cast(monster.Position);
+                        Core.DelayAction(() => PiSkills.Q2.Cast(monster), random.Next(50, 250));
                     }
                 }
                 if (PiMenu.LaneE)
                 {
                     if (!PiSkills.Q.IsReady() && PiSkills.E.IsReady())
                     {
-                        PiSkills.E.Cast(monster);
+                        Core.DelayAction(() => PiSkills.E.Cast(monster), random.Next(50, 250));
                     }
                 }
                 if (PiMenu.LaneQ)
                 {
                     if (PiSkills.Q.IsReady())
                     {
-                        PiSkills.Q.Cast(monster.Position);
+                        Core.DelayAction(() => PiSkills.Q2.Cast(monster), random.Next(50, 250));
                     }
                 }
                 if (PiMenu.LaneW)
                 {
                     if (!PiSkills.Q.IsReady() && !PiSkills.E.IsReady())
                     {
-                        PiSkills.W.Cast(monster);
+                        Core.DelayAction(() => PiSkills.W.Cast(monster), random.Next(50, 250));
                     }
                 }
             }

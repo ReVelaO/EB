@@ -9,6 +9,7 @@ namespace Pitufo.Addon
         public static bool ComboW => cW.CurrentValue;
         public static bool ComboE => cE.CurrentValue;
         public static bool DisableAA => daa.CurrentValue;
+        public static int ComboMode => combocm.CurrentValue;
         public static int QHitchance => qHit.CurrentValue;
         public static bool SafeUlt => ult.CurrentValue;
         public static bool LaneQ => lQ.CurrentValue;
@@ -42,6 +43,7 @@ namespace Pitufo.Addon
         private static CheckBox mLc;
         private static Slider mnLc;
         private static ComboBox lanecm;
+        private static ComboBox combocm;
         private static CheckBox qJc;
         private static CheckBox wJc;
         private static CheckBox eJc;
@@ -64,13 +66,13 @@ namespace Pitufo.Addon
             menu.AddLabel("[FREE] Ryze Addon & made by Surprise.", 16);
             menu.AddSeparator();
             menu.AddGroupLabel("Combo");
-            cQ=menu.Add("qcom", new CheckBox("Use Q"));
+            combocm = menu.Add("combomode", new ComboBox("Combo Algorithm", 0, "Default", "No Collision"));
+            cQ =menu.Add("qcom", new CheckBox("Use Q"));
             cW=menu.Add("wcom", new CheckBox("Use W"));
             cE=menu.Add("ecom", new CheckBox("Use E"));
             daa=menu.Add("disaa", new CheckBox("Disable AA"));
             menu.AddSeparator();
             menu.AddGroupLabel("Laneclear");
-            menu.AddLabel("Please, bind laneclear different keybind from jungleclear.");
             lanecm = menu.Add("clearmode", new ComboBox("Laneclear Algorithm", 0, "Smart", "E Logic"));
             lQ =menu.Add("qlan", new CheckBox("Use Q"));
             lW=menu.Add("wlan", new CheckBox("Use W"));

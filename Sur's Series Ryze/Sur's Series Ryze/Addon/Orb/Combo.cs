@@ -12,58 +12,94 @@ namespace Pitufo.Addon.Orb
             var target = TargetSelector.GetTarget(1000, DamageType.Magical);
             if (target != null)
             {
-                if (target.IsInRange(Ryze, 615))
+                if (PiMenu.ComboMode == 0)
                 {
-                    if (PiMenu.ComboQ)
+                    if (target.IsInRange(Ryze, 615))
                     {
-                        var prediction = PiSkills.Q.GetPrediction(target);
-                        if (PiSkills.Q.IsReady()
-                            && target.IsValidTarget(1000)
-                            && (prediction.HitChance >= Hitchanceq()))
-                            PiSkills.Q.Cast(prediction.CastPosition);
+                        if (PiMenu.ComboQ)
+                        {
+                            var prediction = PiSkills.Q.GetPrediction(target);
+                            if (PiSkills.Q.IsReady()
+                                && target.IsValidTarget(1000)
+                                && (prediction.HitChance >= Hitchanceq()))
+                                PiSkills.Q.Cast(prediction.CastPosition);
+                        }
+                        if (PiMenu.ComboE)
+                        {
+                            if (PiSkills.E.IsReady()
+                                && target.IsValidTarget(615))
+                                PiSkills.E.Cast(target);
+                        }
+                        if (PiMenu.ComboQ)
+                        {
+                            var prediction = PiSkills.Q.GetPrediction(target);
+                            if (PiSkills.Q.IsReady()
+                                && target.IsValidTarget(1000)
+                                && (prediction.HitChance >= Hitchanceq()))
+                                PiSkills.Q.Cast(prediction.CastPosition);
+                        }
+                        if (PiMenu.ComboW)
+                        {
+                            if (PiSkills.W.IsReady()
+                                && target.IsValidTarget(615))
+                                PiSkills.W.Cast(target);
+                        }
                     }
-                    if (PiMenu.ComboE)
+                    else if (target.IsInRange(Ryze, 1000))
                     {
-                        if (PiSkills.E.IsReady()
-                            && target.IsValidTarget(615))
-                            PiSkills.E.Cast(target);
-                    }
-                    if (PiMenu.ComboQ)
-                    {
-                        var prediction = PiSkills.Q.GetPrediction(target);
-                        if (PiSkills.Q.IsReady()
-                            && target.IsValidTarget(1000)
-                            && (prediction.HitChance >= Hitchanceq()))
-                            PiSkills.Q.Cast(prediction.CastPosition);
-                    }
-                    if (PiMenu.ComboW)
-                    {
-                        if (PiSkills.W.IsReady()
-                            && target.IsValidTarget(615))
-                            PiSkills.W.Cast(target);
+                        if (PiMenu.ComboQ)
+                        {
+                            var prediction = PiSkills.Q.GetPrediction(target);
+                            if (PiSkills.Q.IsReady()
+                                && target.IsValidTarget(1000)
+                                && (prediction.HitChance >= Hitchanceq()))
+                                PiSkills.Q.Cast(prediction.CastPosition);
+                        }
+                        if (PiMenu.ComboW)
+                        {
+                            if (PiSkills.W.IsReady()
+                                && target.IsValidTarget(615))
+                                PiSkills.W.Cast(target);
+                        }
+                        if (PiMenu.ComboE)
+                        {
+                            if (PiSkills.E.IsReady()
+                                && target.IsValidTarget(615))
+                                PiSkills.E.Cast(target);
+                        }
                     }
                 }
-                else if (target.IsInRange(Ryze, 1000))
+                if (PiMenu.ComboMode == 1)
                 {
+                    if (target.IsValidTarget(1000) 
+                        && target.Distance(Ryze) < 1000)
                     if (PiMenu.ComboQ)
                     {
-                        var prediction = PiSkills.Q.GetPrediction(target);
-                        if (PiSkills.Q.IsReady()
-                            && target.IsValidTarget(1000)
-                            && (prediction.HitChance >= Hitchanceq()))
-                            PiSkills.Q.Cast(prediction.CastPosition);
-                    }
-                    if (PiMenu.ComboW)
-                    {
-                        if (PiSkills.W.IsReady()
-                            && target.IsValidTarget(615))
-                            PiSkills.W.Cast(target);
+                        if (PiSkills.Q.IsReady())
+                        {
+                            PiSkills.Q2.Cast(target);
+                        }
                     }
                     if (PiMenu.ComboE)
                     {
-                        if (PiSkills.E.IsReady()
-                            && target.IsValidTarget(615))
+                        if (!PiSkills.Q.IsReady() && PiSkills.E.IsReady())
+                        {
                             PiSkills.E.Cast(target);
+                        }
+                    }
+                    if (PiMenu.ComboQ)
+                    {
+                        if (PiSkills.Q.IsReady())
+                        {
+                            PiSkills.Q2.Cast(target);
+                        }
+                    }
+                    if (PiMenu.ComboW)
+                    {
+                        if (!PiSkills.Q.IsReady() && !PiSkills.E.IsReady())
+                        {
+                            PiSkills.W.Cast(target);
+                        }
                     }
                 }
             }

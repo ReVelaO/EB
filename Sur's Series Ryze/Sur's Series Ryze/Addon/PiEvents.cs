@@ -35,7 +35,7 @@ namespace Pitufo.Addon
             {
                 Orbwalker.DisableAttacking = false;
             }
-            if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.LaneClear))
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
                 if (PiMenu.LaneMana)
                 {
@@ -53,7 +53,7 @@ namespace Pitufo.Addon
                     Orb.Laneclear.Get();
                 }
             }
-            if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.JungleClear))
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
                 Orb.Jungleclear.Get();
             }
@@ -163,15 +163,14 @@ namespace Pitufo.Addon
         {
             if (PiMenu.seraph)
             {
-                var seraph = ItemId.Seraphs_Embrace;
-                if (Item.HasItem(seraph)
-                    && Item.CanUseItem(seraph))
+                if (PiStuff.Embrace.IsOwned()
+                    && PiStuff.Embrace.IsReady())
                 {
                     if (Player.Instance.ManaPercent >= 22
                         && Player.Instance.CountEnemiesInRange(PiMenu.seraphRange) > 1
                         && Player.Instance.HealthPercent <= PiMenu.seraphSli)
                     {
-                        Item.UseItem(seraph);
+                        PiStuff.Embrace.Cast();
                     }
                 }
             }

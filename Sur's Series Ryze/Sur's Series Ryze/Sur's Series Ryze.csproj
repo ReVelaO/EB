@@ -63,6 +63,7 @@
     <Compile Include="Addon\PiEvents.cs" />
     <Compile Include="Addon\PiMenu.cs" />
     <Compile Include="Addon\PiSkills.cs" />
+    <Compile Include="Addon\PiStuff.cs" />
     <Compile Include="Addon\PiSums.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

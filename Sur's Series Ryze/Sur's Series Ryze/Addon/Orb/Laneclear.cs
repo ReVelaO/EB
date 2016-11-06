@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
 
@@ -8,6 +9,7 @@ namespace Pitufo.Addon.Orb
     {
         private static AIHeroClient Ryze => ObjectManager.Player;
         private static bool IsFluxed(Obj_AI_Base random) => random.HasBuff("RyzeE");
+        private static readonly Random random = new Random();
         public static void Get()
         {
             if (PiMenu.LaneMode == 0)
@@ -39,7 +41,7 @@ namespace Pitufo.Addon.Orb
                     {
                         if (PiSkills.Q.IsReady()
                             && minion.IsValidTarget(1000))
-                            PiSkills.Q.Cast(minion);
+                                Core.DelayAction(() => PiSkills.Q.Cast(minion), random.Next(50, 250));
                     }
                     //Set W
                     if (PiMenu.LaneW)
@@ -48,7 +50,7 @@ namespace Pitufo.Addon.Orb
                         {
                             if (PiSkills.W.IsReady()
                                 && minion.IsValidTarget(615))
-                                PiSkills.W.Cast(minion);
+                                    Core.DelayAction(() => PiSkills.W.Cast(minion), random.Next(50, 250));
                         }
                 }
             }
@@ -98,7 +100,7 @@ namespace Pitufo.Addon.Orb
                             if (PiSkills.Q.IsReady()
                                 && minion.IsValidTarget(1000))
                             {
-                                PiSkills.Q.Cast(minion);
+                                Core.DelayAction(() => PiSkills.Q.Cast(minion), random.Next(50, 250));
                             }
                         }
                     }
