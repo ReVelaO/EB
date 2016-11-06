@@ -24,14 +24,18 @@ namespace Pitufo.Addon
                     if (PiSkills.W.IsReady() 
                         || PiSkills.E.IsReady())
                         Orbwalker.DisableAttacking = true;
-                    else
-                    {
-                        Orbwalker.DisableAttacking = false;
-                    }
+                }
+                else
+                {
+                    Orbwalker.DisableAttacking = false;
                 }
                 Orb.Combo.Get();
             }
-            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.LaneClear))
+            else
+            {
+                Orbwalker.DisableAttacking = false;
+            }
+            if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.LaneClear))
             {
                 if (PiMenu.LaneMana)
                 {
@@ -49,7 +53,7 @@ namespace Pitufo.Addon
                     Orb.Laneclear.Get();
                 }
             }
-            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.JungleClear))
+            if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.JungleClear))
             {
                 Orb.Jungleclear.Get();
             }
