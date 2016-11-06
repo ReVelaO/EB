@@ -28,6 +28,13 @@ namespace Pitufo.Addon.Orb
                         PiSkills.E.Cast(monster);
                     }
                 }
+                if (PiMenu.LaneQ)
+                {
+                    if (PiSkills.Q.IsReady())
+                    {
+                        PiSkills.Q.Cast(monster.Position);
+                    }
+                }
                 if (PiMenu.LaneW)
                 {
                     if (!PiSkills.Q.IsReady() && !PiSkills.E.IsReady())

@@ -12,6 +12,15 @@ namespace Pitufo.Addon.Orb
             var target = TargetSelector.GetTarget(1000, DamageType.Magical);
             if (target != null)
             {
+                if (PiMenu.DisableAA)
+                {
+                    if (PiSkills.W.IsReady() || PiSkills.E.IsReady())
+                        Orbwalker.DisableAttacking = true;
+                    else
+                    {
+                        Orbwalker.DisableAttacking = false;
+                    }
+                }
                 if (target.IsInRange(Ryze, 615))
                 {
                     if (PiMenu.ComboE)

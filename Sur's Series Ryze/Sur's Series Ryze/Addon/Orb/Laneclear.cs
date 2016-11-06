@@ -25,7 +25,7 @@ namespace Pitufo.Addon.Orb
                         && (minion.CountEnemyMinionsInRange(300) > 1)) PiSkills.E.Cast(minion);
                     else if (IsFluxed(minion)) PiSkills.E.Cast(minion);
                     else if (PiSkills.Q.IsReady()
-                             && Orbwalker.IsAutoAttacking) PiSkills.E.Cast(minion);
+                             && (PiDamages.DamageBySlot(minion, SpellSlot.E) + PiDamages.DamageBySlot(minion, SpellSlot.Q) > minion.Health)) PiSkills.E.Cast(minion);
                 }
                 //Set Q
                 if (minion.IsInRange(Ryze, 1000)

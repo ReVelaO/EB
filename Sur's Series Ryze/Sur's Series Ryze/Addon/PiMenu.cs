@@ -8,6 +8,7 @@ namespace Pitufo.Addon
         public static bool ComboQ => cQ.CurrentValue;
         public static bool ComboW => cW.CurrentValue;
         public static bool ComboE => cE.CurrentValue;
+        public static bool DisableAA => daa.CurrentValue;
         public static int QHitchance => qHit.CurrentValue;
         public static bool SafeUlt => ult.CurrentValue;
         public static bool LaneQ => lQ.CurrentValue;
@@ -31,6 +32,7 @@ namespace Pitufo.Addon
         private static CheckBox cQ;
         private static CheckBox cW;
         private static CheckBox cE;
+        private static CheckBox daa;
         private static Slider qHit;
         private static KeyBind ult;
         private static CheckBox lQ;
@@ -63,6 +65,7 @@ namespace Pitufo.Addon
             cQ=menu.Add("qcom", new CheckBox("Use Q"));
             cW=menu.Add("wcom", new CheckBox("Use W"));
             cE=menu.Add("ecom", new CheckBox("Use E"));
+            daa=menu.Add("disaa", new CheckBox("Disabe AA"));
             menu.AddSeparator();
             menu.AddGroupLabel("Laneclear");
             lQ=menu.Add("qlan", new CheckBox("Use Q"));
