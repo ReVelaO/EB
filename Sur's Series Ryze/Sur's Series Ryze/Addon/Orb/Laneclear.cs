@@ -10,39 +10,100 @@ namespace Pitufo.Addon.Orb
         private static bool IsFluxed(Obj_AI_Base random) => random.HasBuff("RyzeE");
         public static void Get()
         {
-            foreach (var minion in EntityManager.MinionsAndMonsters.GetLaneMinions().Where(m => m.IsEnemy
-                                                                                                &&
-                                                                                                (m.IsMinion |
-                                                                                                 m.IsMonster)
-                                                                                                && !m.IsDead)
-                .OrderBy(e => e.Health))
+            if (PiMenu.LaneMode == 0)
             {
-                var minionHealth = Prediction.Health.GetPrediction(minion, 250);
-                //Set E
-                if (minion.IsValidTarget(615, true, Ryze.Position))
+                foreach (var minion in EntityManager.MinionsAndMonsters.GetLaneMinions().Where(m => m.IsEnemy
+                                                                                                    &&
+                                                                                                    (m.IsMinion |
+                                                                                                     m.IsMonster)
+                                                                                                    && !m.IsDead)
+                    .OrderBy(e => e.Health))
                 {
-                    if ((minionHealth < PiDamages.DamageBySlot(minion, SpellSlot.E))
-                        && (minion.CountEnemyMinionsInRange(300) > 1)) PiSkills.E.Cast(minion);
-                    else if (IsFluxed(minion)) PiSkills.E.Cast(minion);
-                    else if (PiSkills.Q.IsReady()
-                             && (PiDamages.DamageBySlot(minion, SpellSlot.E) + PiDamages.DamageBySlot(minion, SpellSlot.Q) > minion.Health)) PiSkills.E.Cast(minion);
-                }
-                //Set Q
-                if (minion.IsInRange(Ryze, 1000)
-                    && IsFluxed(minion))
-                {
-                    if (PiSkills.Q.IsReady()
-                        && minion.IsValidTarget(1000))
-                        PiSkills.Q.Cast(minion);
-                }
-                //Set W
-                if (minion.IsValidTarget(615, true, Ryze.Position))
-                    if (minionHealth < PiDamages.DamageBySlot(minion, SpellSlot.W))
+                    var minionHealth = Prediction.Health.GetPrediction(minion, 250);
+                    //Set E
+                    if (PiMenu.LaneE)
+                    if (minion.IsValidTarget(615, true, Ryze.Position))
                     {
-                        if (PiSkills.W.IsReady()
-                                && minion.IsValidTarget(615))
-                            PiSkills.W.Cast(minion);
+                        if ((minionHealth < PiDamages.DamageBySlot(minion, SpellSlot.E))
+                            && (minion.CountEnemyMinionsInRange(300) > 1)) PiSkills.E.Cast(minion);
+                        else if (IsFluxed(minion)) PiSkills.E.Cast(minion);
+                        else if (PiSkills.Q.IsReady()
+                                 &&
+                                 (PiDamages.DamageBySlot(minion, SpellSlot.E) +
+                                  PiDamages.DamageBySlot(minion, SpellSlot.Q) > minion.Health)) PiSkills.E.Cast(minion);
                     }
+                    //Set Q
+                    if (PiMenu.LaneQ)
+                        if (minion.IsInRange(Ryze, 1000)
+                        && IsFluxed(minion))
+                    {
+                        if (PiSkills.Q.IsReady()
+                            && minion.IsValidTarget(1000))
+                            PiSkills.Q.Cast(minion);
+                    }
+                    //Set W
+                    if (PiMenu.LaneW)
+                        if (minion.IsValidTarget(615, true, Ryze.Position))
+                        if (minionHealth < PiDamages.DamageBySlot(minion, SpellSlot.W))
+                        {
+                            if (PiSkills.W.IsReady()
+                                && minion.IsValidTarget(615))
+                                PiSkills.W.Cast(minion);
+                        }
+                }
+            }
+            if (PiMenu.LaneMode == 1)
+            {
+                foreach (var minion in EntityManager.MinionsAndMonsters.GetLaneMinions().Where(m => m.IsEnemy
+                                                                                                    &&
+                                                                                                    (m.IsMinion |
+                                                                                                     m.IsMonster)
+                                                                                                    && !m.IsDead))
+                {
+                    var fluxed =
+                        EntityManager.MinionsAndMonsters.GetLaneMinions()
+                            .Count(c => c.HasBuff("RyzeE") && c.IsEnemy && c.IsMinion | c.IsMonster && c.Distance(Ryze) < 1000);
+                    var blocke = minion.CountEnemyMinionsInRange(200) > 1;
+                    if (PiMenu.LaneE)
+                    {
+                        if (PiSkills.E.IsReady()
+                            && minion.IsValidTarget(615) 
+                            && blocke)
+                        {
+                            PiSkills.E.Cast(minion);
+                        }
+                        else if (IsFluxed(minion))
+                        {
+                            if (PiSkills.E.IsReady()
+                                && minion.IsValidTarget(615) 
+                                && blocke)
+                            {
+                                PiSkills.E.Cast(minion);
+                            }
+                        }
+                        else if (minion.Health < PiDamages.DamageBySlot(minion, SpellSlot.E))
+                        {
+                            if (PiSkills.E.IsReady()
+                                && minion.IsValidTarget(615))
+                            {
+                                PiSkills.E.Cast(minion);
+                            }
+                        }
+                    }
+                    if (PiMenu.LaneQ)
+                    {
+                        if (fluxed > 1 
+                            && blocke)
+                        {
+                            if (PiSkills.Q.IsReady()
+                                && minion.IsValidTarget(1000))
+                            {
+                                PiSkills.Q.Cast(minion);
+                            }
+                        }
+                    }
+
+                }
             }
         }
     }

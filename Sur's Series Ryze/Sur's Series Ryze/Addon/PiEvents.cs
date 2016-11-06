@@ -19,6 +19,16 @@ namespace Pitufo.Addon
         {
             if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
             {
+                if (PiMenu.DisableAA)
+                {
+                    if (PiSkills.W.IsReady() 
+                        || PiSkills.E.IsReady())
+                        Orbwalker.DisableAttacking = true;
+                    else
+                    {
+                        Orbwalker.DisableAttacking = false;
+                    }
+                }
                 Orb.Combo.Get();
             }
             else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.LaneClear))

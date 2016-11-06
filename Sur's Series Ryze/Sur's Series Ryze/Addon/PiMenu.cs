@@ -16,6 +16,7 @@ namespace Pitufo.Addon
         public static bool LaneE => lE.CurrentValue;
         public static bool LaneMana => mLc.CurrentValue;
         public static int LaneSliMana => mnLc.CurrentValue;
+        public static int LaneMode => lanecm.CurrentValue;
         public static bool JungQ => qJc.CurrentValue;
         public static bool JungW => wJc.CurrentValue;
         public static bool JungE => eJc.CurrentValue;
@@ -40,6 +41,7 @@ namespace Pitufo.Addon
         private static CheckBox lE;
         private static CheckBox mLc;
         private static Slider mnLc;
+        private static ComboBox lanecm;
         private static CheckBox qJc;
         private static CheckBox wJc;
         private static CheckBox eJc;
@@ -65,10 +67,12 @@ namespace Pitufo.Addon
             cQ=menu.Add("qcom", new CheckBox("Use Q"));
             cW=menu.Add("wcom", new CheckBox("Use W"));
             cE=menu.Add("ecom", new CheckBox("Use E"));
-            daa=menu.Add("disaa", new CheckBox("Disabe AA"));
+            daa=menu.Add("disaa", new CheckBox("Disable AA"));
             menu.AddSeparator();
             menu.AddGroupLabel("Laneclear");
-            lQ=menu.Add("qlan", new CheckBox("Use Q"));
+            menu.AddLabel("Please, bind laneclear different keybind from jungleclear.");
+            lanecm = menu.Add("clearmode", new ComboBox("Laneclear Algorithm", 0, "Smart", "E Logic"));
+            lQ =menu.Add("qlan", new CheckBox("Use Q"));
             lW=menu.Add("wlan", new CheckBox("Use W"));
             lE=menu.Add("elan", new CheckBox("Use E"));
             mLc=menu.Add("manalan", new CheckBox("Enable Manamager"));
