@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Drawing;
 using Color = System.Drawing.Color;
 namespace Lux
 {
@@ -42,6 +41,8 @@ namespace Lux
             menu = MainMenu.AddMenu("Lux", "index0");
             menu.AddLabel("Sur's Series: Lux", 24);
             menu.AddLabel("[FREE] Lux Addon by Surprise", 16);
+            menu.AddSeparator(14);
+            menu.Add("pb", new KeyBind("Panic/Burst Key", false, KeyBind.BindTypes.HoldActive, 'T'));
             qmenu = menu.AddSubMenu("Q Settings", "index1");
             qmenu.AddLabel("¿Use Q in which modes?");
             qmenu.AddSeparator(14);
@@ -167,6 +168,25 @@ namespace Lux
                 if (E.IsReady()) { E.DrawRange(Color.FromArgb(170, Color.LightGoldenrodYellow)); }
                 if (R.IsReady()) { R.DrawRange(Color.FromArgb(170, Color.MediumPurple)); }
             };
+            //Which features make a good addon? the below :)
+            //Its check if enemis are in E aoe. if not, cancel the spell cast.
+            Spellbook.OnCastSpell += delegate (Spellbook sender, SpellbookCastSpellEventArgs e)
+            {
+                if (sender.Owner.IsMe)
+                {
+                    if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
+                    {
+                        if (e.Slot == SpellSlot.E)
+                        {
+                            var finalpos = e.EndPosition;
+                            if (finalpos.CountEnemiesInRange(E.Width) == 0)
+                            {
+                                e.Process = false;
+                            }
+                        }
+                    }
+                }
+            };
             #endregion End Events
         }
         static bool InRange(Obj_AI_Base e, float range) => e.IsInRange(Player.Instance, range);
@@ -221,6 +241,7 @@ namespace Lux
             AutoW();
             AutoR();
             Special();
+            PanicBurst();
         }
         #region AutoQ
         static void AutoQ()
@@ -367,15 +388,16 @@ namespace Lux
         {
             if (wmenu["mew"].Cast<CheckBox>().CurrentValue)
             {
-                if (W.IsReady() && Player.Instance.CountEnemiesInRange(800) >= 1 || Player.Instance.IsUnderTurret() 
-                    && ((HPrediction(Player.Instance, W.CastDelay)/Player.Instance.TotalHealth()) * 100) <= wmenu["mehpw"].Cast<Slider>().CurrentValue)
+                var es = EntityManager.Heroes.Enemies.Count(c => InRange(c, 800) && !c.IsDead);
+                if (W.IsReady() && es >= 1
+                    && ((HPrediction(Player.Instance, W.CastDelay)/Player.Instance.TotalMaxHealth()) * 100) <= wmenu["mehpw"].Cast<Slider>().CurrentValue)
                 {
                     W.Cast(Player.Instance);
                 }
             }
             if (wmenu["allyw"].Cast<CheckBox>().CurrentValue)
             {
-                var a = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && ((HPrediction(c, W.CastDelay) / c.TotalHealth()) * 100) <= wmenu["allyhpw"].Cast<Slider>().CurrentValue);
+                var a = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && !c.IsDead && ((HPrediction(c, W.CastDelay) / c.TotalMaxHealth()) * 100) <= wmenu["allyhpw"].Cast<Slider>().CurrentValue);
                 if (a != null)
                 {
                     var prediction = W.GetPrediction(a);
@@ -387,7 +409,7 @@ namespace Lux
                 }
                 if (wmenu["wstun"].Cast<CheckBox>().CurrentValue)
                 {
-                    var ally = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && c.HasBuffOfType(BuffType.Stun) && c.CountEnemiesInRange(800) >= 1);
+                    var ally = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && !c.IsDead && c.HasBuffOfType(BuffType.Stun) && c.CountEnemiesInRange(800) >= 1);
                     if (ally != null)
                     {
                         var prediction = W.GetPrediction(ally);
@@ -399,7 +421,7 @@ namespace Lux
                 }
                 if (wmenu["wslow"].Cast<CheckBox>().CurrentValue)
                 {
-                    var ally = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && c.HasBuffOfType(BuffType.Slow) && c.CountEnemiesInRange(800) >= 1);
+                    var ally = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && !c.IsDead && c.HasBuffOfType(BuffType.Slow) && c.CountEnemiesInRange(800) >= 1);
                     if (ally != null)
                     {
                         var prediction = W.GetPrediction(ally);
@@ -411,7 +433,7 @@ namespace Lux
                 }
                 if (wmenu["wsnare"].Cast<CheckBox>().CurrentValue)
                 {
-                    var ally = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && c.HasBuffOfType(BuffType.Snare) && c.CountEnemiesInRange(800) >= 1);
+                    var ally = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && !c.IsDead && c.HasBuffOfType(BuffType.Snare) && c.CountEnemiesInRange(800) >= 1);
                     if (ally != null)
                     {
                         var prediction = W.GetPrediction(ally);
@@ -423,7 +445,7 @@ namespace Lux
                 }
                 if (wmenu["wtaunt"].Cast<CheckBox>().CurrentValue)
                 {
-                    var ally = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && c.HasBuffOfType(BuffType.Taunt) && c.CountEnemiesInRange(800) >= 1);
+                    var ally = EntityManager.Heroes.Allies.Find(c => InRange(c, W.Range) && !c.IsDead && c.HasBuffOfType(BuffType.Taunt) && c.CountEnemiesInRange(800) >= 1);
                     if (ally != null)
                     {
                         var prediction = W.GetPrediction(ally);
@@ -448,7 +470,7 @@ namespace Lux
             {
                 if (rmenu["rkill"].Cast<CheckBox>().CurrentValue)
                 {
-                    var rdm = EntityManager.Heroes.Enemies.Find(f => InRange(f, R.Range)
+                    var rdm = EntityManager.Heroes.Enemies.Find(f => f.Distance(Player.Instance) > 1200
                     && HPrediction(f, R.CastDelay) < DamageBySlot(f, SpellSlot.R) && !f.IsDead);
                     if (rdm != null && !rdm.IsInvulnerable)
                     {
@@ -461,7 +483,7 @@ namespace Lux
                 }
                 if (rmenu["rbaron"].Cast<CheckBox>().CurrentValue)
                 {
-                    foreach (var mob in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(w => InRange(w, R.Range)
+                    foreach (var mob in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(w => w.Distance(Player.Instance) > 1200
                      && HPrediction(w, R.CastDelay) < DamageBySlot(w, SpellSlot.R)
                      && w.IsMonster && Barons.Contains(w.BaseSkinName) && !w.IsDead))
                     {
@@ -476,7 +498,7 @@ namespace Lux
                 }
                 if (rmenu["rdragon"].Cast<CheckBox>().CurrentValue)
                 {
-                    foreach (var mob in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(w => InRange(w, R.Range)
+                    foreach (var mob in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(w => w.Distance(Player.Instance) > 1200
                      && HPrediction(w, R.CastDelay) < DamageBySlot(w, SpellSlot.R)
                      && w.IsMonster && Dragons.Contains(w.BaseSkinName) && !w.IsDead))
                     {
@@ -491,7 +513,7 @@ namespace Lux
                 }
                 if (rmenu["rbuffs"].Cast<CheckBox>().CurrentValue)
                 {
-                    foreach (var mob in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(w => InRange(w, R.Range)
+                    foreach (var mob in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(w => w.Distance(Player.Instance) > 1200
                      && HPrediction(w, R.CastDelay) < DamageBySlot(w, SpellSlot.R)
                      && w.IsMonster && Buffs.Contains(w.BaseSkinName) && !w.IsDead))
                     {
@@ -604,5 +626,56 @@ namespace Lux
             }
         }
         #endregion End asih5
+        #region panic
+        static void PanicBurst()
+        {
+            if (menu["pb"].Cast<KeyBind>().CurrentValue)
+            {
+                Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+                var target = TargetSelector.GetTarget(1200, DamageType.Mixed);
+                if (target != null)
+                {
+                    if (Q.IsReady())
+                    {
+                        var prediction = Q.GetPrediction(target);
+                        if (prediction.HitChance >= HitChance.High && InRange(target, Q.Range))
+                        {
+                            Q.Cast(prediction.CastPosition);
+                        }
+                    }
+                    if (E.IsReady())
+                    {
+                        var prediction = E.GetPrediction(target);
+                        if (prediction.HitChance >= HitChance.High && InRange(target, E.Range))
+                        {
+                            E.Cast(prediction.CastPosition);
+                        }
+                    }
+                    if (R.IsReady() && !E.IsReady())
+                    {
+                        var prediction = R.GetPrediction(target);
+                        if (prediction.HitChance >= HitChance.High && InRange(target, R.Range))
+                        {
+                            R.Cast(prediction.CastPosition);
+                        }
+                    }
+                    if (Ignite.Slot != SpellSlot.Unknown)
+                    {
+                        if (InRange(target, Ignite.Range) && Ignite.IsReady())
+                        {
+                            Ignite.Cast(target);
+                        }
+                    }
+                    if (Orbwalker.CanAutoAttack && !target.IsInvulnerable && !target.IsDead)
+                    {
+                        if (InRange(target, Player.Instance.GetAutoAttackRange()))
+                        {
+                            Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+                        }
+                    }
+                }
+            }
+        }
+        #endregion end panic
     }
 }
