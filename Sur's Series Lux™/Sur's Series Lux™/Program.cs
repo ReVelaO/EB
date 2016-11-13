@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Drawing;
+using Color = System.Drawing.Color;
 namespace Lux
 {
     #region Elobuddy References
@@ -125,24 +127,25 @@ namespace Lux
             var qp = predmenu.Add("qpreda", new Slider("Hitchance Q", 2, 0, 2));
             qp.OnValueChange += delegate
             {
-                qp.DisplayName = "Hitchance: " + hitchances[qp.CurrentValue];
+                qp.DisplayName = "Hitchance Q: " + hitchances[qp.CurrentValue];
             };
-            qp.DisplayName = "Hitchance: " + hitchances[qp.CurrentValue];
+            qp.DisplayName = "Hitchance Q: " + hitchances[qp.CurrentValue];
             predmenu.AddSeparator(14);
             var qw = predmenu.Add("wpreda", new Slider("Hitchance W", 2, 0, 2));
             qw.OnValueChange += delegate
             {
-                qw.DisplayName = "Hitchance: " + hitchances[qw.CurrentValue];
+                qw.DisplayName = "Hitchance W: " + hitchances[qw.CurrentValue];
             };
-            qw.DisplayName = "Hitchance: " + hitchances[qw.CurrentValue];
+            qw.DisplayName = "Hitchance W: " + hitchances[qw.CurrentValue];
             predmenu.AddSeparator(14);
             var qe = predmenu.Add("epreda", new Slider("Hitchance E", 2, 0, 2));
             qe.OnValueChange += delegate
             {
-                qe.DisplayName = "Hitchance: " + hitchances[qe.CurrentValue];
+                qe.DisplayName = "Hitchance E: " + hitchances[qe.CurrentValue];
             };
-            qe.DisplayName = "Hitchance: " + hitchances[qe.CurrentValue];
+            qe.DisplayName = "Hitchance E: " + hitchances[qe.CurrentValue];
             #endregion End Menu
+            #region Events
             Game.OnTick += Game_OnTick;
             Dash.OnDash += delegate (Obj_AI_Base sender, Dash.DashEventArgs dash)
             {
@@ -157,6 +160,14 @@ namespace Lux
                     }
                 }
             };
+            Drawing.OnDraw += delegate
+            {
+                if (Q.IsReady()) { Q.DrawRange(Color.FromArgb(170, Color.LightYellow)); }
+                if (W.IsReady()) { W.DrawRange(Color.FromArgb(170, Color.LightBlue)); }
+                if (E.IsReady()) { E.DrawRange(Color.FromArgb(170, Color.LightGoldenrodYellow)); }
+                if (R.IsReady()) { R.DrawRange(Color.FromArgb(170, Color.MediumPurple)); }
+            };
+            #endregion End Events
         }
         static bool InRange(Obj_AI_Base e, float range) => e.IsInRange(Player.Instance, range);
         static void Game_OnTick(EventArgs args)
@@ -208,6 +219,7 @@ namespace Lux
             AutoQ();
             AutoE();
             AutoW();
+            AutoR();
             Special();
         }
         #region AutoQ
@@ -437,7 +449,7 @@ namespace Lux
                 if (rmenu["rkill"].Cast<CheckBox>().CurrentValue)
                 {
                     var rdm = EntityManager.Heroes.Enemies.Find(f => InRange(f, R.Range)
-                    && HPrediction(f, R.CastDelay) < DamageBySlot(f, SpellSlot.R));
+                    && HPrediction(f, R.CastDelay) < DamageBySlot(f, SpellSlot.R) && !f.IsDead);
                     if (rdm != null && !rdm.IsInvulnerable)
                     {
                         var prediction = R.GetPrediction(rdm);
@@ -451,7 +463,7 @@ namespace Lux
                 {
                     foreach (var mob in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(w => InRange(w, R.Range)
                      && HPrediction(w, R.CastDelay) < DamageBySlot(w, SpellSlot.R)
-                     && w.IsMonster && Barons.Contains(w.BaseSkinName)))
+                     && w.IsMonster && Barons.Contains(w.BaseSkinName) && !w.IsDead))
                     {
                         if (mob != null)
                         {
@@ -466,7 +478,7 @@ namespace Lux
                 {
                     foreach (var mob in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(w => InRange(w, R.Range)
                      && HPrediction(w, R.CastDelay) < DamageBySlot(w, SpellSlot.R)
-                     && w.IsMonster && Dragons.Contains(w.BaseSkinName)))
+                     && w.IsMonster && Dragons.Contains(w.BaseSkinName) && !w.IsDead))
                     {
                         if (mob != null)
                         {
@@ -481,7 +493,7 @@ namespace Lux
                 {
                     foreach (var mob in EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(w => InRange(w, R.Range)
                      && HPrediction(w, R.CastDelay) < DamageBySlot(w, SpellSlot.R)
-                     && w.IsMonster && Buffs.Contains(w.BaseSkinName)))
+                     && w.IsMonster && Buffs.Contains(w.BaseSkinName) && !w.IsDead))
                     {
                         if (mob != null)
                         {
