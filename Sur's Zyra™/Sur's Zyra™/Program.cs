@@ -252,7 +252,7 @@
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
-                var m = EntityManager.MinionsAndMonsters.EnemyMinions.Where(x => InRange(x, BestTarget()) && !x.IsDead).OrderBy(o => o.Distance(Player.Instance));
+                var m = EntityManager.MinionsAndMonsters.EnemyMinions.Where(x => x.IsValidTarget(BestTarget()) && !x.IsDead).OrderBy(o => o.Distance(Player.Instance));
                 if (m != null)
                 {
                     if (W.IsReady() && Q.IsReady() | E.IsReady())
@@ -283,7 +283,7 @@
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
-                var mob = EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(x => x.IsEnemy && x.IsMonster && !x.IsDead && InRange(x, BestTarget())).OrderBy(o => o.MaxHealth).FirstOrDefault();
+                var mob = EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(x => x.IsEnemy && x.IsMonster && !x.IsDead && x.IsValidTarget(BestTarget())).OrderBy(o => o.MaxHealth).FirstOrDefault();
                 if (mob != null)
                 {
                     if (W.IsReady() && Q.IsReady() | E.IsReady())
@@ -336,7 +336,7 @@
             {
                 if (qmenu["qkill"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, Q.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && HPrediction(f, Q.CastDelay) < DamageBySlot(f, SpellSlot.Q)
                     && !f.IsInvulnerable && !f.IsDead);
                     if (random != null)
@@ -364,7 +364,7 @@
                 }
                 if (qmenu["qstun"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, Q.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && f.HasBuffOfType(BuffType.Stun) && !f.IsDead);
                     if (random != null)
                     {
@@ -383,7 +383,7 @@
                 }
                 if (qmenu["qslow"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, Q.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && f.HasBuffOfType(BuffType.Slow) && !f.IsDead);
                     if (random != null)
                     {
@@ -399,7 +399,7 @@
                 }
                 if (qmenu["qsnare"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, Q.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && f.HasBuffOfType(BuffType.Snare) && !f.IsDead);
                     if (random != null)
                     {
@@ -426,7 +426,7 @@
                 }
                 if (qmenu["qtaunt"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, Q.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && f.HasBuffOfType(BuffType.Taunt) && !f.IsDead);
                     if (random != null)
                     {
@@ -459,7 +459,7 @@
             {
                 if (emenu["ekill"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, E.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && HPrediction(f, E.CastDelay) < DamageBySlot(f, SpellSlot.E)
                     && !f.IsInvulnerable && !f.IsDead);
                     if (random != null)
@@ -487,7 +487,7 @@
                 }
                 if (emenu["estun"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, E.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && f.HasBuffOfType(BuffType.Stun) && !f.IsDead);
                     if (random != null)
                     {
@@ -503,7 +503,7 @@
                 }
                 if (emenu["eslow"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, E.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && f.HasBuffOfType(BuffType.Slow) && !f.IsDead);
                     if (random != null)
                     {
@@ -519,7 +519,7 @@
                 }
                 if (emenu["esnare"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, E.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && f.HasBuffOfType(BuffType.Snare) && !f.IsDead);
                     if (random != null)
                     {
@@ -546,7 +546,7 @@
                 }
                 if (emenu["etaunt"].Cast<CheckBox>().CurrentValue)
                 {
-                    var random = EntityManager.Heroes.Enemies.Find(f => InRange(f, E.Range)
+                    var random = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(BestTarget())
                     && f.HasBuffOfType(BuffType.Taunt) && !f.IsDead);
                     if (random != null)
                     {
