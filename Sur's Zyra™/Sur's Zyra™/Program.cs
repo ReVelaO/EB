@@ -16,13 +16,13 @@
     internal class Program
     {
         #region Spells var & Menu
-        static Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 800, SkillShotType.Linear, 850, int.MaxValue, 140) { AllowedCollisionCount = -1 };
+        static Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 800, SkillShotType.Linear, 850, int.MaxValue, 85) { AllowedCollisionCount = -1 };
         static Spell.SimpleSkillshot W = new Spell.SimpleSkillshot(SpellSlot.W, 850);
         static Spell.Skillshot E = new Spell.Skillshot(SpellSlot.E, 1100, SkillShotType.Linear, 250, 1400, 70) { AllowedCollisionCount = -1 };
         static Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 700, SkillShotType.Circular, 500, 2000, 525) { AllowedCollisionCount = -1 };
         static Spell.Targeted Ignite = new Spell.Targeted(SummonerSpells.Ignite.Slot, 600);
         static bool InRange(Obj_AI_Base e, float range) => e.IsInRange(Player.Instance, range);
-        static Menu menu, qmenu, wmenu, emenu, rmenu, predmenu;
+        static Menu menu, qmenu, wmenu, emenu, rmenu, igmenu, predmenu;
         static readonly string[] hitchances = { "Low", "Medium", "High" };
         #endregion End
         static void Main(string[] args)
@@ -56,8 +56,8 @@
             qmenu.Add("qkill", new CheckBox("Killable"));
             qmenu.Add("qdash", new CheckBox("Dash"));
             qmenu.Add("qstun", new CheckBox("Stun"));
-            qmenu.Add("qslow", new CheckBox("Slow"));
-            qmenu.Add("qsnare", new CheckBox("Snare"));
+            qmenu.Add("qslow", new CheckBox("Slow", false));
+            qmenu.Add("qsnare", new CheckBox("Snare", false));
             qmenu.Add("qtaunt", new CheckBox("Taunt"));
             qmenu.AddSeparator(14);
             qmenu.AddLabel("¿Draw Q Range?");
@@ -85,8 +85,8 @@
             emenu.Add("ekill", new CheckBox("Killable"));
             emenu.Add("edash", new CheckBox("Dash"));
             emenu.Add("estun", new CheckBox("Stun"));
-            emenu.Add("eslow", new CheckBox("Slow"));
-            emenu.Add("esnare", new CheckBox("Snare"));
+            emenu.Add("eslow", new CheckBox("Slow", false));
+            emenu.Add("esnare", new CheckBox("Snare", false));
             emenu.Add("etaunt", new CheckBox("Taunt"));
             emenu.AddSeparator(14);
             emenu.AddLabel("¿Draw E Range?");
@@ -98,7 +98,12 @@
             rmenu.AddSeparator(14);
             rmenu.Add("rdraw", new CheckBox("Draw"));
 
-            predmenu = menu.AddSubMenu("Hitchances", "index5");
+            igmenu = menu.AddSubMenu("Ignite Settings", "index5");
+            igmenu.AddLabel("¿Auto Ignite?");
+            igmenu.AddSeparator(14);
+            igmenu.Add("igdo", new CheckBox("Auto Ignite"));
+
+            predmenu = menu.AddSubMenu("Hitchances", "index6");
             predmenu.AddLabel("Please, choose spells hitchances below");
             predmenu.AddSeparator(14);
             var qp = predmenu.Add("qpreda", new Slider("Hitchance Q", 2, 0, 2));
@@ -247,29 +252,28 @@
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
-                foreach (var e in EntityManager.MinionsAndMonsters.GetLaneMinions().Where(x => x.IsEnemy && x.IsMinion  && !x.IsDead && InRange(x, BestTarget())).OrderBy(o => o.Distance(Player.Instance)))
+                var m = EntityManager.MinionsAndMonsters.EnemyMinions.Where(x => InRange(x, BestTarget()) && !x.IsDead).OrderBy(o => o.Distance(Player.Instance));
+                if (m != null)
                 {
-                    if (e != null)
+                    if (W.IsReady() && Q.IsReady() | E.IsReady())
                     {
-                        if (W.IsReady() && Q.IsReady() | E.IsReady())
+                        var wm = EntityManager.MinionsAndMonsters.GetLaneMinions().Where(x => x.IsEnemy && x.IsMinion && !x.IsDead && x.IsValid).OrderBy(o => o.Distance(Player.Instance)).FirstOrDefault();
+                        W.Cast(wm.Position);
+                    }
+                    if (Q.IsReady())
+                    {
+                        var qpred = Q.GetBestLinearCastPosition(m, Q.CastDelay);
+                        if (qpred.HitNumber >= 3)
                         {
-                            W.Cast(e.Position);
+                            Q.Cast(qpred.CastPosition);
                         }
-                        if (Q.IsReady())
+                    }
+                    if (E.IsReady())
+                    {
+                        var epred = E.GetBestLinearCastPosition(m, E.CastDelay);
+                        if (epred.HitNumber >= 3)
                         {
-                            var prediction = Q.GetPrediction(e);
-                            if (prediction.HitChance >= HitChance.Medium)
-                            {
-                                Q.Cast(prediction.CastPosition);
-                            }
-                        }
-                        if (E.IsReady())
-                        {
-                            var prediction = E.GetPrediction(e);
-                            if (prediction.HitChance >= HitChance.Medium)
-                            {
-                                E.Cast(prediction.CastPosition);
-                            }
+                            E.Cast(epred.CastPosition);
                         }
                     }
                 }
@@ -307,15 +311,18 @@
         }
         static void Game_OnIgnite(EventArgs args)
         {
-            if (!SummonerSpells.PlayerHas(SummonerSpellsEnum.Ignite)) { return; }
-            var e = EntityManager.Heroes.Enemies.Find(f => f.IsInRange(Player.Instance, Ignite.Range) && !f.IsInvulnerable && !f.IsDead);
-            if (e != null)
+            if (igmenu["igdo"].Cast<CheckBox>().CurrentValue)
             {
-                if (Prediction.Health.GetPrediction(e, 200) < DamageLibrary.GetSummonerSpellDamage(Player.Instance, e, DamageLibrary.SummonerSpells.Ignite))
+                if (!SummonerSpells.PlayerHas(SummonerSpellsEnum.Ignite)) { return; }
+                var e = EntityManager.Heroes.Enemies.Find(f => f.IsInRange(Player.Instance, Ignite.Range) && !f.IsInvulnerable && !f.IsDead);
+                if (e != null)
                 {
-                    Ignite.Cast(e);
-                }
+                    if (Prediction.Health.GetPrediction(e, 200) < DamageLibrary.GetSummonerSpellDamage(Player.Instance, e, DamageLibrary.SummonerSpells.Ignite))
+                    {
+                        Ignite.Cast(e);
+                    }
 
+                }
             }
         }
         static void Game_OnExtraTicks(EventArgs args)
@@ -396,20 +403,23 @@
                     && f.HasBuffOfType(BuffType.Snare) && !f.IsDead);
                     if (random != null)
                     {
-                        if (random.IsRooted)
+                        if (Q.IsReady())
                         {
-                            var prediction = Q.GetPrediction(random);
-                            if (prediction.HitChance >= HitChance.High)
+                            if (random.IsRooted)
                             {
-                                Q.Cast(prediction.CastPosition);
+                                var prediction = Q.GetPrediction(random);
+                                if (prediction.HitChance >= HitChance.High)
+                                {
+                                    Q.Cast(prediction.CastPosition);
+                                }
                             }
-                        }
-                        else
-                        {
-                            var prediction = Q.GetPrediction(random);
-                            if (prediction.HitChance >= HitChance.High)
+                            else
                             {
-                                Q.Cast(prediction.UnitPosition);
+                                var prediction = Q.GetPrediction(random);
+                                if (prediction.HitChance >= HitChance.High)
+                                {
+                                    Q.Cast(prediction.UnitPosition);
+                                }
                             }
                         }
                     }
@@ -420,20 +430,23 @@
                     && f.HasBuffOfType(BuffType.Taunt) && !f.IsDead);
                     if (random != null)
                     {
-                        if (random.IsRooted)
+                        if (Q.IsReady())
                         {
-                            var prediction = Q.GetPrediction(random);
-                            if (prediction.HitChance >= HitChance.High)
+                            if (random.IsRooted)
                             {
-                                Q.Cast(prediction.CastPosition);
+                                var prediction = Q.GetPrediction(random);
+                                if (prediction.HitChance >= HitChance.High)
+                                {
+                                    Q.Cast(prediction.CastPosition);
+                                }
                             }
-                        }
-                        else
-                        {
-                            var prediction = Q.GetPrediction(random);
-                            if (prediction.HitChance >= HitChance.High)
+                            else
                             {
-                                Q.Cast(prediction.UnitPosition);
+                                var prediction = Q.GetPrediction(random);
+                                if (prediction.HitChance >= HitChance.High)
+                                {
+                                    Q.Cast(prediction.UnitPosition);
+                                }
                             }
                         }
                     }
