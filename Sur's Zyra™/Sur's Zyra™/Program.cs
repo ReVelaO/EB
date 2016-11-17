@@ -16,7 +16,7 @@
     internal class Program
     {
         #region Spells var & Menu
-        static Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 800, SkillShotType.Linear, 850, int.MaxValue, 85) { AllowedCollisionCount = -1 };
+        static Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 800, SkillShotType.Circular, 850, int.MaxValue, 85) { AllowedCollisionCount = -1 };
         static Spell.SimpleSkillshot W = new Spell.SimpleSkillshot(SpellSlot.W, 850);
         static Spell.Skillshot E = new Spell.Skillshot(SpellSlot.E, 1100, SkillShotType.Linear, 250, 1400, 70) { AllowedCollisionCount = -1 };
         static Spell.Skillshot R = new Spell.Skillshot(SpellSlot.R, 700, SkillShotType.Circular, 500, 2000, 525) { AllowedCollisionCount = -1 };
@@ -262,7 +262,7 @@
                     }
                     if (Q.IsReady())
                     {
-                        var qpred = Q.GetBestLinearCastPosition(m, Q.CastDelay);
+                        var qpred = Q.GetBestCircularCastPosition(m);
                         if (qpred.HitNumber >= 3)
                         {
                             Q.Cast(qpred.CastPosition);
@@ -270,7 +270,7 @@
                     }
                     if (E.IsReady())
                     {
-                        var epred = E.GetBestLinearCastPosition(m, E.CastDelay);
+                        var epred = E.GetBestLinearCastPosition(m);
                         if (epred.HitNumber >= 3)
                         {
                             E.Cast(epred.CastPosition);
@@ -283,7 +283,7 @@
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
-                var mob = EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(x => x.IsEnemy && x.IsMonster && !x.IsDead && x.IsValidTarget(BestTarget())).OrderBy(o => o.MaxHealth).FirstOrDefault();
+                var mob = EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(x => x.IsEnemy && x.IsMonster && !x.IsDead && x.IsValidTarget(BestTarget())).OrderByDescending(o => o.Health).FirstOrDefault();
                 if (mob != null)
                 {
                     if (W.IsReady() && Q.IsReady() | E.IsReady())
@@ -314,7 +314,7 @@
             if (igmenu["igdo"].Cast<CheckBox>().CurrentValue)
             {
                 if (!SummonerSpells.PlayerHas(SummonerSpellsEnum.Ignite)) { return; }
-                var e = EntityManager.Heroes.Enemies.Find(f => f.IsInRange(Player.Instance, Ignite.Range) && !f.IsInvulnerable && !f.IsDead);
+                var e = EntityManager.Heroes.Enemies.Find(f => f.IsValidTarget(Ignite.Range) && !f.IsInvulnerable && !f.IsDead);
                 if (e != null)
                 {
                     if (Prediction.Health.GetPrediction(e, 200) < DamageLibrary.GetSummonerSpellDamage(Player.Instance, e, DamageLibrary.SummonerSpells.Ignite))
