@@ -260,20 +260,26 @@
                         var wm = EntityManager.MinionsAndMonsters.GetLaneMinions().Where(x => x.IsEnemy && x.IsMinion && !x.IsDead && x.IsValid).OrderBy(o => o.Distance(Player.Instance)).FirstOrDefault();
                         W.Cast(wm.Position);
                     }
-                    if (Q.IsReady())
+                    if (qmenu["lq"].Cast<CheckBox>().CurrentValue)
                     {
-                        var qpred = Q.GetBestCircularCastPosition(m);
-                        if (qpred.HitNumber >= 3)
+                        if (Q.IsReady())
                         {
-                            Q.Cast(qpred.CastPosition);
+                            var qpred = Q.GetBestCircularCastPosition(m);
+                            if (qpred.HitNumber >= 3)
+                            {
+                                Q.Cast(qpred.CastPosition);
+                            }
                         }
                     }
-                    if (E.IsReady())
+                    if (emenu["le"].Cast<CheckBox>().CurrentValue)
                     {
-                        var epred = E.GetBestLinearCastPosition(m);
-                        if (epred.HitNumber >= 3)
+                        if (E.IsReady())
                         {
-                            E.Cast(epred.CastPosition);
+                            var epred = E.GetBestLinearCastPosition(m);
+                            if (epred.HitNumber >= 3)
+                            {
+                                E.Cast(epred.CastPosition);
+                            }
                         }
                     }
                 }
@@ -290,20 +296,26 @@
                     {
                         W.Cast(mob.Position);
                     }
-                    if (Q.IsReady())
+                    if (qmenu["jq"].Cast<CheckBox>().CurrentValue)
                     {
-                        var prediction = Q.GetPrediction(mob);
-                        if (prediction.HitChance >= HitChance.Medium)
+                        if (Q.IsReady())
                         {
-                            Q.Cast(prediction.CastPosition);
+                            var prediction = Q.GetPrediction(mob);
+                            if (prediction.HitChance >= HitChance.Medium)
+                            {
+                                Q.Cast(prediction.CastPosition);
+                            }
                         }
                     }
-                    if (E.IsReady())
+                    if (emenu["je"].Cast<CheckBox>().CurrentValue)
                     {
-                        var prediction = E.GetPrediction(mob);
-                        if (prediction.HitChance >= HitChance.Medium)
+                        if (E.IsReady())
                         {
-                            E.Cast(prediction.CastPosition);
+                            var prediction = E.GetPrediction(mob);
+                            if (prediction.HitChance >= HitChance.Medium)
+                            {
+                                E.Cast(prediction.CastPosition);
+                            }
                         }
                     }
                 }
