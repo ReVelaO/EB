@@ -25,7 +25,7 @@ namespace Sur_s_Xin_.Addon
         {
             if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
                 Combo.Get();
-            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.JungleClear))
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
                 Jungleclear.Get();
             AutoSmite();
         }

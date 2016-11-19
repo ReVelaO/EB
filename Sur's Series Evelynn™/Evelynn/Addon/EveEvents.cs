@@ -22,9 +22,9 @@ namespace Evelynn.Addon
         {
             if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
                 Combo.Get();
-            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.JungleClear))
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
                 Jungleclear.Get();
-            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.LaneClear))
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
                 if (EveMenu.Lmm.CurrentValue)
                 {
@@ -35,7 +35,7 @@ namespace Evelynn.Addon
                     Laneclear.Get();
                 }
             }
-            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Flee))
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee))
                 if (EveSpells.W.IsReady()) EveSpells.W.Cast();
             OnKillSteal();
             OnMaxShield();
