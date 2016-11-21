@@ -35,9 +35,9 @@ namespace Lux
                 Chat.Print("This addon is not for <font color='#FFFFFF'>" + Player.Instance.ChampionName + "</font>");
                 return;
             }
-            #region Menu
             Chat.Print("[<font color='#29EB8A'>Sur's Series:</font> <font color='#FAF092'>Lux</font> successfully loaded. <font color='#FFFFFF'>Enjoy!</font>]");
             Notifications.Show(new SimpleNotification("Sur's Series: Lux", "Welcome back buddy!"), 20000);
+            #region Menu
             menu = MainMenu.AddMenu("Lux", "index0");
             menu.AddLabel("Sur's Series: Lux", 24);
             menu.AddLabel("[FREE] Lux Addon by Surprise", 16);
@@ -50,6 +50,16 @@ namespace Lux
             qmenu.Add("lq", new CheckBox("Laneclear"));
             qmenu.Add("jq", new CheckBox("Jungleclear"));
             qmenu.AddSeparator(14);
+            qmenu.AddLabel("¿What settings do you want for Laneclear?");
+            qmenu.AddSeparator(14);
+            qmenu.Add("mmanager", new CheckBox("Use Mana-Manager"));
+            qmenu.AddSeparator(8);
+            qmenu.Add("mmanagersli", new Slider("Stop at {0}% Mana", 55, 1));
+            qmenu.AddSeparator(14);
+            qmenu.AddLabel("¿How many minions (minimum) do you want hit?");
+            qmenu.AddSeparator(8);
+            qmenu.Add("minions", new Slider("Hit {0} Minions", 2, 1, 2));
+            qmenu.AddSeparator(14);
             qmenu.AddLabel("¿Enable Auto Q?");
             qmenu.AddSeparator(14);
             qmenu.Add("autoq", new CheckBox("Auto Q"));
@@ -59,9 +69,13 @@ namespace Lux
             qmenu.Add("qkill", new CheckBox("Killable"));
             qmenu.Add("qdash", new CheckBox("Dash"));
             qmenu.Add("qstun", new CheckBox("Stun"));
-            qmenu.Add("qslow", new CheckBox("Slow"));
-            qmenu.Add("qsnare", new CheckBox("Snare"));
+            qmenu.Add("qslow", new CheckBox("Slow", false));
+            qmenu.Add("qsnare", new CheckBox("Snare", false));
             qmenu.Add("qtaunt", new CheckBox("Taunt"));
+            qmenu.AddSeparator(14);
+            qmenu.AddLabel("¿Draw Range?");
+            qmenu.AddSeparator(14);
+            qmenu.Add("qdraw", new CheckBox("Draw"));
 
             wmenu = menu.AddSubMenu("W Settings", "index2");
             wmenu.AddLabel("¿Auto W in which modes?");
@@ -82,9 +96,13 @@ namespace Lux
             wmenu.AddLabel("¿Auto W in which ally situations?");
             wmenu.AddSeparator(14);
             wmenu.Add("wstun", new CheckBox("Stun"));
-            wmenu.Add("wslow", new CheckBox("Slow"));
-            wmenu.Add("wsnare", new CheckBox("Snare"));
+            wmenu.Add("wslow", new CheckBox("Slow", false));
+            wmenu.Add("wsnare", new CheckBox("Snare", false));
             wmenu.Add("wtaunt", new CheckBox("Taunt"));
+            wmenu.AddSeparator(14);
+            wmenu.AddLabel("¿Draw Range?");
+            wmenu.AddSeparator(14);
+            wmenu.Add("wdraw", new CheckBox("Draw"));
 
             emenu = menu.AddSubMenu("E Settings", "index3");
             emenu.AddLabel("¿Use E in which modes?");
@@ -92,6 +110,16 @@ namespace Lux
             emenu.Add("ce", new CheckBox("Combo"));
             emenu.Add("le", new CheckBox("Laneclear"));
             emenu.Add("je", new CheckBox("Jungleclear"));
+            emenu.AddSeparator(14);
+            emenu.AddLabel("¿What settings do you want for Laneclear?");
+            emenu.AddSeparator(14);
+            emenu.Add("mmanager", new CheckBox("Use Mana-Manager"));
+            emenu.AddSeparator(8);
+            emenu.Add("mmanagersli", new Slider("Stop at {0}% Mana", 55, 1));
+            emenu.AddSeparator(14);
+            emenu.AddLabel("¿How many minions (minimum) do you want hit?");
+            emenu.AddSeparator(8);
+            emenu.Add("minions", new Slider("Hit {0} Minions", 3, 1, 6));
             emenu.AddSeparator(14);
             emenu.AddLabel("¿Enable Auto E?");
             emenu.AddSeparator(14);
@@ -102,9 +130,13 @@ namespace Lux
             emenu.Add("ekill", new CheckBox("Killable"));
             emenu.Add("edash", new CheckBox("Dash"));
             emenu.Add("estun", new CheckBox("Stun"));
-            emenu.Add("eslow", new CheckBox("Slow"));
-            emenu.Add("esnare", new CheckBox("Snare"));
+            emenu.Add("eslow", new CheckBox("Slow", false));
+            emenu.Add("esnare", new CheckBox("Snare", false));
             emenu.Add("etaunt", new CheckBox("Taunt"));
+            emenu.AddSeparator(14);
+            emenu.AddLabel("¿Draw Range?");
+            emenu.AddSeparator(14);
+            emenu.Add("edraw", new CheckBox("Draw"));
 
             rmenu = menu.AddSubMenu("R Settings", "index4");
             rmenu.AddLabel("¿Use R in which modes?");
@@ -117,10 +149,14 @@ namespace Lux
             rmenu.AddSeparator(14);
             rmenu.AddLabel("¿Auto R in which situations?");
             rmenu.AddSeparator(14);
-            rmenu.Add("rkill", new CheckBox("Killable"));
+            rmenu.Add("rkill", new CheckBox("Killable", false));
             rmenu.Add("rbaron", new CheckBox("Baron/Herald"));
             rmenu.Add("rdragon", new CheckBox("Dragons"));
-            rmenu.Add("rbuffs", new CheckBox("Buffs Blue/Red"));
+            rmenu.Add("rbuffs", new CheckBox("Buffs Blue/Red", false));
+            rmenu.AddSeparator(14);
+            rmenu.AddLabel("¿Draw Range?");
+            rmenu.AddSeparator(14);
+            rmenu.Add("rdraw", new CheckBox("Draw"));
 
             predmenu = menu.AddSubMenu("Hitchances", "index5");
             predmenu.AddLabel("Please, choose spells hitchances below");
@@ -163,28 +199,21 @@ namespace Lux
             };
             Drawing.OnDraw += delegate
             {
-                if (Q.IsReady()) { Q.DrawRange(Color.FromArgb(170, Color.LightYellow)); }
-                if (W.IsReady()) { W.DrawRange(Color.FromArgb(170, Color.LightBlue)); }
-                if (E.IsReady()) { E.DrawRange(Color.FromArgb(170, Color.LightGoldenrodYellow)); }
-                if (R.IsReady()) { R.DrawRange(Color.FromArgb(170, Color.MediumPurple)); }
-            };
-            //Which features make a good addon? the below :)
-            //Its check if enemis are in E aoe. if not, cancel the spell cast.
-            Spellbook.OnCastSpell += delegate (Spellbook sender, SpellbookCastSpellEventArgs e)
-            {
-                if (sender.Owner.IsMe)
+                if (qmenu["qdraw"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
-                    {
-                        if (e.Slot == SpellSlot.E)
-                        {
-                            var finalpos = e.EndPosition;
-                            if (finalpos.CountEnemiesInRange(E.Width) == 0)
-                            {
-                                e.Process = false;
-                            }
-                        }
-                    }
+                    if (Q.IsReady()) { Q.DrawRange(Color.FromArgb(170, Color.LightYellow)); }
+                }
+                if (wmenu["wdraw"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (W.IsReady()) { W.DrawRange(Color.FromArgb(170, Color.LightBlue)); }
+                }
+                if (emenu["edraw"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (E.IsReady()) { E.DrawRange(Color.FromArgb(170, Color.LightGoldenrodYellow)); }
+                }
+                if (rmenu["rdraw"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (R.IsReady()) { R.DrawRange(Color.FromArgb(170, Color.MediumPurple)); }
                 }
             };
             #endregion End Events
@@ -236,6 +265,65 @@ namespace Lux
                 }
                 #endregion End Combo
             }
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+            {
+                #region Laneclear
+                var min = EntityManager.MinionsAndMonsters.EnemyMinions.Where(w => w.IsValidTarget(1200)).OrderBy(o => o.Health);
+                if (min != null)
+                {
+                    if (qmenu["lq"].Cast<CheckBox>().CurrentValue)
+                    {
+                        if (qmenu["mmanager"].Cast<CheckBox>().CurrentValue)
+                        {
+                            if (Q.IsReady() && Player.Instance.ManaPercent >= qmenu["mmanagersli"].Cast<Slider>().CurrentValue)
+                            {
+                                var p = Q.GetBestLinearCastPosition(min);
+                                if (p.HitNumber >= qmenu["minions"].Cast<Slider>().CurrentValue)
+                                {
+                                    Q.Cast(p.CastPosition);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (Q.IsReady())
+                            {
+                                var p = Q.GetBestLinearCastPosition(min);
+                                if (p.HitNumber >= qmenu["minions"].Cast<Slider>().CurrentValue)
+                                {
+                                    Q.Cast(p.CastPosition);
+                                }
+                            }
+                        }
+                    }
+                    if (emenu["le"].Cast<CheckBox>().CurrentValue)
+                    {
+                        if (emenu["mmanager"].Cast<CheckBox>().CurrentValue)
+                        {
+                            if (E.IsReady() && Player.Instance.ManaPercent >= emenu["mmanagersli"].Cast<Slider>().CurrentValue)
+                            {
+                                var p = E.GetBestLinearCastPosition(min);
+                                if (p.HitNumber >= emenu["minions"].Cast<Slider>().CurrentValue)
+                                {
+                                    E.Cast(p.CastPosition);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (E.IsReady())
+                            {
+                                var p = E.GetBestLinearCastPosition(min);
+                                if (p.HitNumber >= emenu["minions"].Cast<Slider>().CurrentValue)
+                                {
+                                    E.Cast(p.CastPosition);
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion Laneclear
+            }
             AutoQ();
             AutoE();
             AutoW();
@@ -243,7 +331,6 @@ namespace Lux
             Special();
             PanicBurst();
         }
-        #region AutoQ
         static void AutoQ()
         {
             if (qmenu["autoq"].Cast<CheckBox>().CurrentValue)
@@ -312,8 +399,6 @@ namespace Lux
                 }
             }
         }
-        #endregion End AutoQ
-        #region AutoE
         static void AutoE()
         {
             if (emenu["autoe"].Cast<CheckBox>().CurrentValue)
@@ -382,8 +467,6 @@ namespace Lux
                 }
             }
         }
-        #endregion End AutoE
-        #region AutoW
         static void AutoW()
         {
             if (wmenu["mew"].Cast<CheckBox>().CurrentValue)
@@ -457,13 +540,9 @@ namespace Lux
                 }
             }
         }
-        #endregion End AutoW
-        #region MonsterList
         static readonly string[] Dragons = { "SRU_Dragon_Water", "SRU_Dragon_Fire", "SRU_Dragon_Earth", "SRU_Dragon_Air", "SRU_Dragon_Elder" };
         static readonly string[] Barons = { "SRU_Baron", "SRU_RiftHerald" };
         static readonly string[] Buffs = { "SRU_Red", "SRU_Blue" };
-        #endregion
-        #region AutoR
         static void AutoR()
         {
             if (rmenu["aar"].Cast<CheckBox>().CurrentValue)
@@ -537,8 +616,6 @@ namespace Lux
                 #endregion End Special R
             }
         }
-        #endregion End AutoR
-        #region Extensions
         static float HPrediction(Obj_AI_Base e, int spellcastdelay)
         {
             return Prediction.Health.GetPrediction(e, spellcastdelay);
@@ -606,8 +683,6 @@ namespace Lux
             var sum = auto + passive;
             return Player.Instance.CalculateDamageOnUnit(e, DamageType.Mixed, sum);
         }
-        #endregion End Extensions
-        #region Auto Spells if Hit 5
         static void Special()
         {
             var xix = EntityManager.Heroes.Enemies.Where(f => InRange(f, 1200));
@@ -625,8 +700,6 @@ namespace Lux
                 }
             }
         }
-        #endregion End asih5
-        #region panic
         static void PanicBurst()
         {
             if (menu["pb"].Cast<KeyBind>().CurrentValue)
@@ -648,7 +721,7 @@ namespace Lux
                         var prediction = E.GetPrediction(target);
                         if (prediction.HitChance >= HitChance.High && InRange(target, E.Range))
                         {
-                            E.Cast(prediction.CastPosition);
+                            E.Cast(prediction.UnitPosition);
                         }
                     }
                     if (R.IsReady() && !E.IsReady())
@@ -659,7 +732,7 @@ namespace Lux
                             R.Cast(prediction.CastPosition);
                         }
                     }
-                    if (Ignite.Slot != SpellSlot.Unknown)
+                    if (SummonerSpells.PlayerHas(SummonerSpellsEnum.Ignite))
                     {
                         if (InRange(target, Ignite.Range) && Ignite.IsReady())
                         {
@@ -676,6 +749,5 @@ namespace Lux
                 }
             }
         }
-        #endregion end panic
     }
 }
