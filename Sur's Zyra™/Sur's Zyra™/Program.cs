@@ -47,6 +47,11 @@
             qmenu.Add("lq", new CheckBox("Laneclear"));
             qmenu.Add("jq", new CheckBox("Jungleclear"));
             qmenu.AddSeparator(14);
+            qmenu.AddLabel("¿How many minions (minimum) do you want hit?");
+            qmenu.AddLabel("Laneclear", 14);
+            qmenu.AddSeparator(8);
+            qmenu.Add("minions", new Slider("Hit {0} Minions", 3, 1, 6));
+            qmenu.AddSeparator(8);
             qmenu.AddLabel("¿Enable Auto Q?");
             qmenu.AddSeparator(14);
             qmenu.Add("autoq", new CheckBox("Auto Q"));
@@ -65,6 +70,12 @@
             qmenu.Add("qdraw", new CheckBox("Draw"));
 
             wmenu = menu.AddSubMenu("W Settings", "index2");
+            wmenu.AddLabel("¿Use W in which modes?");
+            wmenu.AddSeparator(14);
+            wmenu.Add("cw", new CheckBox("Combo"));
+            wmenu.Add("lw", new CheckBox("Laneclear"));
+            wmenu.Add("jw", new CheckBox("Jungleclear"));
+            wmenu.AddSeparator(14);
             wmenu.AddLabel("¿Draw W Range?");
             wmenu.AddSeparator(14);
             wmenu.Add("wdraw", new CheckBox("Draw"));
@@ -76,6 +87,11 @@
             emenu.Add("le", new CheckBox("Laneclear"));
             emenu.Add("je", new CheckBox("Jungleclear"));
             emenu.AddSeparator(14);
+            emenu.AddLabel("¿How many minions (minimum) do you want hit?");
+            emenu.AddLabel("Laneclear", 14);
+            emenu.AddSeparator(8);
+            emenu.Add("minions", new Slider("Hit {0} Minions", 3, 1, 6));
+            emenu.AddSeparator(8);
             emenu.AddLabel("¿Enable Auto E?");
             emenu.AddSeparator(14);
             emenu.Add("autoe", new CheckBox("Auto E"));
@@ -94,6 +110,10 @@
             emenu.Add("edraw", new CheckBox("Draw"));
 
             rmenu = menu.AddSubMenu("R Settings", "index4");
+            rmenu.AddLabel("¿Use R in which modes?");
+            rmenu.AddSeparator(14);
+            rmenu.Add("cr", new CheckBox("Combo"));
+            rmenu.AddSeparator(14);
             rmenu.AddLabel("¿Draw R Range?");
             rmenu.AddSeparator(14);
             rmenu.Add("rdraw", new CheckBox("Draw"));
@@ -188,59 +208,71 @@
                 var e = TargetSelector.GetTarget(BestTarget(), DamageType.Magical);
                 if (e != null && !e.IsInvulnerable)
                 {
-                    if (W.IsReady() && Q.IsReady() | E.IsReady())
+                    if (wmenu["cw"].Cast<CheckBox>().CurrentValue)
                     {
-                        W.Cast(e.Position);
-                    }
-                    if (Q.IsReady())
-                    {
-                        if (e.IsRooted)
+                        if (W.IsReady() && Q.IsReady() | E.IsReady())
                         {
-                            var prediction = Q.GetPrediction(e);
-                            if (prediction.HitChance >= hitq())
-                            {
-                                Q.Cast(prediction.CastPosition);
-                            }
-                        }
-                        else
-                        {
-                            var prediction = Q.GetPrediction(e);
-                            if (prediction.HitChance >= hitq())
-                            {
-                                Q.Cast(prediction.UnitPosition);
-                            }
+                            W.Cast(e.Position);
                         }
                     }
-                    if (E.IsReady())
+                    if (qmenu["cq"].Cast<CheckBox>().CurrentValue)
                     {
-                        var prediction = E.GetPrediction(e);
-                        if (prediction.HitChance >= hite())
+                        if (Q.IsReady())
                         {
-                            E.Cast(prediction.UnitPosition);
-                        }
-                    }
-                    if (R.IsReady())
-                    {
-                        var sum = DamageBySlot(e, SpellSlot.Q)
-                                + DamageBySlot(e, SpellSlot.E)
-                                + GetIgniteDmg(e);
-                        if (HPrediction(e, 250) < sum) { return; }
-                        else
-                        {
-                            if (HPrediction(e, R.CastDelay) < DamageBySlot(e, SpellSlot.R))
+                            if (e.IsRooted)
                             {
-                                var prediction = R.GetPrediction(e);
-                                if (prediction.HitChance >= HitChance.High)
+                                var prediction = Q.GetPrediction(e);
+                                if (prediction.HitChance >= hitq())
                                 {
-                                    R.Cast(prediction.UnitPosition);
+                                    Q.Cast(prediction.CastPosition);
                                 }
                             }
                             else
                             {
-                                var prediction = R.GetPrediction(e);
-                                if (e.CountEnemyHeroesInRangeWithPrediction(R.Width) > 1 && prediction.HitChance >= HitChance.High)
+                                var prediction = Q.GetPrediction(e);
+                                if (prediction.HitChance >= hitq())
                                 {
-                                    R.Cast(prediction.UnitPosition);
+                                    Q.Cast(prediction.UnitPosition);
+                                }
+                            }
+                        }
+                    }
+                    if (emenu["ce"].Cast<CheckBox>().CurrentValue)
+                    {
+                        if (E.IsReady())
+                        {
+                            var prediction = E.GetPrediction(e);
+                            if (prediction.HitChance >= hite())
+                            {
+                                E.Cast(prediction.UnitPosition);
+                            }
+                        }
+                    }
+                    if (rmenu["cr"].Cast<CheckBox>().CurrentValue)
+                    {
+                        if (R.IsReady())
+                        {
+                            var sum = DamageBySlot(e, SpellSlot.Q)
+                                    + DamageBySlot(e, SpellSlot.E)
+                                    + GetIgniteDmg(e);
+                            if (HPrediction(e, 250) < sum) { return; }
+                            else
+                            {
+                                if (HPrediction(e, R.CastDelay) < DamageBySlot(e, SpellSlot.R))
+                                {
+                                    var prediction = R.GetPrediction(e);
+                                    if (prediction.HitChance >= HitChance.High)
+                                    {
+                                        R.Cast(prediction.UnitPosition);
+                                    }
+                                }
+                                else
+                                {
+                                    var prediction = R.GetPrediction(e);
+                                    if (e.CountEnemyHeroesInRangeWithPrediction(R.Width) > 1 && prediction.HitChance >= HitChance.High)
+                                    {
+                                        R.Cast(prediction.UnitPosition);
+                                    }
                                 }
                             }
                         }
@@ -252,20 +284,23 @@
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
             {
-                var m = EntityManager.MinionsAndMonsters.EnemyMinions.Where(x => x.IsValidTarget(BestTarget()) && !x.IsDead).OrderBy(o => o.Distance(Player.Instance));
+                var m = EntityManager.MinionsAndMonsters.EnemyMinions.Where(x => x.IsValidTarget(BestTarget()));
                 if (m != null)
                 {
-                    if (W.IsReady() && Q.IsReady() | E.IsReady())
+                    if (wmenu["lw"].Cast<CheckBox>().CurrentValue)
                     {
-                        var wm = EntityManager.MinionsAndMonsters.GetLaneMinions().Where(x => x.IsEnemy && x.IsMinion && !x.IsDead && x.IsValid).OrderBy(o => o.Distance(Player.Instance)).FirstOrDefault();
-                        W.Cast(wm.Position);
+                        if (W.IsReady() && Q.IsReady() | E.IsReady())
+                        {
+                            var wm = EntityManager.MinionsAndMonsters.GetLaneMinions().Where(x => x.IsEnemy && x.IsMinion && !x.IsDead && x.IsValid).OrderBy(o => o.Distance(Player.Instance)).FirstOrDefault();
+                            W.Cast(wm.Position);
+                        }
                     }
                     if (qmenu["lq"].Cast<CheckBox>().CurrentValue)
                     {
                         if (Q.IsReady())
                         {
                             var qpred = Q.GetBestCircularCastPosition(m);
-                            if (qpred.HitNumber >= 3)
+                            if (qpred.HitNumber >= qmenu["minions"].Cast<Slider>().CurrentValue)
                             {
                                 Q.Cast(qpred.CastPosition);
                             }
@@ -276,7 +311,7 @@
                         if (E.IsReady())
                         {
                             var epred = E.GetBestLinearCastPosition(m);
-                            if (epred.HitNumber >= 3)
+                            if (epred.HitNumber >= emenu["minions"].Cast<Slider>().CurrentValue)
                             {
                                 E.Cast(epred.CastPosition);
                             }
@@ -289,12 +324,15 @@
         {
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
-                var mob = EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(x => x.IsEnemy && x.IsMonster && !x.IsDead && x.IsValidTarget(BestTarget())).OrderByDescending(o => o.Health).FirstOrDefault();
+                var mob = EntityManager.MinionsAndMonsters.GetJungleMonsters().Where(x => x.IsValidTarget(BestTarget())).OrderByDescending(o => o.MaxHealth).FirstOrDefault();
                 if (mob != null)
                 {
-                    if (W.IsReady() && Q.IsReady() | E.IsReady())
+                    if (wmenu["jw"].Cast<CheckBox>().CurrentValue)
                     {
-                        W.Cast(mob.Position);
+                        if (W.IsReady() && Q.IsReady() | E.IsReady())
+                        {
+                            W.Cast(mob.Position);
+                        }
                     }
                     if (qmenu["jq"].Cast<CheckBox>().CurrentValue)
                     {
