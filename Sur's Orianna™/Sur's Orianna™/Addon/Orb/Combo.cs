@@ -1,27 +1,22 @@
 ﻿namespace Orianna.Addon.Orb
 {
     using EloBuddy;
-
     using EloBuddy.SDK;
-
-    using EloBuddy.SDK.Enumerations;
-
     using EloBuddy.SDK.Menu.Values;
-
     internal class Combo
     {
         public static void Get()
         {
             if (MenuManager.mcombo["q"].Cast<CheckBox>().CurrentValue)
             {
-                var t = TargetSelector.GetTarget(SpellManager.Q.Range, DamageType.Magical);
+                var t = TargetSelector.GetTarget(SpellManager.Q.Range + 200, DamageType.Magical);
 
-                if (t != null && t.IsValidTarget(SpellManager.Q.Range))
+                if (t != null && t.IsValidTarget(SpellManager.Q.Range + 200))
                 {
                     if (SpellManager.Q.IsReady())
                     {
                         var p = SpellManager.Q.GetPrediction(t);
-                        if (p.HitChance >= HitChance.High)
+                        if (p.HitChancePercent >= MenuManager.mcombo["qh"].Cast<Slider>().CurrentValue)
                         {
                             SpellManager.Q.Cast(p.CastPosition);
                         }

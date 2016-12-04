@@ -1,13 +1,10 @@
 ﻿namespace Orianna.Addon
 {
     using EloBuddy.SDK.Menu;
-
     using EloBuddy.SDK.Menu.Values;
-
     internal class MenuManager
     {
         public static Menu menu, mcombo, mlane, mjungle, mdrawings;
-
         public static void Load()
         {
             menu = MainMenu.AddMenu("Orianna", "index0");
@@ -23,6 +20,8 @@
             mcombo.Add("re", new CheckBox("Use R [Execute]"));
             mcombo.AddSeparator(8);
             mcombo.Add("minr", new Slider("Min. Enemies [R]", 2, 1, 5));
+            mcombo.AddSeparator(8);
+            mcombo.Add("qh", new Slider("Spell Q Hitchance: {0}%", 72, 1));
 
             mlane = menu.AddSubMenu("Laneclear");
             mlane.AddLabel("¿Which spells do you want to use?");

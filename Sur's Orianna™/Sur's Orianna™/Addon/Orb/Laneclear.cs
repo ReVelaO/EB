@@ -1,12 +1,8 @@
 ﻿namespace Orianna.Addon.Orb
 {
     using System.Linq;
-
     using EloBuddy.SDK;
-
     using EloBuddy.SDK.Menu.Values;
-    using EloBuddy;
-
     internal class Laneclear
     {
         public static void Get()

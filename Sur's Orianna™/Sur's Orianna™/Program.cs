@@ -4,7 +4,6 @@
     using EloBuddy;
     using EloBuddy.SDK.Events;
     using EloBuddy.SDK.Notifications;
-
     internal class Program
     {
         static void Main(string[] args)

@@ -1,14 +1,10 @@
 ﻿namespace Orianna.Addon
 {
     using System;
-
     using EloBuddy;
-
     using EloBuddy.SDK;
-
     using Color = System.Drawing.Color;
     using EloBuddy.SDK.Menu.Values;
-
     internal class EventsManager
     {
         public static void Load()
@@ -17,7 +13,6 @@
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnBasicAttack += OnBasicAttack;
         }
-
         static void Game_OnTick(EventArgs args)
         {
             if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
@@ -50,12 +45,14 @@
                 }
             }
         }
-
         static void Drawing_OnDraw(EventArgs args)
         {
-            if (SpellManager.Q.IsReady())
+            if (MenuManager.mdrawings["q"].Cast<CheckBox>().CurrentValue)
             {
-                SpellManager.Q.DrawRange(Color.FromArgb(130, Color.OrangeRed));
+                if (SpellManager.Q.IsReady())
+                {
+                    SpellManager.Q.DrawRange(Color.FromArgb(130, Color.OrangeRed));
+                }
             }
             if (MenuManager.mdrawings["ball"].Cast<CheckBox>().CurrentValue)
             {
@@ -67,7 +64,6 @@
                 }
             }
         }
-
         static void OnBasicAttack(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             if (sender.IsEnemy && args.Target.IsMe && sender is AIHeroClient && sender != null)

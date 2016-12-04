@@ -1,13 +1,9 @@
 ﻿namespace Orianna.Addon.Orb
 {
     using System.Linq;
-
     using EloBuddy.SDK;
-
     using EloBuddy.SDK.Enumerations;
-
     using EloBuddy.SDK.Menu.Values;
-
     internal class Jungleclear
     {
         public static void Get()

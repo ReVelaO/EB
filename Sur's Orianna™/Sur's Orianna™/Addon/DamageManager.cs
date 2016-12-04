@@ -1,13 +1,10 @@
 ﻿namespace Orianna.Addon
 {
     using EloBuddy;
-
     using EloBuddy.SDK;
-
     internal class DamageManager
     {
         public static float HPrediction(Obj_AI_Base e, int d = 250) => Prediction.Health.GetPrediction(e, d);
-
         public static float Q(Obj_AI_Base e)
         {
             float d = 0;
@@ -17,7 +14,6 @@
             }
             return Player.Instance.CalculateDamageOnUnit(e, DamageType.Magical, d);
         }
-
         public static float W(Obj_AI_Base e)
         {
             float d = 0;
@@ -27,7 +23,6 @@
             }
             return Player.Instance.CalculateDamageOnUnit(e, DamageType.Magical, d);
         }
-
         public static float R(Obj_AI_Base e)
         {
             float d = 0;
