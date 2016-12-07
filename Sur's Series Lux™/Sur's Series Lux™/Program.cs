@@ -302,7 +302,7 @@ namespace Lux
                         {
                             if (E.IsReady() && Player.Instance.ManaPercent >= emenu["mmanagersli"].Cast<Slider>().CurrentValue)
                             {
-                                var p = E.GetBestLinearCastPosition(min);
+                                var p = E.GetBestCircularCastPosition(min);
                                 if (p.HitNumber >= emenu["minions"].Cast<Slider>().CurrentValue)
                                 {
                                     E.Cast(p.CastPosition);
@@ -313,7 +313,7 @@ namespace Lux
                         {
                             if (E.IsReady())
                             {
-                                var p = E.GetBestLinearCastPosition(min);
+                                var p = E.GetBestCircularCastPosition(min);
                                 if (p.HitNumber >= emenu["minions"].Cast<Slider>().CurrentValue)
                                 {
                                     E.Cast(p.CastPosition);
