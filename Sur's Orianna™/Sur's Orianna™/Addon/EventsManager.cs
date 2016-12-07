@@ -12,6 +12,7 @@
             Game.OnTick += Game_OnTick;
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnBasicAttack += OnBasicAttack;
+            Spellbook.OnCastSpell += Spellbook_OnCastSpell;
         }
         static void Game_OnTick(EventArgs args)
         {
@@ -70,6 +71,11 @@
             {
                 if (SpellManager.E.IsReady()) { SpellManager.E.Cast(Player.Instance); }
             }
+        }
+        static void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
+        {
+            if (args.Slot == SpellSlot.R && MenuManager.mcombo["rblock"].Cast<CheckBox>().CurrentValue && BallManager.RBall.CountEnemyHeroesNear == 0)
+                args.Process = false;
         }
     }
 }
