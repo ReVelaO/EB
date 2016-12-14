@@ -18,7 +18,7 @@ namespace Twitchsharp.Addon
             combo.Add("r", new CheckBox("Use R"));
             combo.AddSeparator(8);
             combo.AddLabel("R Adjust (Alone)");
-            combo.Add("multipler", new Slider("AA Multipler", 4, 2, 6));
+            combo.Add("multipler", new Slider("AA Multipler", 4, 3, 6));
             combo.AddLabel("This will check if killable by aa dmg * aa times in extended range.");
             combo.Add("nm", new CheckBox("Disable Multipler", false));
             /*combo.AddSeparator(8);
@@ -56,7 +56,7 @@ namespace Twitchsharp.Addon
             drawings.Add("w", new CheckBox("Draw W"));
             drawings.Add("e", new CheckBox("Draw E"));
             drawings.AddSeparator(8);
-            //drawings.Add("di", new CheckBox("Draw Damage Indicator [Stacks Damage]"));
+            drawings.Add("di", new CheckBox("Draw Damage Indicator [E Damage]"));
         }
     }
 }

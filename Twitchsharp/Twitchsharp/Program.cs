@@ -17,7 +17,7 @@ namespace Twitchsharp
 
             Addon.SpellHandler.Load();
             Addon.MenuHandler.Load();
-            //Addon.DamageIndicator.Load();
+            Addon.DamageIndicator.Load();
             Addon.EventHandler.Load();
         }
     }

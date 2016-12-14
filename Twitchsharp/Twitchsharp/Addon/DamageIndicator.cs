@@ -2,78 +2,66 @@
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
-using SharpDX.Direct3D9;
 using System;
 using System.Linq;
-using Line = EloBuddy.SDK.Rendering.Line;
+using Color = System.Drawing.Color;
 
 namespace Twitchsharp.Addon
 {
     public static class DamageIndicator
     {
-        //Offsets
+        //Offsets Properties
         private const float YOff = 9.8f;
 
         private const float XOff = 0;
-        private const float Width = 107;
-        private const float Thick = 9.82f;
 
-        //Offsets
-        private static Font _Font, _Font2;
+        //Line Properties
+        private const float Width = 104;
 
+        private const float thick = 9.82f;
+
+        //Initialize Damage Indicator
         public static void Load()
         {
-            Drawing.OnEndScene += Drawing_OnEndScene;
-
-            _Font = new Font(
-                Drawing.Direct3DDevice,
-                new FontDescription
-                {
-                    FaceName = "Segoi UI",
-                    Height = 16,
-                    Weight = FontWeight.Bold,
-                    OutputPrecision = FontPrecision.TrueType,
-                    Quality = FontQuality.ClearType
-                });
-
-            _Font2 = new Font(
-                Drawing.Direct3DDevice,
-                new FontDescription
-                {
-                    FaceName = "Segoi UI",
-                    Height = 11,
-                    Weight = FontWeight.Bold,
-                    OutputPrecision = FontPrecision.TrueType,
-                    Quality = FontQuality.ClearType
-                });
+            Chat.Print("<font color='#FF4444'>[Twitch#:</font> <font color='#A66EFF'>Damage Indicator</font><font color='#FF4444'>] => Successfully loaded</font>");
+            Drawing.OnEndScene += OnEndScene;
         }
 
-        private static void Drawing_OnEndScene(EventArgs args)
+        private static void OnEndScene(EventArgs args)
         {
-            foreach (
-                var enemy in
-                    EntityManager.Heroes.Enemies.Where(e => e.IsValid && e.IsHPBarRendered && e.TotalShieldHealth() > 10 && e.IsVenom())
-                )
+            foreach (var enemy in EntityManager.Heroes.Enemies.Where(x => x.VisibleOnScreen && x.IsVenom()))
             {
+                //Our Source Damage
                 var damage = DamageHandler.SD(enemy);
+
+                if (damage < 1) return;
+
+                //Our Menu Value for enable Damage Indicator
                 if (MenuHandler.drawings["di"].Cast<CheckBox>().CurrentValue)
                 {
-                    //Drawing Line Over Enemies Helth bar
-                    var dmgPer = (enemy.TotalShieldHealth() - damage > 0 ? enemy.TotalShieldHealth() - damage : 0) /
-                                 enemy.TotalShieldMaxHealth();
-                    var currentHPPer = enemy.TotalShieldHealth() / enemy.TotalShieldMaxHealth();
-                    var initPoint = new Vector2((int)(enemy.HPBarPosition.X + XOff + dmgPer * Width),
+                    //Health Calculations
+                    var dmgPer = (enemy.TotalShieldHealth() - damage > 0 ? enemy.TotalShieldHealth() - damage : 0) / enemy.TotalShieldMaxHealth();
+                    var currentHPperc = enemy.TotalShieldHealth() / enemy.TotalShieldMaxHealth();
+
+                    //Points
+                    var start = new Vector2((int)(enemy.HPBarPosition.X + XOff + dmgPer * Width),
                         (int)enemy.HPBarPosition.Y + YOff);
-                    var endPoint = new Vector2((int)(enemy.HPBarPosition.X + XOff + currentHPPer * Width) + 1,
+                    var end = new Vector2((int)(enemy.HPBarPosition.X + XOff + currentHPperc * Width) + 1,
                         (int)enemy.HPBarPosition.Y + YOff);
 
-                    Line.DrawLine(System.Drawing.Color.FromArgb(130, System.Drawing.Color.OrangeRed), Thick, initPoint, endPoint);
+                    //Start Drawing Line
+                    Drawing.DrawLine(start, end, thick, Color.FromArgb(170, Color.OrangeRed));
 
-                    //Percent
+                    //Offsets
                     var posXPer = (int)enemy.HPBarPosition[0] - 28;
                     var posYPer = (int)enemy.HPBarPosition[1];
-                    _Font.DrawText(null, string.Concat(Math.Ceiling((int)damage / enemy.TotalShieldHealth() * 100), "%"),
-                        posXPer, posYPer, Color.WhiteSmoke);
+
+                    //Health Calculations
+                    var damagepercent = (damage / enemy.TotalShieldHealth()) * 100;
+                    var percent = damagepercent > 100 ? 100 : damagepercent;
+
+                    //Start Drawing Text
+                    Drawing.DrawText(posXPer, posYPer, Color.WhiteSmoke, string.Concat(Math.Ceiling(percent), "%"));
                 }
             }
         }

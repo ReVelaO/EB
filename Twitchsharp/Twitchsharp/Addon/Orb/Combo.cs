@@ -59,21 +59,7 @@ namespace Twitchsharp.Addon.Orb
                 if (t != null)
                 {
                     //Alone Logic
-                    /*var allowa = MenuHandler.combo["allowa"].Cast<Slider>().CurrentValue;
-                    var allowe = MenuHandler.combo["allowe"].Cast<Slider>().CurrentValue;*/
-                    /*if (Twitch.CountAlliesInRange(915) <= allowa && t.CountEnemyAlliesInRangeWithPrediction(915) <= allowe)
-                    {
-                        if (t.IsInMinimumRange(Brain.BaseAA, Brain.ExtendedAA))
-                        {
-                            var hp = Prediction.Health.GetPrediction(t, (int)Twitch.AttackCastDelay);
-                            var dmglogic = Twitch.GetAutoAttackDamage(t, true) * MenuHandler.combo["multipler"].Cast<Slider>().CurrentValue;
-                            if (dmglogic >= hp)
-                            {
-                                SpellHandler.R.Cast();
-                            }
-                        }
-                    }*/
-                    if (Twitch.CountAlliesInRange(915) <= 1 && t.CountEnemiesInRange(915) <= 1)
+                    if (t.CountAlliesInRange(Brain.BaseAA) == 0)
                     {
                         if (t.IsInMinimumRange(Brain.BaseAA, Brain.ExtendedAA))
                         {
@@ -81,7 +67,9 @@ namespace Twitchsharp.Addon.Orb
                             {
                                 var hp = Prediction.Health.GetPrediction(t, (int)Twitch.AttackCastDelay);
                                 var dmglogic = Twitch.GetAutoAttackDamage(t, true) * MenuHandler.combo["multipler"].Cast<Slider>().CurrentValue;
-                                if (Twitch.GetAutoAttackDamage(t, true) * 1 > hp) return;
+
+                                if (Twitch.GetAutoAttackDamage(t, true) * 2 > hp) return;
+
                                 if (dmglogic >= hp && SpellHandler.R.IsReady())
                                 {
                                     SpellHandler.R.Cast();
@@ -96,8 +84,8 @@ namespace Twitchsharp.Addon.Orb
                     //TF Logic
                     if (MenuHandler.combo["tf"].Cast<CheckBox>().CurrentValue)
                     {
-                        if (Twitch.CountAlliesInRange(915) > t.CountEnemiesInRange(915)
-                            && t.CountAlliesInRange(400) > 0)
+                        if (Twitch.CountAlliesInRange(1000) > t.CountEnemiesInRange(1500)
+                            && t.CountAlliesInRange(500) > 0)
                         {
                             if (t.IsInMinimumRange(Brain.BaseAA, Brain.ExtendedAA))
                             {
@@ -107,7 +95,9 @@ namespace Twitchsharp.Addon.Orb
                     }
                     else
                     {
-                        if (t.CountAlliesInRange(400) > 0)
+                        if (t.CountAlliesInRange(500) > 0
+                            && Twitch.CountAlliesInRange(1000) > 1
+                            && Twitch.CountEnemiesInRange(1500) > 1)
                         {
                             if (t.IsInMinimumRange(Brain.BaseAA, Brain.ExtendedAA))
                             {
