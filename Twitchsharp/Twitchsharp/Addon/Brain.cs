@@ -1,5 +1,6 @@
 ﻿using EloBuddy;
 using EloBuddy.SDK;
+using SharpDX;
 using System.Linq;
 
 namespace Twitchsharp.Addon
@@ -20,6 +21,13 @@ namespace Twitchsharp.Addon
         public static bool IsInMinimumRange(this Obj_AI_Base obj, float min, float max)
         {
             return !obj.IsInRange(Twitch, min) && obj.IsInRange(Twitch, max);
+        }
+
+        public static int CountEnemiesInLine(this Obj_AI_Base obj, Vector3 endpos, float width, float range)
+        {
+            var line = new Geometry.Polygon.Rectangle(obj.Position, endpos, width);
+            var enemies = EntityManager.Heroes.Enemies.Where(x => line.IsInside(x) && x.IsValidTarget() && x.IsInRange(obj, range)).Count();
+            return enemies;
         }
 
         public static bool IsAAExtended(this Obj_AI_Base obj)

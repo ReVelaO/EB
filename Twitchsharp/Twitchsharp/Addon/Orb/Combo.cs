@@ -81,6 +81,11 @@ namespace Twitchsharp.Addon.Orb
                             }
                         }
                     }
+                    //Situation Logic 0
+                    if (Twitch.CountEnemiesInLine(t.Position, 65, Brain.ExtendedAA + 185) >= 2)
+                    {
+                        if (SpellHandler.R.IsReady()) SpellHandler.R.Cast();
+                    }
                     //TF Logic
                     if (MenuHandler.combo["tf"].Cast<CheckBox>().CurrentValue)
                     {

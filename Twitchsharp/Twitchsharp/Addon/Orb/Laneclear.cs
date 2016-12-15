@@ -33,12 +33,9 @@ namespace Twitchsharp.Addon.Orb
                     {
                         if (SpellHandler.E.IsReady()) SpellHandler.E.Cast();
                     }
-                    else
+                    if (minions.Count(c => Brain.CountVenom(c) >= MenuHandler.laneclear["estacks"].Cast<Slider>().CurrentValue) >= MenuHandler.laneclear["ehit"].Cast<Slider>().CurrentValue)
                     {
-                        if (minions.Count(c => Brain.CountVenom(c) >= MenuHandler.laneclear["estacks"].Cast<Slider>().CurrentValue) >= MenuHandler.laneclear["ehit"].Cast<Slider>().CurrentValue)
-                        {
-                            if (SpellHandler.E.IsReady()) SpellHandler.E.Cast();
-                        }
+                        if (SpellHandler.E.IsReady()) SpellHandler.E.Cast();
                     }
                 }
             }

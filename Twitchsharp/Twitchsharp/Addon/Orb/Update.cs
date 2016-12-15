@@ -14,10 +14,10 @@ namespace Twitchsharp.Addon.Orb
         {
             if (MenuHandler.killsteal["aa"].Cast<CheckBox>().CurrentValue)
             {
-                var enemies = EntityManager.Heroes.Enemies.Where(x => x.IsValid && !x.IsDead && !x.IsInvulnerable).FirstOrDefault(d => d.IsInRange(Twitch, Brain.GetRealAA()));
+                var enemies = EntityManager.Heroes.Enemies.Where(x => x.IsValid && !x.IsDead && !x.IsInvulnerable && Prediction.Health.GetPrediction(x, (int)Twitch.AttackCastDelay) < Twitch.GetAutoAttackDamage(x, true)).FirstOrDefault(d => d.IsInRange(Twitch, Brain.GetRealAA()));
                 if (enemies != null && Orbwalker.CanAutoAttack)
                 {
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, enemies);
+                    Player.IssueOrder(GameObjectOrder.AttackTo, enemies);
                 }
             }
 

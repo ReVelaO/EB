@@ -14,7 +14,7 @@ namespace Twitchsharp.Addon
         public static void Load()
         {
             Game.OnTick += OnTick;
-            Game.OnUpdate += Orb.Update.Get;
+            Game.OnTick += Orb.Update.Get;
             Drawing.OnDraw += OnDraw;
         }
 
@@ -32,6 +32,10 @@ namespace Twitchsharp.Addon
                     if (Twitch.ManaPercent >= MenuHandler.laneclear["sm"].Cast<Slider>().CurrentValue)
                     {
                         Orb.Laneclear.Get();
+                    }
+                    else
+                    {
+                        return;
                     }
                 }
                 else
