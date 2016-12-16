@@ -2,48 +2,68 @@
 {
     using EloBuddy;
     using EloBuddy.SDK;
-    using EloBuddy.SDK.Menu.Values;
     using SharpDX;
     using System;
-    internal class BallManager
+    using System.Linq;
+
+    public static class BallManager
     {
         public static Vector3 Ball;
+        public static bool IsInFloor;
+
+        private static AIHeroClient Orianna => Player.Instance;
+
+        public static bool HasBall(this Obj_AI_Base obj) => obj.HasBuff("orianaghostself");
+
         public static void Load()
         {
             Game.OnUpdate += Game_OnUpdate;
-            Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
+            GameObject.OnCreate += OnCreate;
         }
-        internal class WBall
+
+        public static class WBall
         {
             public static int CountEnemyMinionsNear => Ball != null ? Ball.CountEnemyMinionsInRangeWithPrediction(250, 250) : 0;
             public static int CountEnemyHeroesNear => Ball != null ? Ball.CountEnemyHeroesInRangeWithPrediction(250, 250) : 0;
-            public static bool IsInBall(Obj_AI_Base e) => e.IsInRange(Ball, 250);
+            public const int CastDelay = 250;
+            public const int Width = 250;
+
+            public static bool IsInBall(Obj_AI_Base e) => e.IsInRange(Ball, Width);
         }
-        internal class RBall
+
+        public static class RBall
         {
             public static int CountEnemyMinionsNear => Ball != null ? Ball.CountEnemyMinionsInRangeWithPrediction(410, 750) : 0;
             public static int CountEnemyHeroesNear => Ball != null ? Ball.CountEnemyHeroesInRangeWithPrediction(410, 750) : 0;
             public const int CastDelay = 750;
-            public static bool IsInBall(Obj_AI_Base e) => e.IsInRange(Ball, 410);
+            public const int Width = 410;
+
+            public static bool IsInBall(Obj_AI_Base e) => e.IsInRange(Ball, Width);
         }
-        static void Game_OnUpdate(EventArgs args)
+
+        private static void Game_OnUpdate(EventArgs args)
         {
-            if (MenuManager.mdrawings["ball"].Cast<CheckBox>().CurrentValue)
+            if (Player.Instance.HasBall())
             {
-                if (Player.HasBuff("orianaghostself"))
-                {
-                    Ball = Player.Instance.Position;
-                }
+                Ball = Orianna.Position;
+                IsInFloor = false;
+            }
+
+            var ally = EntityManager.Heroes.Allies.Where(x => x.HasBuff("OrianaGhost")).FirstOrDefault();
+            if (ally != null)
+            {
+                Ball = ally.Position;
+                IsInFloor = false;
             }
         }
-        static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+
+        private static void OnCreate(GameObject obj, EventArgs args)
         {
-            if (sender.IsMe)
+            var particle = obj as Obj_GeneralParticleEmitter;
+            if (particle != null && particle.Name == "Orianna_Base_Q_yomu_ring_green.troy")
             {
-                if (args.Slot == SpellSlot.Q)
-                {
-                    Ball = args.End;
-                }
+                Ball = particle.Position;
+                IsInFloor = true;
             }
         }
     }

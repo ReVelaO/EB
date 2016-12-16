@@ -1,0 +1,11 @@
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Debug\Sur's Orianna™.exe.config
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Debug\Sur's Orianna™.exe
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Debug\Sur's Orianna™.pdb
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Debug\EloBuddy.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Debug\EloBuddy.SDK.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Debug\SharpDX.Direct3D9.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Debug\SharpDX.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Debug\EloBuddy.Sandbox.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Debug\Newtonsoft.Json.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\obj\Debug\Sur's Orianna™.exe
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\obj\Debug\Sur's Orianna™.pdb

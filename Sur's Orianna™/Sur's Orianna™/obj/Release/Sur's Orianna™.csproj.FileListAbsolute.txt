@@ -1,0 +1,12 @@
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Release\Sur's Orianna™.exe.config
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Release\Sur's Orianna™.exe
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Release\Sur's Orianna™.pdb
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Release\EloBuddy.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Release\EloBuddy.SDK.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Release\SharpDX.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Release\EloBuddy.Sandbox.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\bin\Release\Newtonsoft.Json.dll
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\obj\Release\Sur's Orianna™.csprojResolveAssemblyReference.cache
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\obj\Release\Sur's Orianna™.exe
+C:\Users\drago\Documents\Visual Studio 2015\Projects\Sur's Orianna™\Sur's Orianna™\obj\Release\Sur's Orianna™.pdb

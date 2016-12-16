@@ -1,24 +1,28 @@
 ﻿namespace Orianna.Addon.Orb
 {
-    using System.Linq;
+    using EloBuddy;
     using EloBuddy.SDK;
     using EloBuddy.SDK.Enumerations;
     using EloBuddy.SDK.Menu.Values;
-    internal class Jungleclear
+    using System.Linq;
+
+    public static class Jungleclear
     {
+        private static AIHeroClient Orianna => Player.Instance;
+
         public static void Get()
         {
-            var m = EntityManager.MinionsAndMonsters.GetJungleMonsters().OrderByDescending(o => o.MaxHealth).FirstOrDefault(d => d.IsValidTarget(SpellManager.Q.Range));
-            if (m != null)
+            var m = EntityManager.MinionsAndMonsters.GetJungleMonsters(Orianna.ServerPosition).OrderByDescending(o => o.MaxHealth).Where(x => x.IsInRange(Orianna, SpellManager.Q.Range)).FirstOrDefault();
+            if (m.IsValidTarget())
             {
                 if (MenuManager.mjungle["q"].Cast<CheckBox>().CurrentValue)
                 {
                     if (SpellManager.Q.IsReady())
                     {
                         var p = SpellManager.Q.GetPrediction(m);
-                        if (p.HitChance >= HitChance.Medium)
+                        if (p.HitChance > HitChance.Low)
                         {
-                            SpellManager.Q.Cast(p.CastPosition);
+                            SpellManager.Q.Cast(m);
                         }
                     }
                 }

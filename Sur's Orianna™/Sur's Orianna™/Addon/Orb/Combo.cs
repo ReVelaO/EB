@@ -2,32 +2,28 @@
 {
     using EloBuddy;
     using EloBuddy.SDK;
+    using EloBuddy.SDK.Enumerations;
     using EloBuddy.SDK.Menu.Values;
-    internal class Combo
+
+    public static class Combo
     {
         public static void Get()
         {
-            if (MenuManager.mcombo["q"].Cast<CheckBox>().CurrentValue)
+            var t = TargetSelector.GetTarget(SpellManager.Q.Range, DamageType.Magical);
+            if (t.IsValidTarget())
             {
-                var t = TargetSelector.GetTarget(SpellManager.Q.Range + 200, DamageType.Magical);
-
-                if (t != null && t.IsValidTarget(SpellManager.Q.Range + 200))
+                if (MenuManager.mcombo["q"].Cast<CheckBox>().CurrentValue)
                 {
                     if (SpellManager.Q.IsReady())
                     {
                         var p = SpellManager.Q.GetPrediction(t);
-                        if (p.HitChancePercent >= MenuManager.mcombo["qh"].Cast<Slider>().CurrentValue)
+                        if (p != null && p.HitChance > HitChance.Medium)
                         {
-                            SpellManager.Q.Cast(p.CastPosition);
+                            SpellManager.Q.Cast(t);
                         }
                     }
                 }
-            }
-            if (MenuManager.mcombo["w"].Cast<CheckBox>().CurrentValue)
-            {
-                var t = TargetSelector.GetTarget(SpellManager.ActiveRange, DamageType.Magical);
-
-                if (t != null && t.IsValidTarget(SpellManager.ActiveRange))
+                if (MenuManager.mcombo["w"].Cast<CheckBox>().CurrentValue)
                 {
                     if (SpellManager.W.IsReady())
                     {
@@ -37,23 +33,27 @@
                         }
                     }
                 }
-            }
-            if (MenuManager.mcombo["r"].Cast<CheckBox>().CurrentValue)
-            {
-                var t = TargetSelector.GetTarget(SpellManager.ActiveRange, DamageType.Magical);
 
-                if (t != null && t.IsValidTarget(SpellManager.ActiveRange))
+                if (MenuManager.mcombo["r"].Cast<CheckBox>().CurrentValue)
                 {
                     if (SpellManager.R.IsReady())
                     {
-                        if (BallManager.RBall.CountEnemyHeroesNear == 1
-                            && DamageManager.HPrediction(t, BallManager.RBall.CastDelay) < DamageManager.R(t) && MenuManager.mcombo["re"].Cast<CheckBox>().CurrentValue)
+                        if (MenuManager.mcombo["re"].Cast<CheckBox>().CurrentValue)
                         {
-                            SpellManager.R.Cast();
+                            var hp = DamageManager.HPrediction(t, BallManager.RBall.CastDelay);
+
+                            if (BallManager.RBall.IsInBall(t)
+                                && (DamageManager.R(t) + Player.Instance.GetAutoAttackDamage(t, true) > hp))
+                            {
+                                SpellManager.R.Cast();
+                            }
                         }
-                        else if (BallManager.RBall.CountEnemyHeroesNear >= MenuManager.mcombo["minr"].Cast<Slider>().CurrentValue)
+                        else
                         {
-                            SpellManager.R.Cast();
+                            if (BallManager.RBall.CountEnemyHeroesNear >= MenuManager.mcombo["minr"].Cast<Slider>().CurrentValue)
+                            {
+                                SpellManager.R.Cast();
+                            }
                         }
                     }
                 }
