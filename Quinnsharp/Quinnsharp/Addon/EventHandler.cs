@@ -16,7 +16,6 @@ namespace Quinnsharp.Addon
             Game.OnUpdate += OnUpdate;
             Orbwalker.OnPostAttack += OnAfterAttack;
             Drawing.OnDraw += OnDraw;
-            //Spellbook.OnCastSpell += OnCastSpell;
         }
 
         private static void OnTick(EventArgs args)
@@ -77,19 +76,5 @@ namespace Quinnsharp.Addon
                 }
             }
         }
-
-        /*private static void OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
-        {
-            if (!sender.Owner.IsMe) return;
-
-            if (args.Slot == SpellSlot.R)
-            {
-                Orbwalker.DisableMovement = true;
-            }
-            else
-            {
-                Orbwalker.DisableMovement = false;
-            }
-        }*/
     }
 }

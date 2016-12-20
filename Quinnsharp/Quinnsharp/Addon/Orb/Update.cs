@@ -37,9 +37,7 @@ namespace Quinnsharp.Addon.Orb
             if (SpellHandler.E.IsReady())
             {
                 var enemy = EntityManager.Heroes.Enemies.Where(x => x.IsInRange(Quinn, SpellHandler.E.Range) && x.HPrediction(250) < x.GetEDamage()).FirstOrDefault();
-                if (enemy != null
-                    && !enemy.IsInvulnerable
-                    && !enemy.IsDead && !Orbwalker.CanAutoAttack)
+                if (enemy.IsHitable() && !Orbwalker.CanAutoAttack)
                 {
                     SpellHandler.E.Cast(enemy);
                 }
