@@ -12,23 +12,23 @@
 
         public static void Get()
         {
-            var m = EntityManager.MinionsAndMonsters.GetJungleMonsters(Orianna.ServerPosition).OrderByDescending(o => o.MaxHealth).Where(x => x.IsInRange(Orianna, SpellManager.Q.Range)).FirstOrDefault();
-            if (m.IsValidTarget())
+            var m = EntityManager.MinionsAndMonsters
+                .GetJungleMonsters(Orianna.ServerPosition)
+                    .OrderByDescending(o => o.MaxHealth)
+                        .FirstOrDefault(x => x.IsInRange(Orianna, SpellManager.Q.Range));
+
+            if (m != null && m.IsValidTarget())
             {
                 if (MenuManager.mjungle["q"].Cast<CheckBox>().CurrentValue)
                 {
                     if (SpellManager.Q.IsReady())
                     {
-                        var p = SpellManager.Q.GetPrediction(m);
-                        if (p.HitChance > HitChance.Low)
-                        {
-                            SpellManager.Q.Cast(m);
-                        }
+                        SpellManager.Q.Cast(SpellManager.Q.GetPrediction(m).CastPosition);
                     }
                 }
                 if (MenuManager.mjungle["w"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (SpellManager.W.IsReady())
+                    if (SpellManager.W.IsReady() && BallManager.IsInFloor)
                     {
                         if (BallManager.WBall.IsInBall(m))
                         {

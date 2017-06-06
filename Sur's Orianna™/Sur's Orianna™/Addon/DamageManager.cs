@@ -7,7 +7,8 @@
     {
         private static AIHeroClient Orianna => Player.Instance;
 
-        public static float HPrediction(Obj_AI_Base e, int d = 250) => Prediction.Health.GetPrediction(e, d);
+        public static float HPrediction(Obj_AI_Base e, int d = 250) 
+            => Prediction.Health.GetPrediction(e, d);
 
         public static float Q(Obj_AI_Base e)
         {

@@ -35,7 +35,7 @@
                     UtilsManager.AutoIgnite();
                 }
             }
-            if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
                 Orb.Combo.Get();
             }
@@ -49,10 +49,9 @@
             }
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee))
             {
-                if (!SpellManager.W.IsReady()) return;
-
                 if (MenuManager.mflee["w"].Cast<CheckBox>().CurrentValue)
                 {
+                    if (!SpellManager.W.IsReady()) return;
                     if (Player.Instance.HasBall())
                     {
                         SpellManager.W.Cast();
@@ -63,7 +62,7 @@
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            if (Orianna.IsDead) return;
+            if (Orianna.IsDead || Orianna.IsRecalling()) return;
 
             if (MenuManager.mdrawings["q"].Cast<CheckBox>().CurrentValue)
             {

@@ -9,23 +9,24 @@
     {
         public static void Get()
         {
-            var t = TargetSelector.GetTarget(SpellManager.Q.Range, DamageType.Magical);
-            if (t.IsValidTarget())
+            var t = TargetSelector.GetTarget(SpellManager.Q.Range + Player.Instance.BoundingRadius, DamageType.Magical);
+            if (t != null && !t.HasUndyingBuff())
             {
                 if (MenuManager.mcombo["q"].Cast<CheckBox>().CurrentValue)
                 {
                     if (SpellManager.Q.IsReady())
                     {
                         var p = SpellManager.Q.GetPrediction(t);
-                        if (p != null && p.HitChance > HitChance.Medium)
+                        if (p != null && 
+                            p.HitChancePercent > 60 || p.HitChance == HitChance.High)
                         {
-                            SpellManager.Q.Cast(t);
+                            SpellManager.Q.Cast(p.CastPosition);
                         }
                     }
                 }
                 if (MenuManager.mcombo["w"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (SpellManager.W.IsReady())
+                    if (SpellManager.W.IsReady() && BallManager.IsInFloor)
                     {
                         if (BallManager.WBall.CountEnemyHeroesNear > 0)
                         {
@@ -36,7 +37,7 @@
 
                 if (MenuManager.mcombo["r"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (SpellManager.R.IsReady())
+                    if (SpellManager.R.IsReady() && BallManager.IsInFloor)
                     {
                         if (MenuManager.mcombo["re"].Cast<CheckBox>().CurrentValue)
                         {

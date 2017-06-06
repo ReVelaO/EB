@@ -35,7 +35,7 @@
                 {
                     var minhit = MenuManager.mlane["minw"].Cast<Slider>().CurrentValue;
 
-                    if (SpellManager.W.IsReady())
+                    if (SpellManager.W.IsReady() && BallManager.IsInFloor)
                     {
                         if (BallManager.WBall.CountEnemyMinionsNear >= minhit)
                         {

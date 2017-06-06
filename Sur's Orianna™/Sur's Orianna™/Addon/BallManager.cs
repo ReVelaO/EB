@@ -49,7 +49,10 @@
                 IsInFloor = false;
             }
 
-            var ally = EntityManager.Heroes.Allies.Where(x => x.HasBuff("OrianaGhost")).FirstOrDefault();
+            var ally = EntityManager.Heroes
+                .Allies
+                    .FirstOrDefault(x => x.HasBuff("OrianaGhost"));
+
             if (ally != null)
             {
                 Ball = ally.Position;
@@ -60,7 +63,8 @@
         private static void OnCreate(GameObject obj, EventArgs args)
         {
             var particle = obj as Obj_GeneralParticleEmitter;
-            if (particle != null && particle.Name == "Orianna_Base_Q_yomu_ring_green.troy")
+            if (particle != null && 
+                particle.Name == "Orianna_Base_Q_yomu_ring_green.troy")
             {
                 Ball = particle.Position;
                 IsInFloor = true;
