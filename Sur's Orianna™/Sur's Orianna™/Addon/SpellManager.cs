@@ -12,7 +12,7 @@
 
         public static void Load()
         {
-            Q = new Spell.Skillshot(SpellSlot.Q, 810, SkillShotType.Circular, 1, 1200, 175);
+            Q = new Spell.Skillshot(SpellSlot.Q, 810, SkillShotType.Circular, 1, 1200, 120);
             Q.AllowedCollisionCount = -1;
             W = new Spell.Active(SpellSlot.W);
             E = new Spell.Targeted(SpellSlot.E, 1100);

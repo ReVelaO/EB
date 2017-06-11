@@ -101,40 +101,51 @@
 
         private static void OnBasicAttack(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
-            if (sender.IsAlly || sender.IsMe) return;
+            var shieldMenu = MenuManager.mshield;
 
-            if (!SpellManager.E.IsReady()) return;
-
-            if (sender.IsEnemy && sender != null)
+            if (args.Target.IsMe && sender.IsEnemy)
             {
-                if (args.Target.IsMe && args.Target != null)
+                if (sender is Obj_AI_Turret && shieldMenu["tt"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (MenuManager.mshield["b"].Cast<CheckBox>().CurrentValue)
+                    if (SpellManager.E.IsReady())
                     {
-                        if (sender is AIHeroClient)
-                        {
-                            SpellManager.E.Cast(Orianna);
-                        }
-                    }
-
-                    if (MenuManager.mshield["m"].Cast<CheckBox>().CurrentValue)
-                    {
-                        if (sender.IsMinion && sender.CountEnemyMinionsInRange(433) > 3)
-                        {
-                            SpellManager.E.Cast(Orianna);
-                        }
+                        SpellManager.E.Cast(Player.Instance);
                     }
                 }
-                if (args.Target.IsAlly && !args.Target.IsMe && args.Target != null && args.Target.IsInRange(Orianna, SpellManager.E.Range))
+                if (sender is AIHeroClient && shieldMenu["b"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (MenuManager.mshield["ba"].Cast<CheckBox>().CurrentValue)
+                    if (SpellManager.E.IsReady())
                     {
-                        if (sender is AIHeroClient)
-                        {
-                            var ally = args.Target as Obj_AI_Base;
+                        SpellManager.E.Cast(Player.Instance);
+                    }
+                }
+                if (sender.IsMonster && shieldMenu["m"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (SpellManager.E.IsReady())
+                    {
+                        SpellManager.E.Cast(Player.Instance);
+                    }
+                }
+            }
 
-                            SpellManager.E.Cast(ally);
-                        }
+            if (args.Target.IsAlly && !args.Target.IsMe)
+            {
+                var ally = (AIHeroClient)args.Target;
+
+                if (sender is Obj_AI_Turret && shieldMenu["tta"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (SpellManager.E.IsReady() 
+                        && ally.IsInRange(Player.Instance, SpellManager.E.Range))
+                    {
+                        SpellManager.E.Cast(ally);
+                    }
+                }
+                if (sender is AIHeroClient && shieldMenu["ba"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (SpellManager.E.IsReady()
+                        && ally.IsInRange(Player.Instance, SpellManager.E.Range))
+                    {
+                        SpellManager.E.Cast(ally);
                     }
                 }
             }

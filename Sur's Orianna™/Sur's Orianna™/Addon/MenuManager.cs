@@ -23,14 +23,21 @@
             mcombo.Add("rblock", new CheckBox("BLOCK [R]", false));
             mcombo.AddSeparator(8);
             mcombo.Add("minr", new Slider("Min. Enemies [R]", 2, 1, 5));
+            mcombo.AddSeparator(16);
+            mcombo.Add("qp", new ComboBox("Q Prediction", 1, "CastPosition", "UnitPosition"));
+            mcombo.AddLabel("This adjust the throw ball X position.");
 
             mshield = menu.AddSubMenu("Shield [E]");
-            mshield.AddLabel("On me Settings");
+            mshield.AddLabel("Shield to me at");
+            mshield.Add("tt", new CheckBox("Shield me against AA by Enemy Turrents"));
+            mshield.AddSeparator(8);
             mshield.Add("b", new CheckBox("Shield me against AA by Enemy Heroes"));
             mshield.AddSeparator(8);
-            mshield.Add("m", new CheckBox("Shield me against AA by Enemy Minions"));
+            mshield.Add("m", new CheckBox("Shield me against AA by Enemy Monsters"));
             mshield.AddSeparator(8);
-            mshield.AddLabel("On Ally Settings");
+            mshield.AddLabel("Shield ally at");
+            mshield.Add("tta", new CheckBox("Shield ally against AA by Enemy Turrents"));
+            mshield.AddSeparator(8);
             mshield.Add("ba", new CheckBox("Shield ally against AA by Enemy Heroes"));
 
             mlane = menu.AddSubMenu("Laneclear");

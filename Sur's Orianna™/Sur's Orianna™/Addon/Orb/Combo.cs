@@ -9,18 +9,21 @@
     {
         public static void Get()
         {
-            var t = TargetSelector.GetTarget(SpellManager.Q.Range + Player.Instance.BoundingRadius, DamageType.Magical);
+            var t = TargetSelector.GetTarget(SpellManager.Q.Range + SpellManager.Q.Width, DamageType.Magical);
             if (t != null && !t.HasUndyingBuff())
             {
                 if (MenuManager.mcombo["q"].Cast<CheckBox>().CurrentValue)
                 {
                     if (SpellManager.Q.IsReady())
                     {
-                        var p = SpellManager.Q.GetPrediction(t);
-                        if (p != null && 
-                            p.HitChancePercent > 60 || p.HitChance == HitChance.High)
+                        switch (MenuManager.mcombo["qp"].Cast<ComboBox>().CurrentValue)
                         {
-                            SpellManager.Q.Cast(p.CastPosition);
+                            case 0:
+                                SpellManager.Q.Cast(SpellManager.Q.GetPrediction(t).CastPosition);
+                                break;
+                            case 1:
+                                SpellManager.Q.Cast(SpellManager.Q.GetPrediction(t).UnitPosition);
+                                break;
                         }
                     }
                 }

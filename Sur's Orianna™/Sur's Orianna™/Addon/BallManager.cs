@@ -8,12 +8,15 @@
 
     public static class BallManager
     {
+        //mah stuff ok, :?
+
         public static Vector3 Ball;
         public static bool IsInFloor;
 
         private static AIHeroClient Orianna => Player.Instance;
 
         public static bool HasBall(this Obj_AI_Base obj) => obj.HasBuff("orianaghostself");
+        public static bool NotMeBall(this Obj_AI_Base obj) => obj.HasBuff("OrianaGhost");
 
         public static void Load()
         {
@@ -45,29 +48,30 @@
         {
             if (Player.Instance.HasBall())
             {
-                Ball = Orianna.Position;
                 IsInFloor = false;
+                Ball = Orianna.Position;
+                SpellManager.Q.RangeCheckSource = Orianna.Position;
             }
 
             var ally = EntityManager.Heroes
                 .Allies
-                    .FirstOrDefault(x => x.HasBuff("OrianaGhost"));
+                    .FirstOrDefault(x => x.NotMeBall());
 
             if (ally != null)
             {
-                Ball = ally.Position;
                 IsInFloor = false;
+                Ball = ally.Position;
+                SpellManager.Q.RangeCheckSource = ally.Position;
             }
         }
 
-        private static void OnCreate(GameObject obj, EventArgs args)
+        private static void OnCreate(GameObject sender, EventArgs args)
         {
-            var particle = obj as Obj_GeneralParticleEmitter;
-            if (particle != null && 
-                particle.Name == "Orianna_Base_Q_yomu_ring_green.troy")
+            if (sender.Name.ToLower() == "orianna_base_q_yomu_ring_green.troy")
             {
-                Ball = particle.Position;
                 IsInFloor = true;
+                Ball = sender.Position;
+                SpellManager.Q.RangeCheckSource = sender.Position;
             }
         }
     }
