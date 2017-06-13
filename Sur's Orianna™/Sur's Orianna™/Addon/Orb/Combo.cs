@@ -16,20 +16,24 @@
                 {
                     if (SpellManager.Q.IsReady())
                     {
-                        switch (MenuManager.mcombo["qp"].Cast<ComboBox>().CurrentValue)
+                        var x = SpellManager.Q.GetPrediction(t);
+                        if (x != null)
                         {
-                            case 0:
-                                SpellManager.Q.Cast(SpellManager.Q.GetPrediction(t).CastPosition);
-                                break;
-                            case 1:
-                                SpellManager.Q.Cast(SpellManager.Q.GetPrediction(t).UnitPosition);
-                                break;
+                            switch (MenuManager.mcombo["qp"].Cast<ComboBox>().CurrentValue)
+                            {
+                                case 0:
+                                    SpellManager.Q.Cast(x.CastPosition);
+                                    break;
+                                case 1:
+                                    SpellManager.Q.Cast(x.UnitPosition);
+                                    break;
+                            }
                         }
                     }
                 }
                 if (MenuManager.mcombo["w"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (SpellManager.W.IsReady() && BallManager.IsInFloor)
+                    if (SpellManager.W.IsReady())
                     {
                         if (BallManager.WBall.CountEnemyHeroesNear > 0)
                         {
@@ -40,7 +44,7 @@
 
                 if (MenuManager.mcombo["r"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (SpellManager.R.IsReady() && BallManager.IsInFloor)
+                    if (SpellManager.R.IsReady())
                     {
                         if (MenuManager.mcombo["re"].Cast<CheckBox>().CurrentValue)
                         {

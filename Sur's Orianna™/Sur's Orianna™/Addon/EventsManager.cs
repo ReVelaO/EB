@@ -28,9 +28,8 @@
             }
             if (UtilsManager.HasIgnite)
             {
-                if (!UtilsManager.Ignite.IsReady()) return;
-
-                if (MenuManager.msum["i"].Cast<CheckBox>().CurrentValue)
+                if (UtilsManager.Ignite.IsReady() 
+                    && MenuManager.msum["i"].Cast<CheckBox>().CurrentValue)
                 {
                     UtilsManager.AutoIgnite();
                 }
@@ -51,8 +50,7 @@
             {
                 if (MenuManager.mflee["w"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (!SpellManager.W.IsReady()) return;
-                    if (Player.Instance.HasBall())
+                    if (SpellManager.W.IsReady() && Player.Instance.HasBall())
                     {
                         SpellManager.W.Cast();
                     }
@@ -153,11 +151,15 @@
 
         private static void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs args)
         {
-            if (args.Slot == SpellSlot.R
-                && MenuManager.mcombo["rblock"].Cast<CheckBox>().CurrentValue
-                && BallManager.RBall.CountEnemyHeroesNear == 0 && !UtilsManager.WillShock)
+            if (sender.Owner.IsMe && args.Slot == SpellSlot.R)
             {
-                args.Process = false;
+                if (MenuManager.mcombo["rblock"].Cast<CheckBox>().CurrentValue && !UtilsManager.WillShock)
+                {
+                    if (BallManager.RBall.CountEnemyHeroesNear == 0)
+                    {
+                        args.Process = false;
+                    }
+                }
             }
         }
     }
