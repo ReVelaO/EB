@@ -50,13 +50,13 @@ namespace Twitchsharp.Addon
             return EntityManager.Heroes.Enemies.Where(x => x.IsValid && !x.IsDead && x.IsInRange(Twitch, range)).Count();
         }
 
-        public static float BaseAA => 550;
+        public static float BaseAA => 615; //Do not change, is based on overlay in the game.
 
         public static float ExtendedAA => BaseAA + 300;
 
         public static float GetRealAA()
         {
-            float aa = 550;
+            float aa = 615;
             if (Twitch.IsAAExtended())
             {
                 aa = aa + 300;
