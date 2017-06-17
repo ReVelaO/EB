@@ -154,7 +154,7 @@ namespace Twitchsharp.Addon.Orb
                     {
                         if (t.CountAllyChampionsInRange(500) > 0
                             && Twitch.CountAllyChampionsInRange(1000) > 1
-                            && Twitch.CountAllyChampionsInRange(1500) > 1)
+                            && Twitch.CountEnemyChampionsInRange(1500) > 1)
                         {
                             if (t.IsInMinimumRange(Brain.BaseAA, Brain.ExtendedAA))
                             {
