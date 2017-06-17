@@ -16,7 +16,7 @@ namespace Twitchsharp.Addon
                 var Base = new float[] { 20, 35, 50, 65, 80 }[index];
                 var PerStacks = new float[] { 15, 20, 25, 30, 35 }[index];
                 var BonusAD = 0.25f * Twitch.FlatPhysicalDamageMod;
-                var BonusAP = 0.20f * Twitch.FlatMagicDamageMod;
+                var BonusAP = 0.20f * Twitch.TotalMagicDamage;
                 d = Base + ((PerStacks + BonusAD + BonusAP) * Brain.CountVenom(obj));
             }
             return Twitch.CalculateDamageOnUnit(obj, DamageType.Physical, d);
