@@ -5,7 +5,7 @@ namespace Twitchsharp.Addon
 {
     public static class MenuHandler
     {
-        public static Menu main, combo, laneclear, jungleclear, killsteal, drawings;
+        public static Menu main, combo, laneclear, jungleclear, killsteal, drawings, misc;
 
         public static void Load()
         {
@@ -57,6 +57,11 @@ namespace Twitchsharp.Addon
             drawings.Add("e", new CheckBox("Draw E"));
             drawings.AddSeparator(8);
             drawings.Add("di", new CheckBox("Draw Damage Indicator [E Damage]"));
+            
+            misc = main.AddSubMenu("Misc");
+            misc.AddLabel("B with Q");
+            misc.Add("QRecall", new CheckBox("Active"));
+            misc.Add("QRecall2", new KeyBind("Q Recall Key", false, KeyBind.BindTypes.HoldActive, 'B'));
         }
     }
 }
