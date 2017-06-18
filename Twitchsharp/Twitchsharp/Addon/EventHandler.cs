@@ -20,6 +20,12 @@ namespace Twitchsharp.Addon
 
         private static void OnTick(EventArgs args)
         {
+                        //QSettings
+            if (MenuHandler.misc["QRecall"].Cast<CheckBox>().CurrentValue && (MenuHandler.misc["QRecall2"].Cast<KeyBind>().CurrentValue) && SpellHandler.Q.IsReady())
+            {
+                SpellHandler.Q.Cast();
+            }
+            
             if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
             {
                 Orb.Combo.Get();
